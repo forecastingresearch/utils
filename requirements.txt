@@ -1,0 +1,7 @@
+google-cloud-storage>=2.14.0
+
+# dev
+isort
+black
+flake8
+pydocstyle

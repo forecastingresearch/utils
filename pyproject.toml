@@ -1,0 +1,10 @@
+[tool.black]
+line-length = 100
+force-exclude = '''
+(
+    ^/venv/
+    | ^/storage_download_file.py
+    | ^/storage/storage_upload_file.py
+    | ^/storage/storage_list_files_with_prefix.py
+)
+'''
