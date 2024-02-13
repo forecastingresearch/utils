@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright 2019 Google Inc. All Rights Reserved.
+# Copyright 2024 Forecasting Research Institute. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -41,7 +42,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     # generation-match precondition using its generation number.
     generation_match_precondition = 0
 
-    blob.upload_from_filename(source_file_name, if_generation_match=generation_match_precondition)
+    blob.upload_from_filename(source_file_name)
 
     print(
         f"File {source_file_name} uploaded to {destination_blob_name}."
