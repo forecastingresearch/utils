@@ -38,3 +38,21 @@ def download(
     storage_download_file.download_blob(bucket_name, filename, local_filename)
 
     return local_filename
+
+
+def download_no_error_message_on_404(
+    bucket_name: str,
+    filename: str,
+    local_filename: str = None,
+) -> str:
+    """Wrap `download()` function that doesn't print "Error" message if requested file not found."""
+    try:
+        local_filename = download(
+            bucket_name=bucket_name,
+            filename=filename,
+            local_filename=local_filename,
+        )
+    except Exception:
+        print(f"GCP Storage: could not download {bucket_name}/{filename}.")
+
+    return local_filename
