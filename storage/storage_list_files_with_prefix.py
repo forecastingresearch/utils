@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright 2019 Google Inc. All Rights Reserved.
+# Copyright 2024 Forecasting Research Institute. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -20,7 +21,7 @@ import sys
 from google.cloud import storage
 
 
-def list_blobs_with_prefix(bucket_name, prefix, delimiter=None):
+def list_blobs_with_prefix(bucket_name, prefix):
     """Lists all the blobs in the bucket that begin with the prefix.
 
     This can be used to list all blobs in a "folder", e.g. "public/".
@@ -51,17 +52,10 @@ def list_blobs_with_prefix(bucket_name, prefix, delimiter=None):
     storage_client = storage.Client()
 
     # Note: Client.list_blobs requires at least package version 1.17.0.
-    blobs = storage_client.list_blobs(bucket_name, prefix=prefix, delimiter=delimiter)
+    blobs = storage_client.list_blobs(bucket_name, prefix=prefix, delimiter=None)
 
     # Note: The call returns a response only when the iterator is consumed.
-    print("Blobs:")
-    for blob in blobs:
-        print(blob.name)
-
-    if delimiter:
-        print("Prefixes:")
-        for prefix in blobs.prefixes:
-            print(prefix)
+    return [blob.name for blob in blobs]
 
 
 # [END storage_list_files_with_prefix]
