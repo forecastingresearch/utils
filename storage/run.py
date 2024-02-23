@@ -20,17 +20,19 @@ def list_with_prefix(
 def upload(
     bucket_name: str,
     local_filename: str,
-    destination_folder: str,
+    destination_folder: str = "",
     *,
     filename: str = None,
 ):
     """Facilitate uploading file to cloud storage."""
     if not filename:
         filename = basename(local_filename)
+    destination_filename = f"{destination_folder}/{filename}" if destination_folder else filename
+
     storage_upload_file.upload_blob(
         bucket_name,
         local_filename,
-        f"{destination_folder}/{filename}",
+        destination_filename,
     )
 
 
