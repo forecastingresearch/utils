@@ -3,7 +3,12 @@
 import pathlib
 from os.path import basename, split
 
-from . import storage_download_file, storage_list_files_with_prefix, storage_upload_file
+from . import (
+    storage_download_file,
+    storage_list_files,
+    storage_list_files_with_prefix,
+    storage_upload_file,
+)
 
 
 def list_with_prefix(
@@ -14,6 +19,15 @@ def list_with_prefix(
     return storage_list_files_with_prefix.list_blobs_with_prefix(
         bucket_name=bucket_name,
         prefix=prefix,
+    )
+
+
+def list(
+    bucket_name: str,
+):
+    """List files in the folder."""
+    return storage_list_files.list_blobs(
+        bucket_name=bucket_name,
     )
 
 
