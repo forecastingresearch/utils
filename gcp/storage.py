@@ -83,3 +83,17 @@ def download_no_error_message_on_404(
         print(f"GCP Storage: could not download {bucket_name}/{filename}.")
 
     return local_filename
+
+
+def get_last_modified_time(bucket_name: str, filename: str):
+    """Return the last modified date for the given file."""
+    from google.cloud import storage
+
+    try:
+        client = storage.Client()
+        bucket = client.get_bucket(bucket_name)
+        blob = bucket.get_blob(filename)
+        return blob.updated if blob else None
+    except Exception:
+        print(f"GCP Storage: could not find modified time of {bucket_name}/{filename}.")
+        return None
