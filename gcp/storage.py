@@ -90,8 +90,8 @@ def get_last_modified_time(bucket_name: str, filename: str):
     from google.cloud import storage
 
     try:
-        client = storage.Client()
-        bucket = client.get_bucket(bucket_name)
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
         blob = bucket.get_blob(filename)
         return blob.updated if blob else None
     except Exception:
