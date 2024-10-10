@@ -25,13 +25,21 @@ def list_blobs(bucket_name):
     """Lists all the blobs in the bucket."""
     # bucket_name = "your-bucket-name"
 
-    storage_client = storage.Client()
+    storage_client = None
+    try:
+        storage_client = storage.Client()
 
-    # Note: Client.list_blobs requires at least package version 1.17.0.
-    blobs = storage_client.list_blobs(bucket_name)
+        # Note: Client.list_blobs requires at least package version 1.17.0.
+        blobs = storage_client.list_blobs(bucket_name)
 
-    # Note: The call returns a response only when the iterator is consumed.
-    return [blob.name for blob in blobs]
+        # Note: The call returns a response only when the iterator is consumed.
+        return [blob.name for blob in blobs]
+    except Exception as e:
+        print(f"Error in gcp storage utils: {e}")
+        raise
+    finally:
+        if storage_client is not None:
+            storage_client.close()
 
 
 # [END storage_list_files]

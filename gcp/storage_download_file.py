@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright 2019 Google Inc. All Rights Reserved.
+# Copyright 2024 Forecasting Research Institute. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -31,23 +32,30 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
     # The path to which the file should be downloaded
     # destination_file_name = "local/path/to/file"
 
-    storage_client = storage.Client()
+    storage_client = None
+    try:
+        storage_client = storage.Client()
 
-    bucket = storage_client.bucket(bucket_name)
+        bucket = storage_client.bucket(bucket_name)
 
-    # Construct a client side representation of a blob.
-    # Note `Bucket.blob` differs from `Bucket.get_blob` as it doesn't retrieve
-    # any content from Google Cloud Storage. As we don't need additional data,
-    # using `Bucket.blob` is preferred here.
-    blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(destination_file_name)
+        # Construct a client side representation of a blob.
+        # Note `Bucket.blob` differs from `Bucket.get_blob` as it doesn't retrieve
+        # any content from Google Cloud Storage. As we don't need additional data,
+        # using `Bucket.blob` is preferred here.
+        blob = bucket.blob(source_blob_name)
+        blob.download_to_filename(destination_file_name)
 
-    print(
-        "Downloaded storage object {} from bucket {} to local file {}.".format(
-            source_blob_name, bucket_name, destination_file_name
+        print(
+            "Downloaded storage object {} from bucket {} to local file {}.".format(
+                source_blob_name, bucket_name, destination_file_name
+            )
         )
-    )
-
+    except Exception as e:
+        print(f"Error in gcp storage utils: {e}")
+        raise
+    finally:
+        if storage_client is not None:
+            storage_client.close()
 
 # [END storage_download_file]
 
