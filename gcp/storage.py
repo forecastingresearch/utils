@@ -1,7 +1,9 @@
 """Simplify Cloud Storage interactions."""
 
+import os
 import pathlib
-from os.path import basename, split
+from datetime import datetime, timezone
+from typing import List, Optional
 
 from . import (
     storage_download_file,
@@ -24,8 +26,27 @@ def list_with_prefix(
 
 def list(
     bucket_name: str,
-):
-    """List files in the folder."""
+    mnt: str = "",
+) -> List[str]:
+    """List files in the bucket.
+
+    Args:
+        bucket_name (str): name of bucket.
+        mnt (str): mount dir of bucket.
+
+    Returns:
+        List[str]: list of files in bucket.
+    """
+    mount_dir = f"{mnt}/{bucket_name}"
+    if mnt and os.path.exists(mount_dir):
+        retval = []
+        for root, _, files in os.walk(mount_dir):
+            for filename in files:
+                full_path = os.path.join(root, filename)
+                rel_path = os.path.relpath(full_path, mount_dir)
+                retval.append(rel_path)
+        return retval
+
     return storage_list_files.list_blobs(
         bucket_name=bucket_name,
     )
@@ -40,7 +61,7 @@ def upload(
 ):
     """Facilitate uploading file to cloud storage."""
     if not filename:
-        filename = basename(local_filename)
+        filename = os.path.basename(local_filename)
     destination_filename = f"{destination_folder}/{filename}" if destination_folder else filename
 
     storage_upload_file.upload_blob(
@@ -57,7 +78,7 @@ def download(
 ) -> str:
     """Facilitate downloading file from cloud storage."""
     if not local_filename:
-        directory, basename = split(filename)
+        directory, basename = os.path.split(filename)
         local_directory = f"/tmp/{directory}"
         pathlib.Path(local_directory).mkdir(parents=True, exist_ok=True)
         local_filename = f"{local_directory}/{basename}"
@@ -85,9 +106,18 @@ def download_no_error_message_on_404(
     return local_filename
 
 
-def get_last_modified_time(bucket_name: str, filename: str):
+def get_last_modified_time(
+    bucket_name: str,
+    filename: str,
+    mnt: str = "",
+) -> Optional[datetime]:
     """Return the last modified date for the given file."""
     from google.cloud import storage
+
+    mount_dir = f"{mnt}/{bucket_name}"
+    if mnt and os.path.exists(mount_dir):
+        ts = os.path.getmtime(f"{mount_dir}/{filename}")
+        return datetime.fromtimestamp(ts, tz=timezone.utc)
 
     try:
         storage_client = storage.Client()
