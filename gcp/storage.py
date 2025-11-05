@@ -5,19 +5,14 @@ import pathlib
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from . import (
-    storage_download_file,
-    storage_list_files,
-    storage_list_files_with_prefix,
-    storage_upload_file,
-)
-
 
 def list_with_prefix(
     bucket_name: str,
     prefix: str,
 ):
     """List files in the folder specified by `prefix`."""
+    from . import storage_list_files_with_prefix
+
     return storage_list_files_with_prefix.list_blobs_with_prefix(
         bucket_name=bucket_name,
         prefix=prefix,
@@ -47,6 +42,8 @@ def list(
                 retval.append(rel_path)
         return retval
 
+    from . import storage_list_files
+
     return storage_list_files.list_blobs(
         bucket_name=bucket_name,
     )
@@ -60,6 +57,8 @@ def upload(
     filename: str = None,
 ):
     """Facilitate uploading file to cloud storage."""
+    from . import storage_upload_file
+
     if not filename:
         filename = os.path.basename(local_filename)
     destination_filename = f"{destination_folder}/{filename}" if destination_folder else filename
@@ -77,6 +76,8 @@ def download(
     local_filename: str = None,
 ) -> str:
     """Facilitate downloading file from cloud storage."""
+    from . import storage_download_file
+
     if not local_filename:
         directory, basename = os.path.split(filename)
         local_directory = f"/tmp/{directory}"

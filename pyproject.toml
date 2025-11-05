@@ -3,6 +3,7 @@ line-length = 100
 force-exclude = '''
 (
     ^/venv/
+    | ^/\.venv/
     | ^/gcp/storage_download_file.py
     | ^/gcp/storage_upload_file.py
     | ^/gcp/storage_list_files_with_prefix.py

@@ -7,3 +7,5 @@ lint: pyproject.toml setup.cfg
 clean:
 	find . -type f -name "*~" -exec rm -f {} +
 
+test:
+	pytest
