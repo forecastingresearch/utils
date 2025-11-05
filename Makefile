@@ -7,3 +7,8 @@ lint: pyproject.toml setup.cfg
 clean:
 	find . -type f -name "*~" -exec rm -f {} +
 
+test:
+	pytest
+
+coverage:
+	pytest --cov=utils --cov-report=term-missing --cov-report=html

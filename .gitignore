@@ -54,3 +54,7 @@ Thumbs.db
 *.rar
 *.tar
 *.zip
+
+# Testing
+.coverage
+htmlcov/
