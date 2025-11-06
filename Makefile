@@ -10,5 +10,8 @@ clean:
 test:
 	pytest
 
+test-integration:
+	pytest --integration
+
 coverage:
 	pytest --cov=utils --cov-report=term-missing --cov-report=html

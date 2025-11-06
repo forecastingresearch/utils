@@ -8,3 +8,8 @@ force-exclude = '''
     | ^/gcp/storage_list_files_with_prefix.py
 )
 '''
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests that hit real cloud services (deselect with -m 'not integration')",
+]

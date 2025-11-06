@@ -6,6 +6,7 @@ This package provides utilities for use across the Forecasting Research Institut
 
 - `archiving/` - Utility functions for tar.gz compression & extraction.
 - `gcp/` - Utilities for interacting with Google Cloud Storage.
+- `keys/` - Utilities for interacting with keys.
 
 # Development
 
@@ -19,10 +20,32 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
+If you want to run the integration tests, make sure you're authenticated with Google Cloud. You'll need [the `gcloud` CLI](https://docs.cloud.google.com/sdk/docs/install-sdk).
+
+```
+gcloud auth application-default login
+```
+
+After authenticating, you'll see a message like:
+
+```
+Credentials saved to file: [/home/yourusername/.config/gcloud/application_default_credentials.json]
+```
+
+Copy `sample.env` to `.env` and replace the `GOOGLE_APPLICATION_CREDENTIALS` with this path. (Reach out to a team member to check that you have the right values for the other variables in this file.)
+
 ## Test
+
+To run unit tests:
 
 ```
 make test
+```
+
+To run integration tests:
+
+```
+make test-integration
 ```
 
 ## Contributing
