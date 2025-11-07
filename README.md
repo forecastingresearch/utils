@@ -7,6 +7,9 @@ This package provides utilities for use across the Forecasting Research Institut
 - `archiving/` - Utility functions for tar.gz compression & extraction.
 - `gcp/` - Utilities for interacting with Google Cloud Storage.
 - `keys/` - Utilities for interacting with keys.
+- `llm/` - Utilities for calling various model providers.
+    - `llm/model_registry.py` - Exposes available models.
+    - `Model.get_response(prompt, **options)` - Gets response from a given prompt.
 
 # Development
 
