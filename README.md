@@ -1,6 +1,6 @@
 # utils
 
-This package provides utilities for use across the Forecast Research Institute's codebase.
+This package provides utilities for use across the Forecasting Research Institute's codebase.
 
 # Structure
 

@@ -89,7 +89,8 @@ def test_extract_with_rm_dir_before_extract():
             f.write("This should be removed")
 
         # Extract with rm_dir_before_extract
-        _ = extract(archive_path, extract_dir, rm_dir_before_extract=extract_dir)
+        extracted_dir = extract(archive_path, extract_dir, rm_dir_before_extract=extract_dir)
+        assert extracted_dir == extract_dir
 
         # Verify old file is gone and new files are extracted
         assert not os.path.exists(old_file)
