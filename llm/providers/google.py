@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Dict
 
 from google import genai
 from google.genai import types
@@ -27,18 +27,21 @@ class GoogleProvider(BaseLLMProvider):
         self._google_ai_client = genai.Client(api_key=api_key)
 
     def _call_model(self, model: "Model", prompt: str, **options: Any) -> str:
-        temperature = options.get("temperature", 0.8)  # TODO put defaults in constants?
+        temperature = options.get("temperature")
         model_name = model.full_name
+
+        config_kwargs: Dict[str, Any] = {
+            "candidate_count": 1,
+            "automatic_function_calling": types.AutomaticFunctionCallingConfig(
+                disable=True,
+            ),
+        }
+        if temperature is not None:
+            config_kwargs["temperature"] = temperature
 
         response = self._google_ai_client.models.generate_content(
             model=model_name,
             contents=prompt,
-            config=types.GenerateContentConfig(
-                candidate_count=1,
-                temperature=temperature,
-                automatic_function_calling=types.AutomaticFunctionCallingConfig(
-                    disable=True,
-                ),
-            ),
+            config=types.GenerateContentConfig(**config_kwargs),
         )
         return response.text

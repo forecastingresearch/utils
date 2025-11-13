@@ -43,7 +43,7 @@ class TogetherProvider(BaseLLMProvider):
         self._together_client = Together(api_key=api_key)
 
     def _call_model(self, model: "Model", prompt: str, **options: Any) -> str:
-        temperature = options.get("temperature", 0.8)
+        temperature = options.get("temperature")
         max_tokens = options.get("max_tokens")
         model_name = model.full_name
 

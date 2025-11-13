@@ -8,7 +8,6 @@ from openai import OpenAI  # type: ignore[import]
 
 from ...helpers.constants import OPENAI_API_KEY_SECRET_NAME
 from ...keys.secrets import get_secret
-from ..lab_registry import LABS
 from .base import BaseLLMProvider
 
 if TYPE_CHECKING:
@@ -27,12 +26,12 @@ class OpenAIProvider(BaseLLMProvider):
         self._openai_client = OpenAI(api_key=api_key)
 
     def _call_model(self, model: "Model", prompt: str, **options: Any) -> str:
-        temperature = options.get("temperature", 0.8)  # TODO put defaults in constants?
+        temperature = options.get("temperature", 0.8)
         max_tokens = options.get("max_tokens")
         model_name = model.full_name
 
         # OpenAI doesn't support temperature for reasoning models
-        if model.lab == LABS["OpenAI"] and model.reasoning_model:
+        if model.reasoning_model:
             request_payload: Dict[str, Any] = {
                 "model": model_name,
                 "input": prompt,

@@ -27,7 +27,7 @@ class MistralProvider(BaseLLMProvider):
 
     def _call_model(self, model: "Model", prompt: str, **options: Any) -> str:
         max_tokens = options.get("max_tokens")
-        temperature = options.get("temperature", 0.8)  # TODO put defaults in constants?
+        temperature = options.get("temperature")
         model_name = model.full_name
 
         messages: List[Union[Dict[str, str], UserMessage]] = [

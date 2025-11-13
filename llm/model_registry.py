@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Any, Final, Type
 
 from .lab_registry import LABS, Lab
 from .providers.anthropic import AnthropicProvider
 from .providers.base import BaseLLMProvider
 from .providers.google import GoogleProvider
-
-# from .providers.mistral import MistralProvider TODO no mistral provider yet
 from .providers.openai import OpenAIProvider
 from .providers.together import TogetherProvider
 from .providers.xai import XAIProvider
@@ -31,8 +30,14 @@ class Model:
 
     def get_response(self, prompt: str, **options: Any) -> str:
         """Request a response from the model's provider."""
-        provider = self.provider_cls()
+        provider = _get_provider_instance(self.provider_cls)
         return provider.get_response(self, prompt, **options)
+
+
+@lru_cache(maxsize=None)
+def _get_provider_instance(provider_cls: Type[BaseLLMProvider]) -> BaseLLMProvider:
+    """Return a cached provider instance for the given provider class."""
+    return provider_cls()
 
 
 MODELS: Final[list[Model]] = [

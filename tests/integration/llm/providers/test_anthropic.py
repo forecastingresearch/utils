@@ -23,7 +23,7 @@ def test_anthropic_provider_get_response_live_call():
         lambda prompt: provider.get_response(
             ANTHROPIC_MODEL,
             prompt,
-            temperature=0,  # TODO check that these get set correctly?
+            temperature=0,
             max_tokens=16,
             wait_time=1,
         )
