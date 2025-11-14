@@ -10,6 +10,7 @@ from .lab_registry import LABS, Lab
 from .providers.anthropic import AnthropicProvider
 from .providers.base import BaseLLMProvider
 from .providers.google import GoogleProvider
+from .providers.mistral import MistralProvider
 from .providers.openai import OpenAIProvider
 from .providers.together import TogetherProvider
 from .providers.xai import XAIProvider
@@ -205,5 +206,19 @@ MODELS: Final[list[Model]] = [
         token_limit=1_048_576,
         provider_cls=GoogleProvider,
         lab=LABS["Google"],
+    ),
+    Model(
+        id="mistral-large-2411",
+        full_name="mistral-large-2411",
+        token_limit=128_000,
+        provider_cls=MistralProvider,
+        lab=LABS["Mistral"],
+    ),
+    Model(
+        id="magistral-medium-2506",
+        full_name="magistral-medium-2506",
+        token_limit=40_000,
+        provider_cls=MistralProvider,
+        lab=LABS["Mistral"],
     ),
 ]
