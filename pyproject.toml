@@ -1,3 +1,53 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fri-utils"
+version = "0.1.0"
+description = "Utilities for the Forecasting Research Institute codebase."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Forecasting Research Institute" }]
+dependencies = [
+    "google-genai",
+    "anthropic",
+    "mistralai",
+    "together",
+    "google-cloud-secret-manager>=2.20.0",
+    "google-cloud-storage>=2.14.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "flake8-bugbear",
+    "isort",
+    "pydocstyle",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.setuptools.packages.find]
+include = [
+    "utils",
+    "utils.*",
+    "archiving",
+    "archiving.*",
+    "gcp",
+    "gcp.*",
+    "helpers",
+    "helpers.*",
+    "keys",
+    "keys.*",
+    "llm",
+    "llm.*",
+]
+exclude = ["tests*", "htmlcov*", "venv*"]
+
 [tool.black]
 line-length = 100
 force-exclude = '''
