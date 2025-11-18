@@ -15,6 +15,7 @@ dependencies = [
     "anthropic",
     "mistralai",
     "together",
+    "openai",
     "google-cloud-secret-manager>=2.20.0",
     "google-cloud-storage>=2.14.0",
     "python-dotenv>=1.0.0",
@@ -41,8 +42,6 @@ include = [
     "gcp.*",
     "helpers",
     "helpers.*",
-    "keys",
-    "keys.*",
     "llm",
     "llm.*",
 ]

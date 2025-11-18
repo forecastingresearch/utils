@@ -13,3 +13,5 @@ flake8-bugbear
 pydocstyle
 pytest
 pytest-cov
+pytest-xdist
+    

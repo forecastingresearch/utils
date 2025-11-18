@@ -18,7 +18,15 @@ assert ANTHROPIC_MODEL is not None
 @pytest.mark.integration
 def test_anthropic_provider_get_response_live_call():
     """It invokes the live Anthropic API and returns text."""
-    provider = anthropic_module.AnthropicProvider()
+    from utils.llm.model_registry import (
+        _get_api_key_for_provider,  # type: ignore[import]
+    )
+    from utils.llm.providers.anthropic import AnthropicProvider  # type: ignore[import]
+
+    # API keys are already configured by the session-scoped fixture
+    api_key = _get_api_key_for_provider(AnthropicProvider)
+    assert api_key is not None, "API key should be configured by fixture"
+    provider = anthropic_module.AnthropicProvider(api_key=api_key)
     assert_capital_of_france(
         lambda prompt: provider.get_response(
             ANTHROPIC_MODEL,

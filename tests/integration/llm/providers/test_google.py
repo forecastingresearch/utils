@@ -18,7 +18,15 @@ assert GOOGLE_MODEL is not None
 @pytest.mark.integration
 def test_google_provider_get_response_live_call():
     """It invokes the live Google Gemini API and returns text."""
-    provider = google_module.GoogleProvider()
+    from utils.llm.model_registry import (
+        _get_api_key_for_provider,  # type: ignore[import]
+    )
+    from utils.llm.providers.google import GoogleProvider  # type: ignore[import]
+
+    # API keys are already configured by the session-scoped fixture
+    api_key = _get_api_key_for_provider(GoogleProvider)
+    assert api_key is not None, "API key should be configured by fixture"
+    provider = google_module.GoogleProvider(api_key=api_key)
     assert_capital_of_france(
         lambda prompt: provider.get_response(
             GOOGLE_MODEL,

@@ -4,6 +4,5 @@ __all__ = [
     "archiving",
     "gcp",
     "helpers",
-    "keys",
 ]
-from . import archiving, gcp, helpers, keys
+from . import archiving, gcp, helpers

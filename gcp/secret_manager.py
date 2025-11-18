@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import os
-from typing import Optional
 
-from google.api_core import exceptions as gcloud_exceptions
 from google.cloud import secretmanager
 
-from ..helpers.constants import GOOGLE_CLOUD_PROJECT_ENV_VAR
+from helpers.constants import GOOGLE_CLOUD_PROJECT_ENV_VAR
 
 
 def get_project_id() -> str:
@@ -39,11 +37,3 @@ def get_secret(secret_name: str, version_id: str = "latest") -> str:
     if not isinstance(payload_bytes, (bytes, bytearray)):
         raise TypeError("Secret payload data must be bytes.")
     return bytes(payload_bytes).decode("utf-8")
-
-
-def get_secret_that_may_not_exist(secret_name: str, version_id: str = "latest") -> Optional[str]:
-    """Return the secret payload if it exists, otherwise None."""
-    try:
-        return get_secret(secret_name, version_id)
-    except gcloud_exceptions.NotFound:
-        return None

@@ -48,7 +48,7 @@ make test
 To run integration tests:
 
 ```
-make test-integration
+make test-integration-parallel
 ```
 
 ## Contributing

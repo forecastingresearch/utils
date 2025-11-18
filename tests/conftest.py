@@ -11,6 +11,28 @@ load_dotenv(
 )
 
 
+@pytest.fixture(scope="session", autouse=True)
+def configure_llm_api_keys(request):
+    """Auto-configure LLM API keys from GCP for integration tests.
+
+    Uses session scope to cache API keys across all integration tests,
+    avoiding redundant GCP Secret Manager calls.
+    """
+    # Only configure if we're running integration tests
+    # Check if any test has the integration marker (check config instead of individual test)
+    config = request.config
+    if config.getoption("--integration"):
+        try:
+            from utils.llm.model_registry import (
+                configure_api_keys,  # type: ignore[import]
+            )
+
+            configure_api_keys(from_gcp=True)
+        except Exception:
+            # If GCP is not configured, skip this fixture
+            pass
+
+
 def pytest_addoption(parser):
     """Register the custom --integration flag."""
     parser.addoption(
