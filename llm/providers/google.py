@@ -7,8 +7,6 @@ from typing import TYPE_CHECKING, Any, Dict
 from google import genai
 from google.genai import types
 
-from ...helpers.constants import GOOGLE_GEMINI_API_KEY_SECRET_NAME
-from ...keys.secrets import get_secret
 from .base import BaseLLMProvider
 
 if TYPE_CHECKING:
@@ -20,10 +18,22 @@ class GoogleProvider(BaseLLMProvider):
 
     rate_limit_message = "Google AI API request exceeded rate limit."
 
-    def __init__(self) -> None:
-        """Instantiate the Google client using the configured API secret."""
-        super().__init__()
-        api_key = get_secret(GOOGLE_GEMINI_API_KEY_SECRET_NAME)
+    def __init__(self, *, api_key: str | None = None, default_wait_time: int | None = None) -> None:
+        """Instantiate the Google client using the provided API key.
+
+        Args:
+            api_key: Google Gemini API key. If None, an error will be raised.
+            default_wait_time: Optional custom backoff interval.
+
+        Raises:
+            ValueError: If api_key is None.
+        """
+        super().__init__(default_wait_time=default_wait_time)
+        if api_key is None:
+            raise ValueError(
+                "API key required for GoogleProvider. "
+                "Call configure_api_keys() or provide api_key parameter."
+            )
         self._google_ai_client = genai.Client(api_key=api_key)
 
     def _call_model(self, model: "Model", prompt: str, **options: Any) -> str:
