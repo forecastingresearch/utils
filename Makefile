@@ -13,5 +13,8 @@ test:
 test-integration:
 	pytest --integration
 
+test-integration-parallel:
+	pytest --integration -n auto
+
 coverage:
 	pytest --cov=utils --cov-report=term-missing --cov-report=html
