@@ -36,14 +36,6 @@ dev = [
 include = [
     "utils",
     "utils.*",
-    "archiving",
-    "archiving.*",
-    "gcp",
-    "gcp.*",
-    "helpers",
-    "helpers.*",
-    "llm",
-    "llm.*",
 ]
 exclude = ["tests*", "htmlcov*", "venv*"]
 

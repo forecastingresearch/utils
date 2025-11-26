@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from utils.llm.providers.anthropic import AnthropicProvider  # type: ignore[import]
 from utils.llm.providers.google import GoogleProvider  # type: ignore[import]
 from utils.llm.providers.mistral import MistralProvider  # type: ignore[import]

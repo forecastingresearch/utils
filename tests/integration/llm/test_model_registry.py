@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from utils.llm.model_registry import MODELS, Model  # type: ignore[import]
 
 from ..helpers import assert_capital_of_france

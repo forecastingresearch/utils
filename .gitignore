@@ -58,3 +58,8 @@ Thumbs.db
 # Testing
 .coverage
 htmlcov/
+# Build artifacts
+build/
+*.egg-info/
+dist/
+*.egg

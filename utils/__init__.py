@@ -4,5 +4,6 @@ __all__ = [
     "archiving",
     "gcp",
     "helpers",
+    "llm",
 ]
-from . import archiving, gcp, helpers
+from . import archiving, gcp, helpers, llm

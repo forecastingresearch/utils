@@ -6,7 +6,7 @@ import os
 
 from google.cloud import secretmanager
 
-from helpers.constants import GOOGLE_CLOUD_PROJECT_ENV_VAR
+from ..helpers.constants import GOOGLE_CLOUD_PROJECT_ENV_VAR
 
 
 def get_project_id() -> str:
