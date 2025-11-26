@@ -57,6 +57,7 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
         if storage_client is not None:
             storage_client.close()
 
+
 # [END storage_download_file]
 
 if __name__ == "__main__":

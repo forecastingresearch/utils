@@ -36,27 +36,11 @@ dev = [
 include = [
     "utils",
     "utils.*",
-    "archiving",
-    "archiving.*",
-    "gcp",
-    "gcp.*",
-    "helpers",
-    "helpers.*",
-    "llm",
-    "llm.*",
 ]
 exclude = ["tests*", "htmlcov*", "venv*"]
 
 [tool.black]
 line-length = 100
-force-exclude = '''
-(
-    ^/venv/
-    | ^/gcp/storage_download_file.py
-    | ^/gcp/storage_upload_file.py
-    | ^/gcp/storage_list_files_with_prefix.py
-)
-'''
 
 [tool.pytest.ini_options]
 markers = [

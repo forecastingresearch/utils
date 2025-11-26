@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, Final, Type
 
-from gcp.secret_manager import get_secret
-from helpers.constants import (
+from ..gcp.secret_manager import get_secret
+from ..helpers.constants import (
     ANTHROPIC_API_KEY_SECRET_NAME,
     GOOGLE_GEMINI_API_KEY_SECRET_NAME,
     MISTRAL_API_KEY_SECRET_NAME,
@@ -15,7 +15,6 @@ from helpers.constants import (
     TOGETHER_API_KEY_SECRET_NAME,
     XAI_API_KEY_SECRET_NAME,
 )
-
 from .lab_registry import LABS, Lab
 from .providers.anthropic import AnthropicProvider
 from .providers.base import BaseLLMProvider

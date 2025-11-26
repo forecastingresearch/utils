@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import pytest
+
 import utils.llm.providers.xai as xai_module  # type: ignore[import]
+from tests.integration.helpers import assert_capital_of_france  # type: ignore[import]
 from utils.llm.model_registry import MODELS, Model  # type: ignore[import]
-from utils.tests.integration.helpers import (
-    assert_capital_of_france,  # type: ignore[import]
-)
 
 XAI_MODEL: Model | None = next((model for model in MODELS if model.id == "grok-4-0709"), None)
 assert XAI_MODEL is not None

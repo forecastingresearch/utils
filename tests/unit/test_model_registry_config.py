@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
+
 from utils.llm.model_registry import (  # type: ignore[import]
     MODELS,
     AnthropicProvider,

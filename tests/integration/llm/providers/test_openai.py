@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import pytest
+
 import utils.llm.providers.openai as openai_module  # type: ignore[import]
+from tests.integration.helpers import assert_capital_of_france  # type: ignore[import]
 from utils.llm.model_registry import MODELS, Model  # type: ignore[import]
-from utils.tests.integration.helpers import (
-    assert_capital_of_france,  # type: ignore[import]
-)
 
 OPENAI_MODEL: Model | None = next(
     (model for model in MODELS if model.id == "gpt-5-2025-08-07"), None

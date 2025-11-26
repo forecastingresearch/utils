@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import pytest
+
 import utils.llm.providers.mistral as mistral_module  # type: ignore[import]
+from tests.integration.helpers import assert_capital_of_france  # type: ignore[import]
 from utils.llm.model_registry import MODELS  # type: ignore[import]
 from utils.llm.model_registry import Model  # type: ignore[import]
-from utils.tests.integration.helpers import (
-    assert_capital_of_france,  # type: ignore[import]
-)
 
 MISTRAL_MODEL: Model | None = next(
     (model for model in MODELS if model.id == "magistral-medium-2506"), None
