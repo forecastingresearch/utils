@@ -17,7 +17,7 @@ def test_registered_model_live_call(model: Model):
         lambda prompt: model.get_response(
             prompt,
             temperature=0,
-            max_tokens=256,
+            max_tokens=1024,
             wait_time=1,
         )
     )
