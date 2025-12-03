@@ -5,7 +5,10 @@ from __future__ import annotations
 import pytest
 
 import utils.llm.providers.xai as xai_module  # type: ignore[import]
-from tests.integration.helpers import assert_capital_of_france  # type: ignore[import]
+from tests.integration.helpers import (  # type: ignore[import]
+    assert_capital_of_france,
+    assert_structured_person_extraction,
+)
 from utils.llm.model_registry import MODELS, Model  # type: ignore[import]
 
 XAI_MODEL: Model | None = next((model for model in MODELS if model.id == "grok-4-0709"), None)
@@ -30,5 +33,15 @@ def test_xai_provider_get_response_live_call():
             prompt,
             temperature=0,
             wait_time=1,
+        )
+    )
+
+
+@pytest.mark.integration
+def test_xai_structured_output():
+    """It returns structured output matching the Pydantic schema."""
+    assert_structured_person_extraction(
+        lambda prompt, schema, **options: XAI_MODEL.get_structured_response(
+            prompt, schema, temperature=0, max_tokens=100, wait_time=1, **options
         )
     )

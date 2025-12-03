@@ -6,7 +6,9 @@ from typing import TYPE_CHECKING, Any, Dict
 
 from google import genai
 from google.genai import types
+from pydantic import BaseModel
 
+from ..utils import parse_and_validate_json
 from .base import BaseLLMProvider
 
 if TYPE_CHECKING:
@@ -55,3 +57,40 @@ class GoogleProvider(BaseLLMProvider):
             config=types.GenerateContentConfig(**config_kwargs),
         )
         return response.text
+
+    def _call_model_structured(
+        self,
+        model: "Model",
+        prompt: str,
+        response_schema: type[BaseModel],
+        **options: Any,
+    ) -> BaseModel:
+        """Execute a structured output request using Google's response_json_schema parameter."""
+        temperature = options.get("temperature")
+        model_name = model.full_name
+
+        # Convert Pydantic schema to JSON schema for Google
+        json_schema = response_schema.model_json_schema()
+
+        config_kwargs: Dict[str, Any] = {
+            "candidate_count": 1,
+            "automatic_function_calling": types.AutomaticFunctionCallingConfig(
+                disable=True,
+            ),
+            "response_mime_type": "application/json",
+            "response_json_schema": json_schema,
+        }
+        if temperature is not None:
+            config_kwargs["temperature"] = temperature
+
+        response = self._google_ai_client.models.generate_content(
+            model=model_name,
+            contents=prompt,
+            config=types.GenerateContentConfig(**config_kwargs),
+        )
+
+        # Extract structured output from Google's response
+        response_text = response.text
+
+        # Parse and validate JSON (Google returns clean JSON, but validate anyway)
+        return parse_and_validate_json(response_text, response_schema, "Google", response_text)

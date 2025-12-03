@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Dict
 
 from openai import OpenAI  # type: ignore[import]
+from pydantic import BaseModel
 
+from ..utils import create_json_prompt, extract_json_from_text, parse_and_validate_json
 from .base import BaseLLMProvider
 
 if TYPE_CHECKING:
@@ -73,3 +75,61 @@ class OpenAIProvider(BaseLLMProvider):
             return output_text.strip()
 
         return str(output_text)
+
+    def _call_model_structured(
+        self,
+        model: "Model",
+        prompt: str,
+        response_schema: type[BaseModel],
+        **options: Any,
+    ) -> BaseModel:
+        """Execute a structured output request using JSON parsing fallback.
+
+        Note: OpenAI's Responses API doesn't support structured outputs natively.
+        This implementation uses prompt enhancement to request JSON output,
+        which is then parsed and validated.
+        """
+        temperature = options.get("temperature", 0.8)
+        max_tokens = options.get("max_tokens")
+        model_name = model.full_name
+
+        # Convert Pydantic schema to JSON schema and enhance prompt
+        json_schema = response_schema.model_json_schema()
+        enhanced_prompt = create_json_prompt(prompt, json_schema)
+
+        # OpenAI doesn't support temperature for reasoning models
+        if model.reasoning_model:
+            request_payload: Dict[str, Any] = {
+                "model": model_name,
+                "input": enhanced_prompt,
+            }
+        else:
+            request_payload = {
+                "model": model_name,
+                "input": enhanced_prompt,
+                "temperature": temperature,
+            }
+
+        if max_tokens is not None:
+            request_payload["max_output_tokens"] = max_tokens
+
+        response = self._openai_client.responses.create(**request_payload)
+
+        # Get status text (this is useful for catching errors in reasoning models)
+        status = getattr(response, "status", None)
+        if status != "completed":
+            reason = getattr(response, "incomplete_details", None)
+            status_text = f"OpenAI response incomplete (status={status})"
+            if reason:
+                status_text += f", reason={reason}"
+            raise RuntimeError(status_text)
+
+        # Extract text from response
+        output_text = getattr(response, "output_text", "")
+        if not isinstance(output_text, str):
+            output_text = str(output_text)
+        output_text = output_text.strip()
+
+        # Extract and validate JSON
+        json_text = extract_json_from_text(output_text, provider_name="OpenAI")
+        return parse_and_validate_json(json_text, response_schema, "OpenAI", output_text)

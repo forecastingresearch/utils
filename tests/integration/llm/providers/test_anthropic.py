@@ -5,8 +5,9 @@ from __future__ import annotations
 import pytest
 
 import utils.llm.providers.anthropic as anthropic_module  # type: ignore[import]
-from tests.integration.helpers import (
+from tests.integration.helpers import (  # type: ignore[import]
     assert_capital_of_france,
+    assert_structured_person_extraction,
 )
 from utils.llm.model_registry import MODELS, Model  # type: ignore[import]
 
@@ -35,5 +36,15 @@ def test_anthropic_provider_get_response_live_call():
             temperature=0,
             max_tokens=16,
             wait_time=1,
+        )
+    )
+
+
+@pytest.mark.integration
+def test_anthropic_structured_output():
+    """It returns structured output matching the Pydantic schema."""
+    assert_structured_person_extraction(
+        lambda prompt, schema, **options: ANTHROPIC_MODEL.get_structured_response(
+            prompt, schema, temperature=0, max_tokens=100, wait_time=1, **options
         )
     )

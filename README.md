@@ -25,7 +25,7 @@ uv add fri-utils
 # Quickstart
 
 
-```
+```python
 from utils.llm.model_registry import configure_api_keys, MODELS
 
 # Input the API key for any model provider you like!
@@ -51,7 +51,7 @@ model.get_response("Hello")
 `model.get_response()` accepts any optional argument your model accepts.
 For example:
 
-```
+```python
 model.get_response(
     'What is the capital of France?',
     temperature=0,
@@ -61,8 +61,44 @@ model.get_response(
 
 You can check whether an option is supported by looking at the code for the respective model provider (`utils/llm/providers`). 
 
-If you don’t see an option you need, feel free to open a GitHub issue!
+If you don't see an option you need, feel free to open a GitHub issue!
 
+## Structured Output
+
+The model registry supports structured output using Pydantic models. This ensures that LLM responses conform to a specified schema, making it easier to parse and validate responses.
+
+To use structured output, define a Pydantic `BaseModel` with your desired schema, then call `get_structured_response()`:
+
+```python
+from pydantic import BaseModel
+from utils.llm.model_registry import MODELS
+
+# Define your schema
+class Person(BaseModel):
+    name: str
+    age: int
+    email: str
+
+# Get a model and request structured output
+model = next(m for m in MODELS if m.id == "gpt-4.1-mini")
+result = model.get_structured_response(
+    "Extract the person's name, age, and email from: John Smith is 30 years old, email john@example.com",
+    Person,
+    temperature=0,
+    max_tokens=200,
+)
+
+print(result.name)   # "John Smith"
+print(result.age)    # 30
+print(result.email)  # "john@example.com"
+```
+
+The method will:
+- Request JSON output from the model matching your schema
+- Parse and validate the response against your Pydantic model
+- Raise a `ValueError` if the response cannot be parsed or validated
+
+Structured output works across all providers, using native structured output features where available (e.g., Google's `response_json_schema`, Anthropic's structured outputs) and falling back to JSON parsing for others.
 
 ### Configuring keys from GCP Secret Manager
 
@@ -108,7 +144,7 @@ from utils.archiving.tar_gz import compress_directory, extract_archive
 
 First, install dependencies. We recommend using a virtual environment:
 
-```
+```bash
 python3 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
@@ -116,7 +152,7 @@ pip3 install -r requirements.txt
 
 If you want to run the integration tests, make sure you're authenticated with Google Cloud. You'll need [the `gcloud` CLI](https://docs.cloud.google.com/sdk/docs/install-sdk).
 
-```
+```bash
 gcloud auth application-default login
 ```
 
@@ -132,13 +168,13 @@ Copy `sample.env` to `.env` and replace the `GOOGLE_APPLICATION_CREDENTIALS` wit
 
 To run unit tests:
 
-```
+```bash
 make test
 ```
 
 To run integration tests:
 
-```
+```bash
 make test-integration-parallel
 ```
 
@@ -146,12 +182,12 @@ make test-integration-parallel
 
 Be sure to lint your contribution before creating a pull request:
 
-```
+```bash
 make lint
 ```
 
 Check testing coverage:
 
-```
+```bash
 make coverage
 ```

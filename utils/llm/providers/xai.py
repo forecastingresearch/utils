@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Dict
 
 import openai
+from pydantic import BaseModel
 
+from ..utils import parse_and_validate_json
 from .base import BaseLLMProvider
 
 if TYPE_CHECKING:
@@ -60,3 +62,39 @@ class XAIProvider(BaseLLMProvider):
         response = self._xai_client.chat.completions.create(**request_payload)
 
         return response.choices[0].message.content
+
+    def _call_model_structured(
+        self,
+        model: "Model",
+        prompt: str,
+        response_schema: type[BaseModel],
+        **options: Any,
+    ) -> BaseModel:
+        """Execute a structured output request using xAI's OpenAI-compatible API."""
+        temperature = options.get("temperature")
+        max_tokens = options.get("max_tokens")
+        model_name = model.full_name
+
+        request_payload: Dict[str, Any] = {
+            "model": model_name,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt,
+                },
+            ],
+            "response_format": {"type": "json_object"},
+        }
+        if temperature is not None:
+            request_payload["temperature"] = temperature
+        if max_tokens is not None:
+            request_payload["max_tokens"] = max_tokens
+
+        response = self._xai_client.chat.completions.create(**request_payload)
+
+        content = response.choices[0].message.content
+        if content is None:
+            raise ValueError("xAI returned empty response")
+
+        # Parse and validate JSON (xAI returns clean JSON via response_format)
+        return parse_and_validate_json(content, response_schema, "xAI", content)

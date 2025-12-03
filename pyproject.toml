@@ -16,6 +16,7 @@ dependencies = [
     "mistralai",
     "together",
     "openai",
+    "pydantic>=2.0",
     "google-cloud-secret-manager>=2.20.0",
     "google-cloud-storage>=2.14.0",
     "python-dotenv>=1.0.0",

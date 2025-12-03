@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, Final, Type
 
+from pydantic import BaseModel
+
 from ..gcp.secret_manager import get_secret
 from ..helpers.constants import (
     ANTHROPIC_API_KEY_SECRET_NAME,
@@ -65,6 +67,38 @@ class Model:
         """Request a response from the model's provider."""
         provider = _get_provider_instance(self.provider_cls)
         return provider.get_response(self, prompt, **options)
+
+    def get_structured_response(
+        self, prompt: str, response_schema: type[BaseModel], **options: Any
+    ) -> BaseModel:
+        """Request a structured response from the model's provider.
+
+        Args:
+            prompt: The prompt to send to the model.
+            response_schema: A Pydantic BaseModel class defining the expected response structure.
+            **options: Additional options to pass to the provider (temperature, max_tokens, etc.).
+
+        Returns:
+            An instance of response_schema with validated data from the model response.
+
+        Raises:
+            ValueError: If the response cannot be parsed or validated against the schema.
+
+        Example:
+            >>> from pydantic import BaseModel
+            >>> class Person(BaseModel):
+            ...     name: str
+            ...     age: int
+            >>> model = MODELS[0]  # Get a model from the registry
+            >>> result = model.get_structured_response(
+            ...     "Extract name and age: John is 30 years old",
+            ...     Person
+            ... )
+            >>> print(result.name)  # "John"
+            >>> print(result.age)   # 30
+        """
+        provider = _get_provider_instance(self.provider_cls)
+        return provider.get_structured_response(self, prompt, response_schema, **options)
 
 
 def _get_api_key_for_provider(provider_cls: Type[BaseLLMProvider]) -> str | None:
