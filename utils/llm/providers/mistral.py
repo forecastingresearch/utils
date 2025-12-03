@@ -55,4 +55,23 @@ class MistralProvider(BaseLLMProvider):
 
         chat_response = self._mistral_client.chat.complete(**request_payload)
 
-        return chat_response.choices[0].message.content
+        content = chat_response.choices[0].message.content
+
+        # Handle different content types: None, str, or list
+        if content is None:
+            return ""
+        if isinstance(content, str):
+            return content
+        if isinstance(content, list):
+            # Content can be a list of content blocks, extract text from each
+            text_parts = []
+            for item in content:
+                if isinstance(item, str):
+                    text_parts.append(item)
+                elif isinstance(item, dict) and "text" in item:
+                    text_parts.append(item["text"])
+                else:
+                    text_parts.append(str(item))
+            return "".join(text_parts)
+
+        return str(content)

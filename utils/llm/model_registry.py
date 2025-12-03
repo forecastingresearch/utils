@@ -208,6 +208,14 @@ MODELS: Final[list[Model]] = [
         reasoning_model=True,
     ),
     Model(
+        id="gpt-5.1-2025-11-13",
+        full_name="gpt-5.1-2025-11-13",
+        token_limit=128_000,
+        provider_cls=OpenAIProvider,
+        lab=LABS["OpenAI"],
+        reasoning_model=True,
+    ),
+    Model(
         id="o3-2025-04-16",
         full_name="o3-2025-04-16",
         token_limit=200_000,
@@ -229,13 +237,14 @@ MODELS: Final[list[Model]] = [
         provider_cls=TogetherProvider,
         lab=LABS["DeepSeek"],
     ),
-    Model(
-        id="Qwen2.5-Coder-32B-Instruct",
-        full_name="Qwen/Qwen2.5-Coder-32B-Instruct",
-        token_limit=262_144,
-        provider_cls=TogetherProvider,
-        lab=LABS["Qwen"],
-    ),
+    # NOTE: This model is no longer available in the Together API.
+    # Model(
+    #     id="Qwen2.5-Coder-32B-Instruct",
+    #     full_name="Qwen/Qwen2.5-Coder-32B-Instruct",
+    #     token_limit=262_144,
+    #     provider_cls=TogetherProvider,
+    #     lab=LABS["Qwen"],
+    # ),
     Model(
         id="Qwen3-235B-A22B-fp8-tput",
         full_name="Qwen/Qwen3-235B-A22B-fp8-tput",
@@ -265,11 +274,27 @@ MODELS: Final[list[Model]] = [
         lab=LABS["Moonshot"],
     ),
     Model(
+        id="Kimi-K2-Thinking",
+        full_name="moonshotai/Kimi-K2-Thinking",
+        token_limit=262_144,
+        provider_cls=TogetherProvider,
+        lab=LABS["Moonshot"],
+        reasoning_model=False,
+    ),
+    Model(
         id="GLM-4.5-Air-FP8",
         full_name="zai-org/GLM-4.5-Air-FP8",
         token_limit=131_072,
         provider_cls=TogetherProvider,
         lab=LABS["Z.ai"],
+    ),
+    Model(
+        id="GLM-4.6",
+        full_name="zai-org/GLM-4.6",
+        token_limit=202_752,
+        provider_cls=TogetherProvider,
+        lab=LABS["Z.ai"],
+        reasoning_model=False,
     ),
     Model(
         id="claude-sonnet-4-5-20250929",
@@ -328,6 +353,22 @@ MODELS: Final[list[Model]] = [
         lab=LABS["xAI"],
     ),
     Model(
+        id="grok-4-1-fast-reasoning",
+        full_name="grok-4-1-fast-reasoning",
+        token_limit=2_000_000,
+        provider_cls=XAIProvider,
+        lab=LABS["xAI"],
+        reasoning_model=True,
+    ),
+    Model(
+        id="grok-4-1-fast-non-reasoning",
+        full_name="grok-4-1-fast-non-reasoning",
+        token_limit=2_000_000,
+        provider_cls=XAIProvider,
+        lab=LABS["xAI"],
+        reasoning_model=False,
+    ),
+    Model(
         id="gemini-2.5-pro",
         full_name="gemini-2.5-pro",
         token_limit=1_048_576,
@@ -340,6 +381,14 @@ MODELS: Final[list[Model]] = [
         token_limit=1_048_576,
         provider_cls=GoogleProvider,
         lab=LABS["Google"],
+    ),
+    Model(
+        id="gemini-3-pro-preview",
+        full_name="gemini-3-pro-preview",
+        token_limit=1_048_576,
+        provider_cls=GoogleProvider,
+        lab=LABS["Google"],
+        reasoning_model=False,
     ),
     Model(
         id="mistral-large-2411",
