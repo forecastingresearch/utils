@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
+from google.api_core import exceptions
 
 from utils.llm.model_registry import (  # type: ignore[import]
     MODELS,
@@ -108,9 +109,9 @@ def test_configure_api_keys_from_gcp_handles_missing_secrets(mock_get_secret):
         if secret_name == "API_KEY_OPENAI":
             return "sk-gcp-openai"
         elif secret_name == "API_KEY_ANTHROPIC":
-            raise RuntimeError("GCP not configured")
+            raise exceptions.NotFound("Secret not found")
         else:
-            raise RuntimeError("Secret not found")
+            raise exceptions.NotFound("Secret not found")
 
     mock_get_secret.side_effect = mock_get_secret_side_effect
 

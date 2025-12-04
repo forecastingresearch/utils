@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, Final, Type
 
+from google.api_core import exceptions
+
 from ..gcp.secret_manager import get_secret
 from ..helpers.constants import (
     ANTHROPIC_API_KEY_SECRET_NAME,
@@ -127,7 +129,7 @@ def configure_api_keys(
             try:
                 api_key = get_secret(secret_name)
                 _PROVIDER_API_KEYS[provider_cls] = api_key
-            except RuntimeError:
+            except (RuntimeError, exceptions.NotFound):
                 # GCP not configured or secret doesn't exist, skip this provider
                 pass
 
