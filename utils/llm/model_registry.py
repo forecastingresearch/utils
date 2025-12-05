@@ -59,8 +59,6 @@ class Model:
     token_limit: int
     provider_cls: Type[BaseLLMProvider]
     lab: Lab
-    org: str | None = None
-    source: str | None = None
     reasoning_model: bool = False
 
     def get_response(self, prompt: str, **options: Any) -> str:
