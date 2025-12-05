@@ -184,6 +184,13 @@ MODELS: Final[list[Model]] = [
         lab=LABS["OpenAI"],
     ),
     Model(
+        id="gpt-4o-mini",
+        full_name="gpt-4o-mini",
+        token_limit=128_000,
+        provider_cls=OpenAIProvider,
+        lab=LABS["OpenAI"],
+    ),
+    Model(
         id="gpt-5-2025-08-07",
         full_name="gpt-5-2025-08-07",
         token_limit=128_000,
