@@ -327,6 +327,13 @@ MODELS: Final[list[Model]] = [
         lab=LABS["Anthropic"],
     ),
     Model(
+        id="claude-opus-4-5-20251101",
+        full_name="claude-opus-4-5-20251101",
+        token_limit=200_000,
+        provider_cls=AnthropicProvider,
+        lab=LABS["Anthropic"],
+    ),
+    Model(
         id="claude-sonnet-4-20250514",
         full_name="claude-sonnet-4-20250514",
         token_limit=200_000,
