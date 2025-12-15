@@ -7,7 +7,7 @@ This package provides utilities for use across the Forecasting Research Institut
 Install the package using pip:
 
 ```bash
-pip install fri-utils
+pip install git+https://github.com/forecastingresearch/utils.git
 ```
 
 Or add it to your `requirements.txt`:
