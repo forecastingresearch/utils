@@ -223,6 +223,14 @@ MODELS: Final[list[Model]] = [
         reasoning_model=True,
     ),
     Model(
+        id="gpt-5.2-2025-12-11",
+        full_name="gpt-5.2-2025-12-11",
+        token_limit=128_000,
+        provider_cls=OpenAIProvider,
+        lab=LABS["OpenAI"],
+        reasoning_model=True,
+    ),
+    Model(
         id="o3-2025-04-16",
         full_name="o3-2025-04-16",
         token_limit=200_000,
