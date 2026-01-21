@@ -42,6 +42,7 @@ class AnthropicProvider(BaseLLMProvider):
         temperature = options.get("temperature")
         max_tokens = options.get("max_tokens")
         assert max_tokens is not None, "max_tokens is required for Anthropic models."
+        tools = options.get("tools")
         model_name = model.full_name
 
         call_args: dict[str, Any] = {
@@ -56,8 +57,15 @@ class AnthropicProvider(BaseLLMProvider):
         }
         if temperature is not None:
             call_args["temperature"] = temperature
+        if tools is not None:
+            call_args["tools"] = tools
 
         with self._anthropic_console.messages.stream(**call_args) as stream:
             stream.until_done()
 
-        return stream.get_final_message().content[0].text
+        message = stream.get_final_message()
+        # Extract text from the last text block (web search responses have multiple blocks)
+        text_blocks = [block for block in message.content if block.type == "text"]
+        if not text_blocks:
+            return ""
+        return "".join(block.text for block in text_blocks)

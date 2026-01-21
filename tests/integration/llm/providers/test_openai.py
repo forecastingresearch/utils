@@ -35,3 +35,29 @@ def test_openai_provider_get_response_live_call():
             wait_time=1,
         )
     )
+
+
+@pytest.mark.integration
+def test_openai_provider_web_search():
+    """It invokes web search and returns current information."""
+    from utils.llm.model_registry import (
+        _get_api_key_for_provider,  # type: ignore[import]
+    )
+    from utils.llm.providers.openai import OpenAIProvider  # type: ignore[import]
+
+    api_key = _get_api_key_for_provider(OpenAIProvider)
+    assert api_key is not None, "API key should be configured by fixture"
+    provider = openai_module.OpenAIProvider(api_key=api_key)
+
+    # Ask a question with a stable, verifiable answer
+    prompt = "What is the official website URL for Python? Just respond with the URL."
+    response = provider.get_response(
+        OPENAI_MODEL,
+        prompt,
+        tools=[{"type": "web_search"}],
+        max_tokens=256,
+        wait_time=1,
+    )
+
+    assert isinstance(response, str)
+    assert "python.org" in response.lower()

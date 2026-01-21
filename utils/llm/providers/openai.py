@@ -38,6 +38,7 @@ class OpenAIProvider(BaseLLMProvider):
     def _call_model(self, model: "Model", prompt: str, **options: Any) -> str:
         temperature = options.get("temperature", 0.8)
         max_tokens = options.get("max_tokens")
+        tools = options.get("tools")
         model_name = model.full_name
 
         # OpenAI doesn't support temperature for reasoning models
@@ -52,6 +53,9 @@ class OpenAIProvider(BaseLLMProvider):
                 "input": prompt,
                 "temperature": temperature,
             }
+
+        if tools is not None:
+            request_payload["tools"] = tools
 
         if max_tokens is not None:
             request_payload["max_output_tokens"] = max_tokens
