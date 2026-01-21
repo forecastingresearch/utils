@@ -36,29 +36,25 @@ class OpenAIProvider(BaseLLMProvider):
         self._openai_client = OpenAI(api_key=api_key)
 
     def _call_model(self, model: "Model", prompt: str, **options: Any) -> str:
-        temperature = options.get("temperature", 0.8)
-        max_tokens = options.get("max_tokens")
-        tools = options.get("tools")
         model_name = model.full_name
 
-        # OpenAI doesn't support temperature for reasoning models
-        if model.reasoning_model:
-            request_payload: Dict[str, Any] = {
-                "model": model_name,
-                "input": prompt,
-            }
-        else:
-            request_payload = {
-                "model": model_name,
-                "input": prompt,
-                "temperature": temperature,
-            }
+        request_payload: Dict[str, Any] = {
+            "model": model_name,
+            "input": prompt,
+        }
 
-        if tools is not None:
-            request_payload["tools"] = tools
+        # Add default temperature for non-reasoning models (unless explicitly provided)
+        if not model.reasoning_model and "temperature" not in options:
+            request_payload["temperature"] = 0.8
 
-        if max_tokens is not None:
-            request_payload["max_output_tokens"] = max_tokens
+        # Pass through all options, with special handling for some keys
+        for key, value in options.items():
+            if key == "max_tokens":
+                request_payload["max_output_tokens"] = value
+            elif key == "temperature" and model.reasoning_model:
+                continue  # OpenAI doesn't support temperature for reasoning models
+            else:
+                request_payload[key] = value
 
         response = self._openai_client.responses.create(**request_payload)
 
