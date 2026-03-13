@@ -11,7 +11,7 @@ from tests.integration.helpers import (
 from utils.llm.model_registry import MODELS, Model  # type: ignore[import]
 
 ANTHROPIC_MODEL: Model | None = next(
-    (model for model in MODELS if model.id == "claude-3-7-sonnet-20250219"), None
+    (model for model in MODELS if model.id == "claude-sonnet-4-6"), None
 )
 assert ANTHROPIC_MODEL is not None
 
