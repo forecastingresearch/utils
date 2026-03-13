@@ -245,49 +245,12 @@ MODELS: Final[list[Model]] = [
         provider_cls=TogetherProvider,
         lab=LABS["DeepSeek"],
     ),
-    # NOTE: This model is no longer available in the Together API.
-    # Model(
-    #     id="Qwen2.5-Coder-32B-Instruct",
-    #     full_name="Qwen/Qwen2.5-Coder-32B-Instruct",
-    #     token_limit=262_144,
-    #     provider_cls=TogetherProvider,
-    #     lab=LABS["Qwen"],
-    # ),
-    Model(
-        id="Qwen3-235B-A22B-fp8-tput",
-        full_name="Qwen/Qwen3-235B-A22B-fp8-tput",
-        token_limit=40_960,
-        provider_cls=TogetherProvider,
-        lab=LABS["Qwen"],
-    ),
     Model(
         id="Qwen3-235B-A22B-Thinking-2507",
         full_name="Qwen/Qwen3-235B-A22B-Thinking-2507",
         token_limit=262_144,
         provider_cls=TogetherProvider,
         lab=LABS["Qwen"],
-    ),
-    Model(
-        id="Kimi-K2-Instruct",
-        full_name="moonshotai/Kimi-K2-Instruct",
-        token_limit=128_000,
-        provider_cls=TogetherProvider,
-        lab=LABS["Moonshot"],
-    ),
-    Model(
-        id="Kimi-K2-Instruct-0905",
-        full_name="moonshotai/Kimi-K2-Instruct-0905",
-        token_limit=262_144,
-        provider_cls=TogetherProvider,
-        lab=LABS["Moonshot"],
-    ),
-    Model(
-        id="Kimi-K2-Thinking",
-        full_name="moonshotai/Kimi-K2-Thinking",
-        token_limit=262_144,
-        provider_cls=TogetherProvider,
-        lab=LABS["Moonshot"],
-        reasoning_model=False,
     ),
     Model(
         id="GLM-4.5-Air-FP8",
@@ -335,13 +298,6 @@ MODELS: Final[list[Model]] = [
     Model(
         id="claude-sonnet-4-20250514",
         full_name="claude-sonnet-4-20250514",
-        token_limit=200_000,
-        provider_cls=AnthropicProvider,
-        lab=LABS["Anthropic"],
-    ),
-    Model(
-        id="claude-3-7-sonnet-20250219",
-        full_name="claude-3-7-sonnet-20250219",
         token_limit=200_000,
         provider_cls=AnthropicProvider,
         lab=LABS["Anthropic"],
