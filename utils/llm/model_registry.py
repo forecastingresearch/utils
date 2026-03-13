@@ -12,7 +12,6 @@ from ..gcp.secret_manager import get_secret
 from ..helpers.constants import (
     ANTHROPIC_API_KEY_SECRET_NAME,
     GOOGLE_GEMINI_API_KEY_SECRET_NAME,
-    MISTRAL_API_KEY_SECRET_NAME,
     OPENAI_API_KEY_SECRET_NAME,
     TOGETHER_API_KEY_SECRET_NAME,
     XAI_API_KEY_SECRET_NAME,
@@ -21,7 +20,6 @@ from .lab_registry import LABS, Lab
 from .providers.anthropic import AnthropicProvider
 from .providers.base import BaseLLMProvider
 from .providers.google import GoogleProvider
-from .providers.mistral import MistralProvider
 from .providers.openai import OpenAIProvider
 from .providers.together import TogetherProvider
 from .providers.xai import XAIProvider
@@ -36,7 +34,6 @@ _PROVIDER_NAME_TO_CLASS: dict[str, Type[BaseLLMProvider]] = {
     "google": GoogleProvider,
     "xai": XAIProvider,
     "together": TogetherProvider,
-    "mistral": MistralProvider,
 }
 
 # Mapping from provider classes to GCP secret names
@@ -46,7 +43,6 @@ _PROVIDER_CLASS_TO_SECRET_NAME: dict[Type[BaseLLMProvider], str] = {
     GoogleProvider: GOOGLE_GEMINI_API_KEY_SECRET_NAME,
     XAIProvider: XAI_API_KEY_SECRET_NAME,
     TogetherProvider: TOGETHER_API_KEY_SECRET_NAME,
-    MistralProvider: MISTRAL_API_KEY_SECRET_NAME,
 }
 
 
@@ -93,7 +89,6 @@ def configure_api_keys(
     google: str | None = None,
     xai: str | None = None,
     together: str | None = None,
-    mistral: str | None = None,
 ) -> None:
     """Configure API keys for LLM providers.
 
@@ -109,7 +104,6 @@ def configure_api_keys(
         google: Google Gemini API key
         xai: xAI API key
         together: Together AI API key
-        mistral: Mistral API key
 
     Examples:
         # For non-GCP users:
@@ -138,7 +132,6 @@ def configure_api_keys(
         "google": (GoogleProvider, google),
         "xai": (XAIProvider, xai),
         "together": (TogetherProvider, together),
-        "mistral": (MistralProvider, mistral),
     }
 
     for provider_cls, api_key in key_mapping.values():
@@ -411,19 +404,5 @@ MODELS: Final[list[Model]] = [
         provider_cls=GoogleProvider,
         lab=LABS["Google"],
         reasoning_model=False,
-    ),
-    Model(
-        id="mistral-large-2411",
-        full_name="mistral-large-2411",
-        token_limit=128_000,
-        provider_cls=MistralProvider,
-        lab=LABS["Mistral"],
-    ),
-    Model(
-        id="magistral-medium-2506",
-        full_name="magistral-medium-2506",
-        token_limit=40_000,
-        provider_cls=MistralProvider,
-        lab=LABS["Mistral"],
     ),
 ]

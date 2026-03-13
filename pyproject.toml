@@ -13,7 +13,6 @@ authors = [{ name = "Forecasting Research Institute" }]
 dependencies = [
     "google-genai",
     "anthropic",
-    "mistralai",
     "together",
     "openai",
     "google-cloud-secret-manager>=2.20.0",

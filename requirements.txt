@@ -1,6 +1,5 @@
 google-genai==1.49.0
 anthropic==0.72.0
-mistralai==1.9.11
 together==1.5.30
 openai==2.7.1
 google-cloud-secret-manager>=2.20.0

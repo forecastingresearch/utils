@@ -8,7 +8,6 @@ import pytest
 
 from utils.llm.providers.anthropic import AnthropicProvider  # type: ignore[import]
 from utils.llm.providers.google import GoogleProvider  # type: ignore[import]
-from utils.llm.providers.mistral import MistralProvider  # type: ignore[import]
 from utils.llm.providers.openai import OpenAIProvider  # type: ignore[import]
 from utils.llm.providers.together import TogetherProvider  # type: ignore[import]
 from utils.llm.providers.xai import XAIProvider  # type: ignore[import]
@@ -21,7 +20,6 @@ from utils.llm.providers.xai import XAIProvider  # type: ignore[import]
         AnthropicProvider,
         GoogleProvider,
         XAIProvider,
-        MistralProvider,
         TogetherProvider,
     ],
 )
@@ -38,7 +36,6 @@ def test_provider_requires_api_key(provider_class):
         (AnthropicProvider, "sk-ant-test-anthropic-key"),
         (GoogleProvider, "test-google-key"),
         (XAIProvider, "test-xai-key"),
-        (MistralProvider, "test-mistral-key"),
         (TogetherProvider, "test-together-key"),
     ],
 )
@@ -72,13 +69,6 @@ def test_provider_accepts_api_key(provider_class, api_key):
             mock_openai.return_value = mock_client
             provider = provider_class(api_key=api_key)
             mock_openai.assert_called_once_with(api_key=api_key, base_url="https://api.x.ai/v1")
-            assert provider is not None
-    elif provider_class == MistralProvider:
-        with patch("utils.llm.providers.mistral.Mistral") as mock_mistral:
-            mock_client = MagicMock()
-            mock_mistral.return_value = mock_client
-            provider = provider_class(api_key=api_key)
-            mock_mistral.assert_called_once_with(api_key=api_key)
             assert provider is not None
     elif provider_class == TogetherProvider:
         with patch("utils.llm.providers.together.Together") as mock_together:

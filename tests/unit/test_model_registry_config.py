@@ -11,7 +11,6 @@ from utils.llm.model_registry import (  # type: ignore[import]
     MODELS,
     AnthropicProvider,
     GoogleProvider,
-    MistralProvider,
     OpenAIProvider,
     TogetherProvider,
     XAIProvider,
@@ -33,7 +32,6 @@ def test_configure_api_keys_with_explicit_keys():
         google="test-google",
         xai="test-xai",
         together="test-together",
-        mistral="test-mistral",
     )
 
     # Verify keys are stored
@@ -42,7 +40,6 @@ def test_configure_api_keys_with_explicit_keys():
     assert _PROVIDER_API_KEYS[GoogleProvider] == "test-google"
     assert _PROVIDER_API_KEYS[XAIProvider] == "test-xai"
     assert _PROVIDER_API_KEYS[TogetherProvider] == "test-together"
-    assert _PROVIDER_API_KEYS[MistralProvider] == "test-mistral"
 
     # Clear for other tests
     _PROVIDER_API_KEYS.clear()
@@ -80,7 +77,6 @@ def test_configure_api_keys_from_gcp(mock_get_secret):
         "API_KEY_GEMINI": "gcp-google",
         "API_KEY_XAI": "gcp-xai",
         "API_KEY_TOGETHERAI": "gcp-together",
-        "API_KEY_MISTRAL": "gcp-mistral",
     }.get
 
     configure_api_keys(from_gcp=True)
@@ -90,7 +86,6 @@ def test_configure_api_keys_from_gcp(mock_get_secret):
     assert _PROVIDER_API_KEYS[GoogleProvider] == "gcp-google"
     assert _PROVIDER_API_KEYS[XAIProvider] == "gcp-xai"
     assert _PROVIDER_API_KEYS[TogetherProvider] == "gcp-together"
-    assert _PROVIDER_API_KEYS[MistralProvider] == "gcp-mistral"
 
     # Clear for other tests
     _PROVIDER_API_KEYS.clear()
@@ -157,7 +152,6 @@ def test_validate_provider_keys_success():
         google="test-google",
         xai="test-xai",
         together="test-together",
-        mistral="test-mistral",
     )
 
     # Should not raise
