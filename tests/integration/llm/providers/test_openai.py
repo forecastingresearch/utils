@@ -28,10 +28,8 @@ def test_openai_provider_get_response_live_call():
     provider = openai_module.OpenAIProvider(api_key=api_key)
     assert_capital_of_france(
         lambda prompt: provider.get_response(
-            OPENAI_MODEL,
-            prompt,
-            temperature=0,
-            max_tokens=256,
-            wait_time=1,
+            model_id=OPENAI_MODEL.full_name,
+            prompt=prompt,
+            options={"max_output_tokens": 256},
         )
     )

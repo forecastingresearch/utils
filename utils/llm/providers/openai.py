@@ -2,20 +2,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import Any, Dict
 
 from openai import OpenAI  # type: ignore[import]
 
 from .base import BaseLLMProvider
 
-if TYPE_CHECKING:
-    from ..model_registry import Model
-
 
 class OpenAIProvider(BaseLLMProvider):
     """LLM provider that wraps the OpenAI Responses API."""
 
-    rate_limit_message = "OpenAI API request exceeded rate limit."
+    retry_message = "OpenAI API request failed."
 
     def __init__(self, *, api_key: str | None = None, default_wait_time: int | None = None) -> None:
         """Instantiate the OpenAI client using the provided API key.
@@ -35,26 +32,12 @@ class OpenAIProvider(BaseLLMProvider):
             )
         self._openai_client = OpenAI(api_key=api_key)
 
-    def _call_model(self, model: "Model", prompt: str, **options: Any) -> str:
-        temperature = options.get("temperature", 0.8)
-        max_tokens = options.get("max_tokens")
-        model_name = model.full_name
-
-        # OpenAI doesn't support temperature for reasoning models
-        if model.reasoning_model:
-            request_payload: Dict[str, Any] = {
-                "model": model_name,
-                "input": prompt,
-            }
-        else:
-            request_payload = {
-                "model": model_name,
-                "input": prompt,
-                "temperature": temperature,
-            }
-
-        if max_tokens is not None:
-            request_payload["max_output_tokens"] = max_tokens
+    def _call_model(self, *, model_id: str, prompt: str, options: dict[str, Any]) -> str:
+        request_payload: Dict[str, Any] = {
+            **options,
+            "model": model_id,
+            "input": prompt,
+        }
 
         response = self._openai_client.responses.create(**request_payload)
 

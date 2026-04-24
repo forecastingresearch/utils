@@ -28,10 +28,8 @@ def test_together_provider_get_response_live_call():
     provider = together_module.TogetherProvider(api_key=api_key)
     assert_capital_of_france(
         lambda prompt: provider.get_response(
-            TOGETHER_MODEL,
-            prompt,
-            temperature=0,
-            wait_time=1,
-            max_tokens=256,
+            model_id=TOGETHER_MODEL.full_name,
+            prompt=prompt,
+            options={"temperature": 0, "max_tokens": 256},
         )
     )

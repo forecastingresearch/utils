@@ -12,6 +12,23 @@ logger = logging.getLogger(__name__)
 _DEFAULT_MAX_RETRIES: int = 5
 
 
+def response_to_plain_text(response: Any) -> str:
+    """Return a readable plain-text representation of a provider response."""
+    for method_name in ("model_dump_json", "json", "to_json"):
+        method = getattr(response, method_name, None)
+        if callable(method):
+            try:
+                return str(method(indent=2))
+            except TypeError:
+                try:
+                    return str(method())
+                except Exception:  # noqa: BLE001 - best-effort debug formatting
+                    continue
+            except Exception:  # noqa: BLE001 - best-effort debug formatting
+                continue
+    return str(response)
+
+
 def get_response_with_retry(
     api_call: Callable[[], str | Any],
     wait_time: int,
@@ -30,13 +47,14 @@ def get_response_with_retry(
         try:
             return api_call()
         except Exception as exc:  # noqa: BLE001 - retries must catch broad exceptions
-            if "repetitive patterns" in str(exc):
-                logger.info(
-                    "Repetitive patterns detected in the prompt. Modifying prompt and retrying..."
-                )
-                return "need_a_new_reformat_prompt"
-
-            logger.info("%s (attempt %d/%d): %s", error_msg, attempt + 1, max_retries, exc)
+            logger.info(
+                "%s (attempt %d/%d): %s: %s",
+                error_msg,
+                attempt + 1,
+                max_retries,
+                type(exc).__name__,
+                exc,
+            )
 
             if attempt + 1 >= max_retries:
                 raise

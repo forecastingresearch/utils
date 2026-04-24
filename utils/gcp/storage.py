@@ -5,6 +5,8 @@ import pathlib
 from datetime import datetime, timezone
 from typing import List, Optional
 
+from google.cloud import storage
+
 from . import (
     storage_download_file,
     storage_list_files,
@@ -22,6 +24,12 @@ def list_with_prefix(
         bucket_name=bucket_name,
         prefix=prefix,
     )
+
+
+def file_exists(bucket_name: str, filename: str) -> bool:
+    """Return True if an object with this exact name exists in the bucket."""
+    storage_client = storage.Client()
+    return storage_client.bucket(bucket_name).blob(filename).exists()
 
 
 def list(
@@ -112,8 +120,6 @@ def get_last_modified_time(
     mnt: str = "",
 ) -> Optional[datetime]:
     """Return the last modified date for the given file."""
-    from google.cloud import storage
-
     mount_dir = f"{mnt}/{bucket_name}"
     if mnt and os.path.exists(mount_dir):
         ts = os.path.getmtime(f"{mount_dir}/{filename}")

@@ -17,6 +17,7 @@ from ..helpers.constants import (
     XAI_API_KEY_SECRET_NAME,
 )
 from .lab_registry import LABS, Lab
+from .provider_registry import PROVIDERS, Provider
 from .providers.anthropic import AnthropicProvider
 from .providers.base import BaseLLMProvider
 from .providers.google import GoogleProvider
@@ -27,13 +28,17 @@ from .providers.xai import XAIProvider
 # Registry for API keys by provider class
 _PROVIDER_API_KEYS: dict[Type[BaseLLMProvider], str] = {}
 
-# Mapping from provider name strings to provider classes
-_PROVIDER_NAME_TO_CLASS: dict[str, Type[BaseLLMProvider]] = {
-    "openai": OpenAIProvider,
-    "anthropic": AnthropicProvider,
-    "google": GoogleProvider,
-    "xai": XAIProvider,
-    "together": TogetherProvider,
+# Mapping from provider routes to provider classes
+_PROVIDER_TO_CLASS: dict[Provider, Type[BaseLLMProvider]] = {
+    PROVIDERS["OpenAI"]: OpenAIProvider,
+    PROVIDERS["Anthropic"]: AnthropicProvider,
+    PROVIDERS["Google"]: GoogleProvider,
+    PROVIDERS["xAI"]: XAIProvider,
+    PROVIDERS["Together"]: TogetherProvider,
+}
+
+_PROVIDER_CLASS_TO_PROVIDER: dict[Type[BaseLLMProvider], Provider] = {
+    provider_cls: provider for provider, provider_cls in _PROVIDER_TO_CLASS.items()
 }
 
 # Mapping from provider classes to GCP secret names
@@ -57,10 +62,19 @@ class Model:
     lab: Lab
     reasoning_model: bool = False
 
-    def get_response(self, prompt: str, **options: Any) -> str:
+    def get_response(
+        self,
+        prompt: str,
+        options: dict[str, Any] | None = None,
+    ) -> str:
         """Request a response from the model's provider."""
-        provider = _get_provider_instance(self.provider_cls)
-        return provider.get_response(self, prompt, **options)
+        provider = _PROVIDER_CLASS_TO_PROVIDER[self.provider_cls]
+        return get_response(
+            provider,
+            self.full_name,
+            prompt=prompt,
+            options=options,
+        )
 
 
 def _get_api_key_for_provider(provider_cls: Type[BaseLLMProvider]) -> str | None:
@@ -127,41 +141,63 @@ def configure_api_keys(
 
     # Set explicitly provided keys (these override GCP keys if both are set)
     key_mapping = {
-        "openai": (OpenAIProvider, openai),
-        "anthropic": (AnthropicProvider, anthropic),
-        "google": (GoogleProvider, google),
-        "xai": (XAIProvider, xai),
-        "together": (TogetherProvider, together),
+        PROVIDERS["OpenAI"]: openai,
+        PROVIDERS["Anthropic"]: anthropic,
+        PROVIDERS["Google"]: google,
+        PROVIDERS["xAI"]: xai,
+        PROVIDERS["Together"]: together,
     }
 
-    for provider_cls, api_key in key_mapping.values():
+    for provider, api_key in key_mapping.items():
         if api_key is not None:
+            provider_cls = _PROVIDER_TO_CLASS[provider]
             _PROVIDER_API_KEYS[provider_cls] = api_key
 
     # Clear the provider instance cache since keys have changed
     _get_provider_instance.cache_clear()
 
 
-def validate_provider_keys(models: list[Model]) -> None:
-    """Validate that all providers needed by the given models have API keys configured.
+def get_response(
+    provider: Provider,
+    model_id: str,
+    prompt: str,
+    options: dict[str, Any] | None = None,
+) -> str:
+    """Request text from a model through the requested API provider."""
+    provider_cls = _get_provider_class(provider)
+    provider_instance = _get_provider_instance(provider_cls)
+    return provider_instance.get_response(
+        model_id=model_id,
+        prompt=prompt,
+        options=options if options is not None else {},
+    )
 
-    Args:
-        models: List of Model objects to validate.
 
-    Raises:
-        ValueError: If any model's provider lacks a configured API key.
-    """
+def _get_provider_class(provider: Provider) -> Type[BaseLLMProvider]:
+    """Return the provider class for a supported API provider route."""
+    if not isinstance(provider, Provider):
+        raise TypeError(f"provider must be a Provider, got {type(provider).__name__}")
+    try:
+        return _PROVIDER_TO_CLASS[provider]
+    except KeyError as exc:
+        raise ValueError(f"Unsupported provider: {provider.name}") from exc
+
+
+def validate_provider_keys(providers: list[Provider]) -> None:
+    """Validate that all requested API providers have API keys configured."""
     missing_keys = []
-    provider_names = {cls: name for name, cls in _PROVIDER_NAME_TO_CLASS.items()}
-
-    for model in models:
-        provider_cls = model.provider_cls
+    for provider in providers:
+        if not isinstance(provider, Provider):
+            raise TypeError(
+                "validate_provider_keys() expects Provider objects. "
+                f"Got {type(provider).__name__}."
+            )
+        provider_cls = _get_provider_class(provider)
         if provider_cls not in _PROVIDER_API_KEYS:
-            provider_name = provider_names.get(provider_cls, provider_cls.__name__)
-            missing_keys.append(f"{provider_name} (for model {model.id})")
+            missing_keys.append(provider.name)
 
     if missing_keys:
-        missing_list = ", ".join(missing_keys)
+        missing_list = ", ".join(sorted(set(missing_keys)))
         raise ValueError(
             f"API keys not configured for the following providers: {missing_list}. "
             "Call configure_api_keys() or configure_api_keys(from_gcp=True) to set them."
@@ -351,21 +387,21 @@ MODELS: Final[list[Model]] = [
         full_name="gemini-2.5-pro",
         token_limit=1_048_576,
         provider_cls=GoogleProvider,
-        lab=LABS["Google"],
+        lab=LABS["Google DeepMind"],
     ),
     Model(
         id="gemini-2.5-flash",
         full_name="models/gemini-2.5-flash",
         token_limit=1_048_576,
         provider_cls=GoogleProvider,
-        lab=LABS["Google"],
+        lab=LABS["Google DeepMind"],
     ),
     Model(
         id="gemini-3-pro-preview",
         full_name="gemini-3-pro-preview",
         token_limit=1_048_576,
         provider_cls=GoogleProvider,
-        lab=LABS["Google"],
+        lab=LABS["Google DeepMind"],
         reasoning_model=False,
     ),
 ]

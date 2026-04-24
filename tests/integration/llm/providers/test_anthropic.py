@@ -30,10 +30,8 @@ def test_anthropic_provider_get_response_live_call():
     provider = anthropic_module.AnthropicProvider(api_key=api_key)
     assert_capital_of_france(
         lambda prompt: provider.get_response(
-            ANTHROPIC_MODEL,
-            prompt,
-            temperature=0,
-            max_tokens=16,
-            wait_time=1,
+            model_id=ANTHROPIC_MODEL.full_name,
+            prompt=prompt,
+            options={"temperature": 0, "max_tokens": 16},
         )
     )

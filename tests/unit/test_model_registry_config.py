@@ -8,7 +8,6 @@ import pytest
 from google.api_core import exceptions
 
 from utils.llm.model_registry import (  # type: ignore[import]
-    MODELS,
     AnthropicProvider,
     GoogleProvider,
     OpenAIProvider,
@@ -17,6 +16,7 @@ from utils.llm.model_registry import (  # type: ignore[import]
     configure_api_keys,
     validate_provider_keys,
 )
+from utils.llm.provider_registry import PROVIDERS
 
 
 def test_configure_api_keys_with_explicit_keys():
@@ -155,7 +155,7 @@ def test_validate_provider_keys_success():
     )
 
     # Should not raise
-    validate_provider_keys(MODELS)
+    validate_provider_keys(list(PROVIDERS.values()))
 
     # Clear for other tests
     _PROVIDER_API_KEYS.clear()
@@ -169,9 +169,8 @@ def test_validate_provider_keys_raises_on_missing():
 
     configure_api_keys(openai="sk-test-openai")
 
-    # Should raise because other providers are missing
     with pytest.raises(ValueError, match="API keys not configured"):
-        validate_provider_keys(MODELS)
+        validate_provider_keys([PROVIDERS["Anthropic"]])
 
     # Clear for other tests
     _PROVIDER_API_KEYS.clear()

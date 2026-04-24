@@ -2,20 +2,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import Any, Dict
 
 import openai
 
 from .base import BaseLLMProvider
 
-if TYPE_CHECKING:
-    from ..model_registry import Model
-
 
 class XAIProvider(BaseLLMProvider):
-    """LLM provider that wraps calls to the xAI chat completion endpoint."""
+    """LLM provider that wraps calls to the xAI Responses API."""
 
-    rate_limit_message = "xAI API request exceeded rate limit."
+    retry_message = "xAI API request failed."
 
     def __init__(self, *, api_key: str | None = None, default_wait_time: int | None = None) -> None:
         """Instantiate the xAI client using the provided API key.
@@ -38,25 +35,27 @@ class XAIProvider(BaseLLMProvider):
             base_url="https://api.x.ai/v1",
         )
 
-    def _call_model(self, model: "Model", prompt: str, **options: Any) -> str:
-        temperature = options.get("temperature")
-        max_tokens = options.get("max_tokens")
-        model_name = model.full_name
-
+    def _call_model(self, *, model_id: str, prompt: str, options: dict[str, Any]) -> str:
         request_payload: Dict[str, Any] = {
-            "model": model_name,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": prompt,
-                },
-            ],
+            **options,
+            "model": model_id,
+            "input": prompt,
         }
-        if temperature is not None:
-            request_payload["temperature"] = temperature
-        if max_tokens is not None:
-            request_payload["max_tokens"] = max_tokens
 
-        response = self._xai_client.chat.completions.create(**request_payload)
+        response = self._xai_client.responses.create(**request_payload)
 
-        return response.choices[0].message.content
+        # Get status text (this is useful for catching errors in reasoning models)
+        status = getattr(response, "status", None)
+        if status != "completed":
+            reason = getattr(response, "incomplete_details", None)
+            status_text = f"xAI response incomplete (status={status})"
+            if reason:
+                status_text += f", reason={reason}"
+            raise RuntimeError(status_text)
+
+        # output_text is the text of the response in reasoning models
+        output_text = getattr(response, "output_text", "")
+        if isinstance(output_text, str):
+            return output_text.strip()
+
+        return str(output_text)

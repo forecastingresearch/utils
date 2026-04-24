@@ -2,21 +2,20 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import Any, Dict
 
 from google import genai
 from google.genai import types
 
 from .base import BaseLLMProvider
 
-if TYPE_CHECKING:
-    from ..model_registry import Model
+_ROUTING_ENVELOPE_KEYS = frozenset({"model", "contents"})
 
 
 class GoogleProvider(BaseLLMProvider):
     """LLM provider that wraps Google Gemini API calls."""
 
-    rate_limit_message = "Google AI API request exceeded rate limit."
+    retry_message = "Google AI API request failed."
 
     def __init__(self, *, api_key: str | None = None, default_wait_time: int | None = None) -> None:
         """Instantiate the Google client using the provided API key.
@@ -36,22 +35,17 @@ class GoogleProvider(BaseLLMProvider):
             )
         self._google_ai_client = genai.Client(api_key=api_key)
 
-    def _call_model(self, model: "Model", prompt: str, **options: Any) -> str:
-        temperature = options.get("temperature")
-        model_name = model.full_name
-
-        config_kwargs: Dict[str, Any] = {
-            "candidate_count": 1,
-            "automatic_function_calling": types.AutomaticFunctionCallingConfig(
-                disable=True,
-            ),
+    def _call_model(self, *, model_id: str, prompt: str, options: dict[str, Any]) -> str:
+        request_payload: Dict[str, Any] = {
+            "model": model_id,
+            "contents": prompt,
         }
-        if temperature is not None:
-            config_kwargs["temperature"] = temperature
+        if options:
+            config_options = {
+                key: value for key, value in options.items() if key not in _ROUTING_ENVELOPE_KEYS
+            }
+            if config_options:
+                request_payload["config"] = types.GenerateContentConfig(**config_options)
 
-        response = self._google_ai_client.models.generate_content(
-            model=model_name,
-            contents=prompt,
-            config=types.GenerateContentConfig(**config_kwargs),
-        )
+        response = self._google_ai_client.models.generate_content(**request_payload)
         return response.text

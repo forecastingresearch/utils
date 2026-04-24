@@ -48,18 +48,17 @@ model.get_response("Hello")
 
 ## Configuring LLMs
 
-`model.get_response()` accepts any optional argument your model accepts.
+`model.get_response()` accepts provider-native request options via `options`.
 For example:
 
 ```
 model.get_response(
     'What is the capital of France?',
-    temperature=0,
-    max_tokens=256,
+    options={"temperature": 0},
 )
 ```
 
-You can check whether an option is supported by looking at the code for the respective model provider (`utils/llm/providers`). 
+Use option names supported by the respective provider (`utils/llm/providers`).
 
 If you don’t see an option you need, feel free to open a GitHub issue!
 

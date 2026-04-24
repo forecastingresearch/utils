@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Union
+from typing import Any, Dict, Iterable, Union
 
 from together import Together  # type: ignore[import]
 
 from .base import BaseLLMProvider
-
-if TYPE_CHECKING:
-    from ..model_registry import Model
 
 
 def _flatten_content(content: Any) -> str:
@@ -32,7 +29,7 @@ def _flatten_content(content: Any) -> str:
 class TogetherProvider(BaseLLMProvider):
     """LLM provider that wraps the Together AI chat completion API."""
 
-    rate_limit_message = "Together AI API request exceeded rate limit."
+    retry_message = "Together AI API request failed."
 
     def __init__(self, *, api_key: str | None = None, default_wait_time: int | None = None) -> None:
         """Instantiate the Together AI client using the provided API key.
@@ -52,21 +49,14 @@ class TogetherProvider(BaseLLMProvider):
             )
         self._together_client = Together(api_key=api_key)
 
-    def _call_model(self, model: "Model", prompt: str, **options: Any) -> str:
-        temperature = options.get("temperature")
-        max_tokens = options.get("max_tokens")
-        model_name = model.full_name
-
+    def _call_model(self, *, model_id: str, prompt: str, options: dict[str, Any]) -> str:
         request_payload: Dict[str, Any] = {
-            "model": model_name,
+            **options,
+            "model": model_id,
             "messages": [
                 {"role": "user", "content": prompt},
             ],
         }
-        if temperature is not None:
-            request_payload["temperature"] = temperature
-        if max_tokens is not None:
-            request_payload["max_tokens"] = max_tokens
 
         response = self._together_client.chat.completions.create(**request_payload)
 

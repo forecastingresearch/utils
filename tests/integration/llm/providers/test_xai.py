@@ -26,9 +26,8 @@ def test_xai_provider_get_response_live_call():
     provider = xai_module.XAIProvider(api_key=api_key)
     assert_capital_of_france(
         lambda prompt: provider.get_response(
-            XAI_MODEL,
-            prompt,
-            temperature=0,
-            wait_time=1,
+            model_id=XAI_MODEL.full_name,
+            prompt=prompt,
+            options={"temperature": 0},
         )
     )
