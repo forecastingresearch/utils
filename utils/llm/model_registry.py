@@ -1,8 +1,55 @@
-"""Central model registry for LLM providers."""
+"""Central model registry for LLM providers.
+
+Adding a base model:
+
+1. Look up the model in Models.dev. If present, copy its exact `provider_id` & `model_id` into
+   `ModelsDevReference`; the checked-in snapshot is only a generated subset, not the catalog.
+   In Models.dev source paths, `provider_id` is the folder under `providers/`, and
+   `model_id` is the TOML filename stem under `models/`, e.g.
+   `providers/anthropic/models/claude-opus-4-8.toml` -> `anthropic` / `claude-opus-4-8`.
+
+2. Add the model to the provider-specific list below with the provider helper. `model_key` is our
+   stable key; set `provider_model_id` only when the provider API ID differs. For routed
+   providers like Together, set `lab_key`.
+
+   Example:
+   ```
+   openai_model(
+       model_key="gpt-5.5-2026-04-23",
+       models_dev_reference=ModelsDevReference(
+           provider_id="openai",
+           model_id="gpt-5.5",
+       ),
+   )
+   ```
+
+3. If Models.dev is missing the model, lacks a full release date, or has a date we
+   intentionally do not want to use, set `manual_release_date` on the model declaration.
+   Do not add a separate release-date override map.
+
+4. Insert the entry where `(release_date, model_key)` stays ascending within that provider
+   list. Use `active=False` only for historical routes that should stay registered but
+   leave `ACTIVE_MODEL_RUNS`.
+
+5. Add benchmark call configs in `model_runs.py` with explicit `model_run_key` values.
+
+After changing `ModelsDevReference` values, refresh the Models.dev snapshot from the repo's root
+directory:
+```
+python - <<'PY'
+from scripts.refresh_models_dev_metadata import write_models_dev_snapshot
+
+write_models_dev_snapshot()
+PY
+```
+Incorrect exact references fail with nearby Models.dev suggestions.
+"""
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import date
 from functools import lru_cache
 from typing import Any, Final, Type
 
@@ -16,7 +63,9 @@ from ..helpers.constants import (
     TOGETHER_API_KEY_SECRET_NAME,
     XAI_API_KEY_SECRET_NAME,
 )
+from ._identifiers import filename_safe_name, validate_registry_key
 from .lab_registry import LABS, Lab
+from .metadata.models_dev import ModelsDevModel, load_models_dev_snapshot
 from .provider_registry import PROVIDERS, Provider
 from .providers.anthropic import AnthropicProvider
 from .providers.base import BaseLLMProvider
@@ -37,10 +86,6 @@ _PROVIDER_TO_CLASS: dict[Provider, Type[BaseLLMProvider]] = {
     PROVIDERS["Together"]: TogetherProvider,
 }
 
-_PROVIDER_CLASS_TO_PROVIDER: dict[Type[BaseLLMProvider], Provider] = {
-    provider_cls: provider for provider, provider_cls in _PROVIDER_TO_CLASS.items()
-}
-
 # Mapping from provider classes to GCP secret names
 _PROVIDER_CLASS_TO_SECRET_NAME: dict[Type[BaseLLMProvider], str] = {
     OpenAIProvider: OPENAI_API_KEY_SECRET_NAME,
@@ -52,15 +97,97 @@ _PROVIDER_CLASS_TO_SECRET_NAME: dict[Type[BaseLLMProvider], str] = {
 
 
 @dataclass(frozen=True, slots=True)
-class Model:
-    """Registered LLM model metadata."""
+class ModelsDevReference:
+    """Reference to an underlying model entry in Models.dev."""
 
-    id: str
-    full_name: str
-    token_limit: int
-    provider_cls: Type[BaseLLMProvider]
+    # Models.dev provider directory ID, not necessarily this repo's API provider route.
+    provider_id: str
+    # Models.dev model entry ID used to look up release metadata in the snapshot.
+    model_id: str
+
+
+@dataclass(frozen=True, slots=True)
+class Model:
+    """Canonical LLM model metadata."""
+
+    # Stable registry key for the base model. Model runs reference this in their keys.
+    model_key: str
+    # Exact model identifier sent to the provider API. Often equals `model_key`,
+    # but routed providers may require provider-specific IDs.
+    provider_model_id: str
+    # Organization that created the model, used for leaderboard grouping and labels.
     lab: Lab
-    reasoning_model: bool = False
+    # Provider route used for live API calls.
+    provider: Provider
+    # Optional Models.dev entry used to resolve release metadata from the checked-in snapshot.
+    models_dev_reference: ModelsDevReference | None = None
+    # Explicit release date source or correction when Models.dev is missing or incorrect.
+    manual_release_date: date | None = None
+    # False keeps historical metadata registered while preventing live benchmark runs.
+    active: bool = True
+
+    def __post_init__(self) -> None:
+        """Validate the model declaration against configured metadata."""
+        validate_registry_key(self.model_key, field_name="Model model_key")
+
+        if self.models_dev_reference is None:
+            if self.manual_release_date is None:
+                raise ValueError(f"Model {self.model_key} is missing release date source")
+            return
+
+        try:
+            metadata = self.models_dev_metadata
+        except KeyError as exc:
+            reference = self.models_dev_reference
+            raise ValueError(
+                f"Model {self.model_key} has invalid Models.dev reference "
+                f"{reference.provider_id}/{reference.model_id}: {exc}"
+            ) from exc
+
+        if self.manual_release_date is not None:
+            return
+        if metadata.release_date is not None:
+            return
+        raise ValueError(f"Model {self.model_key} is missing release date metadata")
+
+    @property
+    def models_dev_provider_id(self) -> str | None:
+        """Return the Models.dev provider ID for compatibility and debugging."""
+        if self.models_dev_reference is None:
+            return None
+        return self.models_dev_reference.provider_id
+
+    @property
+    def models_dev_model_id(self) -> str | None:
+        """Return the Models.dev model ID for compatibility and debugging."""
+        if self.models_dev_reference is None:
+            return None
+        return self.models_dev_reference.model_id
+
+    @property
+    def models_dev_metadata(self) -> ModelsDevModel | None:
+        """Return configured Models.dev metadata, or None when no reference is configured."""
+        if self.models_dev_reference is None:
+            return None
+        return load_models_dev_snapshot().get_model(
+            provider_id=self.models_dev_reference.provider_id,
+            model_id=self.models_dev_reference.model_id,
+        )
+
+    @property
+    def release_date(self) -> date:
+        """Return this model's release date, preferring explicit manual overrides."""
+        if self.manual_release_date is not None:
+            return self.manual_release_date
+        metadata = self.models_dev_metadata
+        if metadata is not None and metadata.release_date is not None:
+            return metadata.release_date
+        raise ValueError(f"Model {self.model_key} is missing release date metadata")
+
+    @property
+    def filename_safe_name(self) -> str:
+        """Return a filename-safe model name."""
+        return filename_safe_name(self.model_key, field_name="Model model_key")
 
     def get_response(
         self,
@@ -68,28 +195,141 @@ class Model:
         options: dict[str, Any] | None = None,
     ) -> str:
         """Request a response from the model's provider."""
-        provider = _PROVIDER_CLASS_TO_PROVIDER[self.provider_cls]
         return get_response(
-            provider,
-            self.full_name,
+            self.provider,
+            self.provider_model_id,
             prompt=prompt,
             options=options,
         )
 
 
-def _get_api_key_for_provider(provider_cls: Type[BaseLLMProvider]) -> str | None:
-    """Look up API key for a provider from the registry configuration.
+def provider_model(
+    *,
+    model_key: str,
+    lab_key: str,
+    provider_key: str,
+    provider_model_id: str | None = None,
+    models_dev_reference: ModelsDevReference | None = None,
+    manual_release_date: date | None = None,
+    active: bool = True,
+) -> Model:
+    """Create a model declaration for a provider route."""
+    return Model(
+        model_key=model_key,
+        provider_model_id=provider_model_id or model_key,
+        lab=LABS[lab_key],
+        provider=PROVIDERS[provider_key],
+        models_dev_reference=models_dev_reference,
+        manual_release_date=manual_release_date,
+        active=active,
+    )
 
-    Returns:
-        API key string if configured, None otherwise.
-    """
-    return _PROVIDER_API_KEYS.get(provider_cls)
+
+def openai_model(
+    *,
+    model_key: str,
+    provider_model_id: str | None = None,
+    models_dev_reference: ModelsDevReference | None = None,
+    manual_release_date: date | None = None,
+    active: bool = True,
+) -> Model:
+    """Create an OpenAI model declaration."""
+    return provider_model(
+        model_key=model_key,
+        provider_model_id=provider_model_id,
+        lab_key="OpenAI",
+        provider_key="OpenAI",
+        models_dev_reference=models_dev_reference,
+        manual_release_date=manual_release_date,
+        active=active,
+    )
+
+
+def anthropic_model(
+    *,
+    model_key: str,
+    provider_model_id: str | None = None,
+    models_dev_reference: ModelsDevReference | None = None,
+    manual_release_date: date | None = None,
+    active: bool = True,
+) -> Model:
+    """Create an Anthropic model declaration."""
+    return provider_model(
+        model_key=model_key,
+        provider_model_id=provider_model_id,
+        lab_key="Anthropic",
+        provider_key="Anthropic",
+        models_dev_reference=models_dev_reference,
+        manual_release_date=manual_release_date,
+        active=active,
+    )
+
+
+def xai_model(
+    *,
+    model_key: str,
+    provider_model_id: str | None = None,
+    models_dev_reference: ModelsDevReference | None = None,
+    manual_release_date: date | None = None,
+    active: bool = True,
+) -> Model:
+    """Create an xAI model declaration."""
+    return provider_model(
+        model_key=model_key,
+        provider_model_id=provider_model_id,
+        lab_key="xAI",
+        provider_key="xAI",
+        models_dev_reference=models_dev_reference,
+        manual_release_date=manual_release_date,
+        active=active,
+    )
+
+
+def google_model(
+    *,
+    model_key: str,
+    provider_model_id: str | None = None,
+    models_dev_reference: ModelsDevReference | None = None,
+    manual_release_date: date | None = None,
+    active: bool = True,
+) -> Model:
+    """Create a Google model declaration."""
+    return provider_model(
+        model_key=model_key,
+        provider_model_id=provider_model_id,
+        lab_key="Google DeepMind",
+        provider_key="Google",
+        models_dev_reference=models_dev_reference,
+        manual_release_date=manual_release_date,
+        active=active,
+    )
+
+
+def together_model(
+    *,
+    model_key: str,
+    lab_key: str,
+    provider_model_id: str | None = None,
+    models_dev_reference: ModelsDevReference | None = None,
+    manual_release_date: date | None = None,
+    active: bool = True,
+) -> Model:
+    """Create a Together-routed model declaration."""
+    return provider_model(
+        model_key=model_key,
+        provider_model_id=provider_model_id,
+        lab_key=lab_key,
+        provider_key="Together",
+        models_dev_reference=models_dev_reference,
+        manual_release_date=manual_release_date,
+        active=active,
+    )
 
 
 @lru_cache(maxsize=None)
 def _get_provider_instance(provider_cls: Type[BaseLLMProvider]) -> BaseLLMProvider:
     """Return a cached provider instance for the given provider class."""
-    api_key = _get_api_key_for_provider(provider_cls)
+    api_key = _PROVIDER_API_KEYS.get(provider_cls)
     if api_key is not None:
         return provider_cls(api_key=api_key)
     return provider_cls()
@@ -204,204 +444,576 @@ def validate_provider_keys(providers: list[Provider]) -> None:
         )
 
 
-MODELS: Final[list[Model]] = [
-    Model(
-        id="gpt-4.1-mini",
-        full_name="gpt-4.1-mini",
-        token_limit=128_000,
-        provider_cls=OpenAIProvider,
-        lab=LABS["OpenAI"],
+# OpenAI models: https://developers.openai.com/api/docs/models
+OPENAI_MODELS: Final[list[Model]] = [
+    openai_model(
+        model_key="gpt-4-0613",
+        manual_release_date=date(2023, 6, 13),
     ),
-    Model(
-        id="gpt-4o-mini",
-        full_name="gpt-4o-mini",
-        token_limit=128_000,
-        provider_cls=OpenAIProvider,
-        lab=LABS["OpenAI"],
+    openai_model(
+        model_key="gpt-3.5-turbo-0125",
+        manual_release_date=date(2024, 1, 25),
     ),
-    Model(
-        id="gpt-5-2025-08-07",
-        full_name="gpt-5-2025-08-07",
-        token_limit=128_000,
-        provider_cls=OpenAIProvider,
-        lab=LABS["OpenAI"],
-        reasoning_model=True,
+    openai_model(
+        model_key="gpt-4-turbo-2024-04-09",
+        manual_release_date=date(2024, 4, 9),
     ),
-    Model(
-        id="gpt-5-mini-2025-08-07",
-        full_name="gpt-5-mini-2025-08-07",
-        token_limit=128_000,
-        provider_cls=OpenAIProvider,
-        lab=LABS["OpenAI"],
-        reasoning_model=True,
+    openai_model(
+        model_key="gpt-4o-2024-05-13",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-4o-2024-05-13"),
     ),
-    Model(
-        id="gpt-5-nano-2025-08-07",
-        full_name="gpt-5-nano-2025-08-07",
-        token_limit=128_000,
-        provider_cls=OpenAIProvider,
-        lab=LABS["OpenAI"],
-        reasoning_model=True,
+    openai_model(
+        model_key="gpt-4o-mini-2024-07-18",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-4o-mini"),
     ),
-    Model(
-        id="gpt-5.1-2025-11-13",
-        full_name="gpt-5.1-2025-11-13",
-        token_limit=128_000,
-        provider_cls=OpenAIProvider,
-        lab=LABS["OpenAI"],
-        reasoning_model=True,
+    openai_model(
+        model_key="gpt-4o-2024-11-20",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-4o-2024-11-20"),
     ),
-    Model(
-        id="gpt-5.2-2025-12-11",
-        full_name="gpt-5.2-2025-12-11",
-        token_limit=128_000,
-        provider_cls=OpenAIProvider,
-        lab=LABS["OpenAI"],
-        reasoning_model=True,
+    openai_model(
+        model_key="o3-mini-2025-01-31",
+        manual_release_date=date(2025, 1, 31),
     ),
-    Model(
-        id="o3-2025-04-16",
-        full_name="o3-2025-04-16",
-        token_limit=200_000,
-        provider_cls=OpenAIProvider,
-        lab=LABS["OpenAI"],
-        reasoning_model=True,
+    openai_model(
+        model_key="gpt-4.5-preview-2025-02-27",
+        manual_release_date=date(2025, 2, 27),
     ),
-    Model(
-        id="gpt-4.1-2025-04-14",
-        full_name="gpt-4.1-2025-04-14",
-        token_limit=128_000,
-        provider_cls=OpenAIProvider,
-        lab=LABS["OpenAI"],
+    openai_model(
+        model_key="gpt-4.1-2025-04-14",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-4.1"),
     ),
-    Model(
-        id="DeepSeek-V3.1",
-        full_name="deepseek-ai/DeepSeek-V3.1",
-        token_limit=128_000,
-        provider_cls=TogetherProvider,
-        lab=LABS["DeepSeek"],
+    openai_model(
+        model_key="o3-2025-04-16",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="o3"),
     ),
-    Model(
-        id="Qwen3-235B-A22B-Thinking-2507",
-        full_name="Qwen/Qwen3-235B-A22B-Thinking-2507",
-        token_limit=262_144,
-        provider_cls=TogetherProvider,
-        lab=LABS["Qwen"],
+    openai_model(
+        model_key="o4-mini-2025-04-16",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="o4-mini"),
     ),
-    Model(
-        id="GLM-4.5-Air-FP8",
-        full_name="zai-org/GLM-4.5-Air-FP8",
-        token_limit=131_072,
-        provider_cls=TogetherProvider,
-        lab=LABS["Z.ai"],
+    openai_model(
+        model_key="gpt-5-2025-08-07",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5"),
     ),
-    Model(
-        id="GLM-4.6",
-        full_name="zai-org/GLM-4.6",
-        token_limit=202_752,
-        provider_cls=TogetherProvider,
-        lab=LABS["Z.ai"],
-        reasoning_model=False,
+    openai_model(
+        model_key="gpt-5-mini-2025-08-07",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5-mini"),
     ),
-    Model(
-        id="claude-sonnet-4-5-20250929",
-        full_name="claude-sonnet-4-5-20250929",
-        token_limit=200_000,
-        provider_cls=AnthropicProvider,
-        lab=LABS["Anthropic"],
+    openai_model(
+        model_key="gpt-5-nano-2025-08-07",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5-nano"),
     ),
-    Model(
-        id="claude-haiku-4-5-20251001",
-        full_name="claude-haiku-4-5-20251001",
-        token_limit=200_000,
-        provider_cls=AnthropicProvider,
-        lab=LABS["Anthropic"],
+    openai_model(
+        model_key="gpt-5.1-2025-11-13",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5.1"),
     ),
-    Model(
-        id="claude-opus-4-1-20250805",
-        full_name="claude-opus-4-1-20250805",
-        token_limit=200_000,
-        provider_cls=AnthropicProvider,
-        lab=LABS["Anthropic"],
+    openai_model(
+        model_key="gpt-5.2-2025-12-11",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5.2"),
     ),
-    Model(
-        id="claude-opus-4-5-20251101",
-        full_name="claude-opus-4-5-20251101",
-        token_limit=200_000,
-        provider_cls=AnthropicProvider,
-        lab=LABS["Anthropic"],
+    openai_model(
+        model_key="gpt-5.4-2026-03-05",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5.4"),
     ),
-    Model(
-        id="claude-sonnet-4-6",
-        full_name="claude-sonnet-4-6",
-        token_limit=200_000,
-        provider_cls=AnthropicProvider,
-        lab=LABS["Anthropic"],
+    openai_model(
+        model_key="gpt-5.4-mini-2026-03-17",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5.4-mini"),
     ),
-    Model(
-        id="claude-sonnet-4-20250514",
-        full_name="claude-sonnet-4-20250514",
-        token_limit=200_000,
-        provider_cls=AnthropicProvider,
-        lab=LABS["Anthropic"],
+    openai_model(
+        model_key="gpt-5.4-nano-2026-03-17",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5.4-nano"),
     ),
-    Model(
-        id="grok-4-fast-reasoning",
-        full_name="grok-4-fast-reasoning",
-        token_limit=2_000_000,
-        provider_cls=XAIProvider,
-        lab=LABS["xAI"],
-    ),
-    Model(
-        id="grok-4-fast-non-reasoning",
-        full_name="grok-4-fast-non-reasoning",
-        token_limit=2_000_000,
-        provider_cls=XAIProvider,
-        lab=LABS["xAI"],
-    ),
-    Model(
-        id="grok-4-0709",
-        full_name="grok-4-0709",
-        token_limit=256_000,
-        provider_cls=XAIProvider,
-        lab=LABS["xAI"],
-    ),
-    Model(
-        id="grok-4-1-fast-reasoning",
-        full_name="grok-4-1-fast-reasoning",
-        token_limit=2_000_000,
-        provider_cls=XAIProvider,
-        lab=LABS["xAI"],
-        reasoning_model=True,
-    ),
-    Model(
-        id="grok-4-1-fast-non-reasoning",
-        full_name="grok-4-1-fast-non-reasoning",
-        token_limit=2_000_000,
-        provider_cls=XAIProvider,
-        lab=LABS["xAI"],
-        reasoning_model=False,
-    ),
-    Model(
-        id="gemini-2.5-pro",
-        full_name="gemini-2.5-pro",
-        token_limit=1_048_576,
-        provider_cls=GoogleProvider,
-        lab=LABS["Google DeepMind"],
-    ),
-    Model(
-        id="gemini-2.5-flash",
-        full_name="models/gemini-2.5-flash",
-        token_limit=1_048_576,
-        provider_cls=GoogleProvider,
-        lab=LABS["Google DeepMind"],
-    ),
-    Model(
-        id="gemini-3-pro-preview",
-        full_name="gemini-3-pro-preview",
-        token_limit=1_048_576,
-        provider_cls=GoogleProvider,
-        lab=LABS["Google DeepMind"],
-        reasoning_model=False,
+    openai_model(
+        model_key="gpt-5.5-2026-04-23",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5.5"),
     ),
 ]
+
+# Together models: https://docs.together.ai/docs/serverless-models
+TOGETHER_MODELS: Final[list[Model]] = [
+    together_model(
+        model_key="llama-2-70b-chat-hf",
+        lab_key="Meta",
+        manual_release_date=date(2023, 7, 18),
+    ),
+    together_model(
+        model_key="mixtral-8x7b-instruct-v0.1",
+        lab_key="Mistral AI",
+        manual_release_date=date(2023, 12, 11),
+        active=False,
+    ),
+    together_model(
+        model_key="mistral-large-latest",
+        lab_key="Mistral AI",
+        manual_release_date=date(2024, 2, 26),
+        active=False,
+    ),
+    together_model(
+        model_key="mixtral-8x22b-instruct-v0.1",
+        lab_key="Mistral AI",
+        manual_release_date=date(2024, 4, 17),
+        active=False,
+    ),
+    together_model(
+        model_key="llama-3-70b-chat-hf",
+        lab_key="Meta",
+        manual_release_date=date(2024, 4, 18),
+    ),
+    together_model(
+        model_key="llama-3-8b-chat-hf",
+        lab_key="Meta",
+        manual_release_date=date(2024, 4, 18),
+    ),
+    together_model(
+        model_key="qwen1.5-110b-chat",
+        lab_key="Qwen",
+        manual_release_date=date(2024, 4, 25),
+    ),
+    together_model(
+        model_key="meta-llama-3.1-405b-instruct-turbo",
+        lab_key="Meta",
+        manual_release_date=date(2024, 7, 23),
+    ),
+    together_model(
+        model_key="mistral-large-2407",
+        lab_key="Mistral AI",
+        manual_release_date=date(2024, 7, 24),
+        active=False,
+    ),
+    together_model(
+        model_key="qwen2.5-72b-instruct-turbo",
+        lab_key="Qwen",
+        manual_release_date=date(2024, 9, 19),
+    ),
+    together_model(
+        model_key="llama-3.2-3b-instruct-turbo",
+        lab_key="Meta",
+        manual_release_date=date(2024, 9, 25),
+    ),
+    together_model(
+        model_key="mistral-large-2411",
+        lab_key="Mistral AI",
+        models_dev_reference=ModelsDevReference(
+            provider_id="mistral", model_id="mistral-large-2411"
+        ),
+        active=False,
+    ),
+    together_model(
+        model_key="qwq-32b-preview",
+        lab_key="Qwen",
+        manual_release_date=date(2024, 11, 28),
+    ),
+    together_model(
+        model_key="llama-3.3-70b-instruct-turbo",
+        lab_key="Meta",
+        models_dev_reference=ModelsDevReference(
+            provider_id="togetherai", model_id="meta-llama/Llama-3.3-70B-Instruct-Turbo"
+        ),
+    ),
+    together_model(
+        model_key="deepseek-v3",
+        lab_key="DeepSeek",
+        models_dev_reference=ModelsDevReference(
+            provider_id="togetherai", model_id="deepseek-ai/DeepSeek-V3"
+        ),
+    ),
+    together_model(
+        model_key="deepseek-r1",
+        lab_key="DeepSeek",
+        models_dev_reference=ModelsDevReference(
+            provider_id="togetherai", model_id="deepseek-ai/DeepSeek-R1"
+        ),
+    ),
+    together_model(
+        model_key="llama-4-maverick-17b-128e-instruct-fp8",
+        lab_key="Meta",
+        manual_release_date=date(2025, 4, 5),
+    ),
+    together_model(
+        model_key="llama-4-scout-17b-16e-instruct",
+        lab_key="Meta",
+        manual_release_date=date(2025, 4, 5),
+    ),
+    together_model(
+        model_key="qwen3-235b-a22b-fp8-tput",
+        lab_key="Qwen",
+        manual_release_date=date(2025, 4, 29),
+    ),
+    together_model(
+        model_key="magistral-medium-2506",
+        lab_key="Mistral AI",
+        manual_release_date=date(2025, 5, 28),
+        active=False,
+    ),
+    together_model(
+        model_key="kimi-k2-instruct",
+        lab_key="Moonshot",
+        manual_release_date=date(2025, 7, 12),
+    ),
+    together_model(
+        model_key="qwen3-235b-a22b-thinking-2507",
+        lab_key="Qwen",
+        manual_release_date=date(2025, 7, 25),
+    ),
+    together_model(
+        model_key="glm-4.5-air-fp8",
+        lab_key="Z.ai",
+        manual_release_date=date(2025, 7, 28),
+    ),
+    together_model(
+        model_key="deepseek-v3.1",
+        provider_model_id="deepseek-ai/DeepSeek-V3.1",
+        lab_key="DeepSeek",
+        active=False,
+        models_dev_reference=ModelsDevReference(
+            provider_id="togetherai", model_id="deepseek-ai/DeepSeek-V3-1"
+        ),
+    ),
+    together_model(
+        model_key="kimi-k2-instruct-0905",
+        lab_key="Moonshot",
+        manual_release_date=date(2025, 9, 5),
+    ),
+    together_model(
+        model_key="glm-4.6",
+        lab_key="Z.ai",
+        models_dev_reference=ModelsDevReference(provider_id="zai", model_id="glm-4.6"),
+    ),
+    together_model(
+        model_key="kimi-k2-thinking",
+        lab_key="Moonshot",
+        models_dev_reference=ModelsDevReference(
+            provider_id="moonshotai", model_id="kimi-k2-thinking"
+        ),
+    ),
+    together_model(
+        model_key="glm-4.7",
+        lab_key="Z.ai",
+        models_dev_reference=ModelsDevReference(provider_id="zai", model_id="glm-4.7"),
+    ),
+    together_model(
+        model_key="kimi-k2.5",
+        provider_model_id="moonshotai/Kimi-K2.5",
+        lab_key="Moonshot",
+        models_dev_reference=ModelsDevReference(
+            provider_id="togetherai", model_id="moonshotai/Kimi-K2.5"
+        ),
+    ),
+    together_model(
+        model_key="glm-5",
+        lab_key="Z.ai",
+        models_dev_reference=ModelsDevReference(provider_id="zai", model_id="glm-5"),
+    ),
+    together_model(
+        model_key="minimax-m2.5",
+        provider_model_id="MiniMaxAI/MiniMax-M2.5",
+        lab_key="MiniMax",
+        models_dev_reference=ModelsDevReference(provider_id="minimax", model_id="MiniMax-M2.5"),
+    ),
+    together_model(
+        model_key="minimax-m2.7",
+        provider_model_id="MiniMaxAI/MiniMax-M2.7",
+        lab_key="MiniMax",
+        models_dev_reference=ModelsDevReference(provider_id="minimax", model_id="MiniMax-M2.7"),
+    ),
+    together_model(
+        model_key="gemma-4-31b-it",
+        provider_model_id="google/gemma-4-31B-it",
+        lab_key="Google DeepMind",
+        models_dev_reference=ModelsDevReference(provider_id="google", model_id="gemma-4-31b-it"),
+    ),
+    together_model(
+        model_key="glm-5.1",
+        provider_model_id="zai-org/GLM-5.1",
+        lab_key="Z.ai",
+        models_dev_reference=ModelsDevReference(provider_id="zai", model_id="glm-5.1"),
+    ),
+    together_model(
+        model_key="kimi-k2.6",
+        provider_model_id="moonshotai/Kimi-K2.6",
+        lab_key="Moonshot",
+        models_dev_reference=ModelsDevReference(provider_id="moonshotai", model_id="kimi-k2.6"),
+    ),
+    together_model(
+        model_key="deepseek-v4-pro",
+        provider_model_id="deepseek-ai/DeepSeek-V4-Pro",
+        lab_key="DeepSeek",
+        models_dev_reference=ModelsDevReference(provider_id="deepseek", model_id="deepseek-v4-pro"),
+    ),
+    together_model(
+        model_key="minimax-m3",
+        provider_model_id="MiniMaxAI/MiniMax-M3",
+        lab_key="MiniMax",
+        models_dev_reference=ModelsDevReference(provider_id="minimax", model_id="MiniMax-M3"),
+    ),
+    together_model(
+        model_key="glm-5.2",
+        provider_model_id="zai-org/GLM-5.2",
+        lab_key="Z.ai",
+        manual_release_date=date(2026, 6, 13),
+    ),
+]
+
+# Anthropic models: https://platform.claude.com/docs/en/about-claude/models/overview
+ANTHROPIC_MODELS: Final[list[Model]] = [
+    anthropic_model(
+        model_key="claude-2.1",
+        manual_release_date=date(2023, 11, 21),
+        active=False,
+    ),
+    anthropic_model(
+        model_key="claude-3-opus-20240229",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-3-opus-20240229"
+        ),
+        active=False,
+    ),
+    anthropic_model(
+        model_key="claude-3-haiku-20240307",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-3-haiku-20240307"
+        ),
+        active=False,
+    ),
+    anthropic_model(
+        model_key="claude-3-5-sonnet-20240620",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-3-5-sonnet-20240620"
+        ),
+        active=False,
+    ),
+    anthropic_model(
+        model_key="claude-3-5-sonnet-20241022",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-3-5-sonnet-20241022"
+        ),
+        active=False,
+    ),
+    anthropic_model(
+        model_key="claude-3-7-sonnet-20250219",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-3-7-sonnet-20250219"
+        ),
+        active=False,
+    ),
+    anthropic_model(
+        model_key="claude-opus-4-20250514",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-opus-4-20250514"
+        ),
+        active=False,
+    ),
+    anthropic_model(
+        model_key="claude-sonnet-4-20250514",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-sonnet-4-20250514"
+        ),
+        active=False,
+    ),
+    anthropic_model(
+        model_key="claude-opus-4-1-20250805",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-opus-4-1-20250805"
+        ),
+    ),
+    anthropic_model(
+        model_key="claude-sonnet-4-5-20250929",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-sonnet-4-5-20250929"
+        ),
+    ),
+    anthropic_model(
+        model_key="claude-haiku-4-5-20251001",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-haiku-4-5-20251001"
+        ),
+    ),
+    anthropic_model(
+        model_key="claude-opus-4-5-20251101",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-opus-4-5-20251101"
+        ),
+    ),
+    anthropic_model(
+        model_key="claude-opus-4-6",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-opus-4-6"
+        ),
+    ),
+    anthropic_model(
+        model_key="claude-sonnet-4-6",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-sonnet-4-6"
+        ),
+    ),
+    anthropic_model(
+        model_key="claude-opus-4-7",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic", model_id="claude-opus-4-7"
+        ),
+    ),
+    anthropic_model(
+        model_key="claude-opus-4-8",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic",
+            model_id="claude-opus-4-8",
+        ),
+    ),
+]
+
+# xAI models: https://console.x.ai/ -> API Models
+XAI_MODELS: Final[list[Model]] = [
+    xai_model(
+        model_key="grok-beta",
+        manual_release_date=date(2024, 11, 4),
+    ),
+    xai_model(
+        model_key="grok-4-0709",
+        manual_release_date=date(2025, 7, 9),
+    ),
+    xai_model(
+        model_key="grok-4-fast-non-reasoning",
+        manual_release_date=date(2025, 9, 19),
+    ),
+    xai_model(
+        model_key="grok-4-fast-reasoning",
+        manual_release_date=date(2025, 9, 19),
+    ),
+    xai_model(
+        model_key="grok-4-1-fast-non-reasoning",
+        manual_release_date=date(2025, 11, 17),
+    ),
+    xai_model(
+        model_key="grok-4-1-fast-reasoning",
+        manual_release_date=date(2025, 11, 17),
+    ),
+    xai_model(
+        model_key="grok-4.20-0309-non-reasoning",
+        models_dev_reference=ModelsDevReference(
+            provider_id="xai", model_id="grok-4.20-0309-non-reasoning"
+        ),
+    ),
+    xai_model(
+        model_key="grok-4.20-0309-reasoning",
+        models_dev_reference=ModelsDevReference(
+            provider_id="xai", model_id="grok-4.20-0309-reasoning"
+        ),
+    ),
+    xai_model(
+        model_key="grok-4.20-beta-0309-non-reasoning",
+        provider_model_id="grok-4.20-beta-0309-non-reasoning",
+        manual_release_date=date(2026, 3, 9),
+        active=False,
+    ),
+    xai_model(
+        model_key="grok-4.20-beta-0309-reasoning",
+        provider_model_id="grok-4.20-beta-0309-reasoning",
+        manual_release_date=date(2026, 3, 9),
+        active=False,
+    ),
+    xai_model(
+        model_key="grok-4.3",
+        models_dev_reference=ModelsDevReference(provider_id="xai", model_id="grok-4.3"),
+    ),
+]
+
+# Google models: https://ai.google.dev/gemini-api/docs/models
+GOOGLE_MODELS: Final[list[Model]] = [
+    google_model(
+        model_key="gemini-1.5-flash",
+        manual_release_date=date(2024, 5, 1),
+    ),
+    google_model(
+        model_key="gemini-1.5-pro",
+        manual_release_date=date(2024, 5, 1),
+    ),
+    google_model(
+        model_key="gemini-2.0-flash-lite-001",
+        manual_release_date=date(2025, 2, 5),
+    ),
+    google_model(
+        model_key="gemini-2.5-pro-exp-03-25",
+        manual_release_date=date(2025, 3, 25),
+    ),
+    google_model(
+        model_key="gemini-2.5-pro-preview-03-25",
+        manual_release_date=date(2025, 4, 4),
+    ),
+    google_model(
+        model_key="gemini-2.5-flash-preview-04-17",
+        manual_release_date=date(2025, 4, 17),
+    ),
+    google_model(
+        model_key="gemini-2.5-flash",
+        models_dev_reference=ModelsDevReference(provider_id="google", model_id="gemini-2.5-flash"),
+    ),
+    google_model(
+        model_key="gemini-2.5-pro",
+        models_dev_reference=ModelsDevReference(provider_id="google", model_id="gemini-2.5-pro"),
+    ),
+    google_model(
+        model_key="gemini-3-pro-preview",
+        models_dev_reference=ModelsDevReference(
+            provider_id="google", model_id="gemini-3-pro-preview"
+        ),
+    ),
+    google_model(
+        model_key="gemini-3-flash-preview",
+        models_dev_reference=ModelsDevReference(
+            provider_id="google", model_id="gemini-3-flash-preview"
+        ),
+    ),
+    google_model(
+        model_key="gemini-3.1-pro-preview",
+        models_dev_reference=ModelsDevReference(
+            provider_id="google", model_id="gemini-3.1-pro-preview"
+        ),
+    ),
+    google_model(
+        model_key="gemini-3.1-flash-lite-preview",
+        models_dev_reference=ModelsDevReference(
+            provider_id="google", model_id="gemini-3.1-flash-lite-preview"
+        ),
+    ),
+    google_model(
+        model_key="gemini-3.1-flash-lite",
+        models_dev_reference=ModelsDevReference(
+            provider_id="google", model_id="gemini-3.1-flash-lite"
+        ),
+    ),
+    google_model(
+        model_key="gemini-3.5-flash",
+        models_dev_reference=ModelsDevReference(provider_id="google", model_id="gemini-3.5-flash"),
+    ),
+]
+
+
+def _validate_unique_model_keys(models: Sequence[Model]) -> None:
+    """Reject duplicate model keys in a model registry list."""
+    seen_model_keys = set()
+    for model in models:
+        if model.model_key in seen_model_keys:
+            raise ValueError(f"Duplicate LLM model_key: {model.model_key}")
+        seen_model_keys.add(model.model_key)
+
+
+def create_models_list(models: Sequence[Model]) -> list[Model]:
+    """Create a validated model registry list."""
+    _validate_unique_model_keys(models)
+    return list(models)
+
+
+MODELS: Final[list[Model]] = create_models_list(
+    [
+        *OPENAI_MODELS,
+        *TOGETHER_MODELS,
+        *ANTHROPIC_MODELS,
+        *XAI_MODELS,
+        *GOOGLE_MODELS,
+    ]
+)
+MODELS_BY_KEY: Final[dict[str, Model]] = {model.model_key: model for model in MODELS}
+
+
+def model_release_dates_by_key() -> dict[str, date]:
+    """Return release dates keyed by canonical model_key."""
+    return {model.model_key: model.release_date for model in MODELS}

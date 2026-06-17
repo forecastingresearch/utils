@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, Union
+from typing import Any, Dict, Final, Iterable, Union
 
 from together import Together  # type: ignore[import]
 
 from .base import BaseLLMProvider
+
+TOGETHER_REQUEST_TIMEOUT_SECONDS: Final[int] = 180
 
 
 def _flatten_content(content: Any) -> str:
@@ -47,7 +49,10 @@ class TogetherProvider(BaseLLMProvider):
                 "API key required for TogetherProvider. "
                 "Call configure_api_keys() or provide api_key parameter."
             )
-        self._together_client = Together(api_key=api_key)
+        self._together_client = Together(
+            api_key=api_key,
+            timeout=TOGETHER_REQUEST_TIMEOUT_SECONDS,
+        )
 
     def _call_model(self, *, model_id: str, prompt: str, options: dict[str, Any]) -> str:
         request_payload: Dict[str, Any] = {

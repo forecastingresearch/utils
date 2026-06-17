@@ -7,6 +7,7 @@ from typing import Any, Dict
 from google import genai
 from google.genai import types
 
+from ..utils import response_to_plain_text
 from .base import BaseLLMProvider
 
 _ROUTING_ENVELOPE_KEYS = frozenset({"model", "contents"})
@@ -48,4 +49,10 @@ class GoogleProvider(BaseLLMProvider):
                 request_payload["config"] = types.GenerateContentConfig(**config_options)
 
         response = self._google_ai_client.models.generate_content(**request_payload)
-        return response.text
+        text = response.text
+        if text is None:
+            raise RuntimeError(
+                "Google response did not include text. "
+                f"response={response_to_plain_text(response)}"
+            )
+        return text.strip()

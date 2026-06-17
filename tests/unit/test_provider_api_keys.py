@@ -75,5 +75,5 @@ def test_provider_accepts_api_key(provider_class, api_key):
             mock_client = MagicMock()
             mock_together.return_value = mock_client
             provider = provider_class(api_key=api_key)
-            mock_together.assert_called_once_with(api_key=api_key)
+            mock_together.assert_called_once_with(api_key=api_key, timeout=180)
             assert provider is not None

@@ -7,6 +7,59 @@ import subprocess
 import sys
 
 
+def test_import_utils_does_not_load_llm_model_runs_or_providers():
+    """Importing utils must not trigger import of heavy LLM registries."""
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; import utils; "
+            "unexpected_modules = ["
+            "module_name for module_name in ("
+            "'utils.llm', "
+            "'utils.llm.model_runs', "
+            "'utils.llm.model_registry', "
+            "'utils.llm.providers', "
+            "'utils.llm.metadata.models_dev', "
+            "'utils.llm.metadata.artificial_analysis'"
+            ") if module_name in sys.modules"
+            "]; "
+            "assert not unexpected_modules, unexpected_modules",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert (
+        result.returncode == 0
+    ), f"Importing utils eagerly pulled in LLM modules:\n{result.stderr}"
+
+
+def test_import_llm_does_not_load_model_runs_providers_or_snapshots():
+    """Importing utils.llm must not trigger heavy model-run/provider imports."""
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; import utils.llm; "
+            "unexpected_modules = ["
+            "module_name for module_name in ("
+            "'utils.llm.model_runs', "
+            "'utils.llm.model_registry', "
+            "'utils.llm.providers', "
+            "'utils.llm.metadata.models_dev', "
+            "'utils.llm.metadata.artificial_analysis'"
+            ") if module_name in sys.modules"
+            "]; "
+            "assert not unexpected_modules, unexpected_modules",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert (
+        result.returncode == 0
+    ), f"Importing utils.llm eagerly pulled in LLM modules:\n{result.stderr}"
+
+
 def test_import_gcp_does_not_load_llm():
     """Importing utils.gcp must not trigger import of utils.llm or its providers."""
     result = subprocess.run(

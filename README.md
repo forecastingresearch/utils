@@ -24,37 +24,48 @@ uv add fri-utils
 
 # Quickstart
 
+## LLM model-run quickstart
 
+```python
+from utils.llm.model_runs import get_model_run
+from utils.llm.model_registry import configure_api_keys
+
+configure_api_keys(from_gcp=True)
+
+model_runs = [
+    get_model_run("gpt-5-mini-2025-08-07-run-variant-02"),
+    get_model_run("claude-sonnet-4-6-run-variant-01"),
+]
+
+for model_run in model_runs:
+    response = model_run.get_response("What is the capital of France?")
+    print(model_run.slug, response)
 ```
-from utils.llm.model_registry import configure_api_keys, MODELS
 
-# Input the API key for any model provider you like!
-configure_api_keys(
-    openai="...",
-    anthropic="...",
-    google="...",
-    xai="...",
-    together="...",
-    mistral="...",
-)
+Shared `ModelRun` objects are the primary surface for LLM calls. A model run is
+an exact base model plus the provider options used for benchmarking. The example
+above selects two runs by immutable `model_run_key`; the first has the
+human-readable slug `gpt-5-mini-2025-08-07-1024`.
 
-# Call any model we support!
-# See the full list of supported models in `utils/llm/model_registry.py`
-model = next(m for m in MODELS if m.id == "gemini-2.5-flash")
-model.get_response("Hello")
-# > "Hello! How can I help you?"
-```
+Use immutable `model_run_key` values for durable references. Human-readable
+slugs are available for display and convenience lookups, but they are not the
+stable integration contract.
+
 # Methods
 
 ## Configuring LLMs
 
-`model.get_response()` accepts provider-native request options via `options`.
+Benchmark callers should choose shared model-run configurations by immutable
+`model_run_key` through `get_model_run`.
+
+`model_run.get_response()` accepts provider-native request options as keyword
+arguments.
 For example:
 
-```
-model.get_response(
+```python
+model_run.get_response(
     'What is the capital of France?',
-    options={"temperature": 0},
+    temperature=0,
 )
 ```
 
@@ -62,26 +73,35 @@ Use option names supported by the respective provider (`utils/llm/providers`).
 
 If you don’t see an option you need, feel free to open a GitHub issue!
 
+### Third-party metadata
+
+The shared LLM registry includes normalized metadata from Models.dev and
+Artificial Analysis. See `THIRD_PARTY_NOTICES.md` for Models.dev license terms
+and Artificial Analysis attribution.
+
 
 ### Configuring keys from GCP Secret Manager
 
-In some cases, your project may have a API keys set in a Google Cloud Project. 
+In some cases, your project may have API keys set in a Google Cloud Project.
 
 If so, you can use the `from_gcp=True` shortcut to set your keys for all model providers:
 
-```
+```python
+from utils.llm.model_runs import get_model_run
+from utils.llm.model_registry import configure_api_keys
+
 configure_api_keys(from_gcp=True) # Configure all provider keys from GCP.
-model = next(m for m in MODELS if m.id == "gpt-4.1-mini")
-response = model.get_response("Hello")
+model_run = get_model_run("gpt-5-mini-2025-08-07-run-variant-02")
+response = model_run.get_response("Hello")
 ```
 
 If you're setting up a Google Cloud Project, the API keys must be stored in Secret Manager with the following names:
 - `API_KEY_ANTHROPIC` for Anthropic
 - `API_KEY_GEMINI` for Google/Gemini
-- `API_KEY_MISTRAL` for Mistral
 - `API_KEY_OPENAI` for OpenAI
 - `API_KEY_XAI` for xAI
 - `API_KEY_TOGETHERAI` for Together AI
+- `API_KEY_ARTIFICIAL_ANALYSIS` for refreshing the Artificial Analysis metadata snapshot
 
 You can also check `utils/helpers/constants.py` for the complete list of secret names.
 
