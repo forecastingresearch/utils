@@ -4,17 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fri-utils"
-version = "0.1.0"
+version = "0.2.0"
 description = "Utilities for the Forecasting Research Institute codebase."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 authors = [{ name = "Forecasting Research Institute" }]
 dependencies = [
-    "google-genai==1.73.1",
-    "anthropic==0.97.0",
-    "together==2.11.0",
-    "openai==2.33.0",
+    "google-genai==2.8.0",
+    "anthropic==0.109.2",
+    "together==2.16.1",
+    "openai==2.43.0",
     "google-cloud-secret-manager>=2.20.0",
     "google-cloud-storage>=2.14.0",
     "python-dotenv>=1.0.0",
@@ -22,13 +22,15 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "flake8",
-    "flake8-bugbear",
-    "isort",
-    "pydocstyle",
-    "pytest",
-    "pytest-cov",
+    "black==26.5.1",
+    "flake8==7.3.0",
+    "flake8-bugbear==25.11.29",
+    "isort==8.0.1",
+    "pydocstyle==6.3.0",
+    "pytest==9.1.0",
+    "pytest-cov==7.1.0",
+    "pytest-xdist==3.8.0",
+    "tomli==2.4.1",
 ]
 
 [tool.setuptools.packages.find]
@@ -38,10 +40,21 @@ include = [
 ]
 exclude = ["tests*", "htmlcov*", "venv*"]
 
+[tool.setuptools]
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+
+[tool.setuptools.package-data]
+"utils.llm.metadata" = ["*.json"]
+
 [tool.black]
 line-length = 100
+target-version = ["py310"]
 
 [tool.pytest.ini_options]
+filterwarnings = [
+    "error::DeprecationWarning",
+    'ignore:.*_UnionGenericAlias.*:DeprecationWarning:google\.genai\.types',
+]
 markers = [
     "integration: marks tests that hit real cloud services (deselect with -m 'not integration')",
 ]

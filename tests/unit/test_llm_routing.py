@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from types import SimpleNamespace
 from typing import Any
 from unittest.mock import MagicMock, patch
@@ -12,22 +13,20 @@ from utils.llm.lab_registry import LABS
 from utils.llm.provider_registry import PROVIDERS, Provider
 
 
-def test_labs_have_leaderboard_names():
-    """Lab registry should support leaderboard display metadata."""
+def test_labs_have_display_names():
+    """Lab registry names should be display-ready."""
     assert LABS["DeepSeek"].name == "DeepSeek"
-    assert LABS["OpenAI"].leaderboard_name == "OpenAI"
-    assert LABS["Moonshot"].name == "Moonshot"
-    assert LABS["Moonshot"].leaderboard_name == "Moonshot AI"
+    assert LABS["OpenAI"].name == "OpenAI"
+    assert LABS["Moonshot"].name == "Moonshot AI"
+    assert LABS["MiniMax"].name == "MiniMax"
     assert "Google" not in LABS
     assert LABS["Google DeepMind"].name == "Google DeepMind"
-    assert LABS["Google DeepMind"].leaderboard_name == "Google DeepMind"
 
 
 def test_provider_registry_contains_supported_api_routes():
     """Provider registry should describe API routes separately from labs."""
     assert PROVIDERS["Together"].name == "Together"
     assert PROVIDERS["Anthropic"].name == "Anthropic"
-    assert PROVIDERS["Together"].key_name == "together"
 
 
 def test_get_response_routes_by_provider_and_preserves_options():
@@ -73,20 +72,19 @@ def test_get_response_routes_by_provider_and_preserves_options():
     }
 
 
-def test_model_get_response_routes_full_name_and_options():
+def test_model_get_response_routes_provider_model_id_and_options():
     """Model routing should call providers through the public final interface."""
     from utils.llm import model_registry
-    from utils.llm.model_registry import Model, OpenAIProvider
+    from utils.llm.model_registry import Model
 
     observed: dict[str, Any] = {}
     options = {"temperature": 0, "max_tokens": 128}
     model = Model(
-        id="reasoning-model",
-        full_name="reasoning-model",
-        token_limit=128_000,
-        provider_cls=OpenAIProvider,
+        model_key="reasoning-model",
+        provider_model_id="reasoning-model",
+        provider=PROVIDERS["OpenAI"],
         lab=LABS["OpenAI"],
-        reasoning_model=True,
+        manual_release_date=date(2026, 1, 1),
     )
 
     class FakeProvider:
@@ -107,7 +105,7 @@ def test_model_get_response_routes_full_name_and_options():
 
     assert response == "reasoning text"
     assert observed == {
-        "model_id": model.full_name,
+        "model_id": model.provider_model_id,
         "prompt": "forecast prompt",
         "options": options,
     }
@@ -248,6 +246,7 @@ def test_anthropic_provider_forwards_options_without_asserting_max_tokens():
             prompt="forecast",
             options={
                 "max_tokens": 16000,
+                "output_config": {"effort": "max"},
                 "thinking": {"type": "adaptive"},
                 "tools": [{"type": "web_search_20250305", "name": "web_search"}],
             },
@@ -258,6 +257,7 @@ def test_anthropic_provider_forwards_options_without_asserting_max_tokens():
         model="claude-opus-4-6",
         messages=[{"role": "user", "content": "forecast"}],
         max_tokens=16000,
+        output_config={"effort": "max"},
         thinking={"type": "adaptive"},
         tools=[{"type": "web_search_20250305", "name": "web_search"}],
     )
@@ -404,6 +404,24 @@ def test_google_provider_route_fields_are_not_config_options():
     assert call_kwargs["model"] == "gemini-2.5-pro"
     assert call_kwargs["contents"] == "forecast"
     assert call_kwargs["config"].model_dump(exclude_none=True) == {"temperature": 0.0}
+
+
+def test_google_provider_rejects_response_without_text():
+    """Google provider should not return None when the SDK response has no text."""
+    from utils.llm.providers.google import GoogleProvider
+
+    with patch("utils.llm.providers.google.genai.Client") as mock_client_cls:
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value.text = None
+        mock_client_cls.return_value = mock_client
+
+        provider = GoogleProvider(api_key="google-test")
+        with pytest.raises(RuntimeError, match="Google response did not include text"):
+            provider._call_model(
+                model_id="gemini-2.5-pro",
+                prompt="forecast",
+                options={},
+            )
 
 
 def test_xai_provider_route_fields_override_reserved_options():

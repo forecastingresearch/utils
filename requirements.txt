@@ -1,15 +1,1 @@
-google-genai==1.73.1
-anthropic==0.97.0
-together==2.11.0
-openai==2.33.0
-google-cloud-secret-manager>=2.20.0
-google-cloud-storage>=2.14.0
-python-dotenv>=1.0.0
-isort
-black
-flake8
-flake8-bugbear
-pydocstyle
-pytest
-pytest-cov
-pytest-xdist
+.[dev]

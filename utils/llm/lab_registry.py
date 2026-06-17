@@ -11,20 +11,16 @@ class Lab:
     """Metadata describing an LLM research lab."""
 
     name: str
-    display_name: str | None = None
-
-    @property
-    def leaderboard_name(self) -> str:
-        """Return the name to show on leaderboards."""
-        return self.display_name or self.name
 
 
 LABS: Final[dict[str, Lab]] = {
     "Anthropic": Lab(name="Anthropic"),
     "DeepSeek": Lab(name="DeepSeek"),
-    "Moonshot": Lab(name="Moonshot", display_name="Moonshot AI"),
+    "Moonshot": Lab(name="Moonshot AI"),
+    "MiniMax": Lab(name="MiniMax"),
     "Google DeepMind": Lab(name="Google DeepMind"),
     "Meta": Lab(name="Meta"),
+    "Mistral AI": Lab(name="Mistral AI"),
     "OpenAI": Lab(name="OpenAI"),
     "Qwen": Lab(name="Qwen"),
     "xAI": Lab(name="xAI"),
