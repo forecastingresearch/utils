@@ -572,6 +572,15 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="gemini-3.1-pro-preview-run-variant-03",
+        slug="gemini-3.1-pro-preview-high-web-search",
+        model_key="gemini-3.1-pro-preview",
+        options={
+            "thinking_config": {"thinking_level": "high"},
+            "tools": [{"googleSearch": {}}],
+        },
+    ),
+    _model_run(
         model_run_key="gemini-3.5-flash-run-variant-01",
         slug="gemini-3.5-flash",
         model_key="gemini-3.5-flash",

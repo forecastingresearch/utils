@@ -73,6 +73,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gemini-3.1-flash-lite-run-variant-01",
     "gemini-3.1-pro-preview-run-variant-01",
     "gemini-3.1-pro-preview-run-variant-02",
+    "gemini-3.1-pro-preview-run-variant-03",
     "gemini-3.5-flash-run-variant-01",
     "gemini-3.5-flash-run-variant-02",
     "gemma-4-31b-it-run-variant-01",
@@ -710,6 +711,7 @@ def test_gemini_3_1_pro_preview_declares_high_thinking_variant():
 
     original = model_runs.MODEL_RUNS_BY_KEY["gemini-3.1-pro-preview-run-variant-01"]
     high_thinking = model_runs.MODEL_RUNS_BY_KEY["gemini-3.1-pro-preview-run-variant-02"]
+    high_web_search = model_runs.MODEL_RUNS_BY_KEY["gemini-3.1-pro-preview-run-variant-03"]
 
     assert original.slug == "gemini-3.1-pro-preview"
     assert original.options == {
@@ -721,6 +723,12 @@ def test_gemini_3_1_pro_preview_declares_high_thinking_variant():
     assert high_thinking.model_key == "gemini-3.1-pro-preview"
     assert high_thinking.options == {
         "thinking_config": {"thinking_level": "high"},
+    }
+    assert high_web_search.slug == "gemini-3.1-pro-preview-high-web-search"
+    assert high_web_search.model_key == "gemini-3.1-pro-preview"
+    assert high_web_search.options == {
+        "thinking_config": {"thinking_level": "high"},
+        "tools": [{"googleSearch": {}}],
     }
 
 
