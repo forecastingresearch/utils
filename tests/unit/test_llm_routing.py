@@ -296,6 +296,41 @@ def test_anthropic_provider_route_fields_override_reserved_options():
     )
 
 
+def test_anthropic_provider_uses_beta_messages_for_fallback_options():
+    """Anthropic fallback options should route through the beta Messages API."""
+    from utils.llm.providers.anthropic import AnthropicProvider
+
+    stream = MagicMock()
+    stream.__enter__.return_value = stream
+    stream.get_final_text.return_value = "forecast"
+
+    with patch("anthropic.Anthropic") as mock_anthropic:
+        mock_client = MagicMock()
+        mock_client.beta.messages.stream.return_value = stream
+        mock_anthropic.return_value = mock_client
+
+        provider = AnthropicProvider(api_key="sk-ant-test")
+        text = provider._call_model(
+            model_id="claude-fable-5",
+            prompt="forecast",
+            options={
+                "max_tokens": 16000,
+                "fallbacks": [{"model": "claude-opus-4-8"}],
+                "betas": ["server-side-fallback-2026-06-01"],
+            },
+        )
+
+    assert text == "forecast"
+    mock_client.beta.messages.stream.assert_called_once_with(
+        model="claude-fable-5",
+        messages=[{"role": "user", "content": "forecast"}],
+        max_tokens=16000,
+        fallbacks=[{"model": "claude-opus-4-8"}],
+        betas=["server-side-fallback-2026-06-01"],
+    )
+    mock_client.messages.stream.assert_not_called()
+
+
 def test_anthropic_provider_uses_sdk_final_text_helper():
     """Provider should use Anthropic SDK final-text extraction."""
     from utils.llm.providers.anthropic import AnthropicProvider

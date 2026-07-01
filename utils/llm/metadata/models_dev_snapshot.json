@@ -63,6 +63,19 @@
           "temperature": true,
           "tool_call": true
         },
+        "claude-fable-5": {
+          "id": "claude-fable-5",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "name": "Claude Fable 5",
+          "reasoning": true,
+          "release_date": "2026-06-07",
+          "structured_output": true,
+          "temperature": false,
+          "tool_call": true
+        },
         "claude-haiku-4-5-20251001": {
           "id": "claude-haiku-4-5-20251001",
           "limit": {

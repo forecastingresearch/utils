@@ -12,6 +12,12 @@ from .base import BaseLLMProvider
 
 logger = logging.getLogger(__name__)
 
+_BETA_MESSAGES_OPTION_KEYS = frozenset({"betas", "fallbacks", "fallback_credit_token"})
+
+
+def _uses_beta_messages_api(options: dict[str, Any]) -> bool:
+    return bool(_BETA_MESSAGES_OPTION_KEYS & options.keys())
+
 
 class AnthropicProvider(BaseLLMProvider):
     """LLM provider that communicates with the Anthropic Messages API."""
@@ -48,7 +54,13 @@ class AnthropicProvider(BaseLLMProvider):
             ],
         }
 
-        with self._anthropic_console.messages.stream(**call_args) as stream:
+        messages = (
+            self._anthropic_console.beta.messages
+            if _uses_beta_messages_api(options)
+            else self._anthropic_console.messages
+        )
+
+        with messages.stream(**call_args) as stream:
             stream.until_done()
 
             try:

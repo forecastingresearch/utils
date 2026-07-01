@@ -933,6 +933,13 @@ ANTHROPIC_MODELS: Final[list[Model]] = [
         ),
     ),
     anthropic_model(
+        model_key="claude-fable-5",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic",
+            model_id="claude-fable-5",
+        ),
+    ),
+    anthropic_model(
         model_key="claude-sonnet-5",
         models_dev_reference=ModelsDevReference(
             provider_id="anthropic",

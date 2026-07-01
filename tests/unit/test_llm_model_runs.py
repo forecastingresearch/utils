@@ -31,6 +31,8 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "claude-3-7-sonnet-20250219-run-variant-01",
     "claude-3-haiku-20240307-run-variant-01",
     "claude-3-opus-20240229-run-variant-01",
+    "claude-fable-5-run-variant-01",
+    "claude-fable-5-run-variant-02",
     "claude-haiku-4-5-20251001-run-variant-01",
     "claude-haiku-4-5-20251001-run-variant-02",
     "claude-opus-4-1-20250805-run-variant-01",
@@ -699,6 +701,49 @@ def test_anthropic_1024_token_runs_use_temperature_only_when_models_dev_supports
     assert invalid_unsupported_temperatures == {}
 
 
+def test_claude_fable_variants_use_effort_fallbacks_and_web_search():
+    """Keep Fable effort variants on their configured tools and stable keys."""
+    from utils.llm import model_runs
+
+    shared = {
+        "max_tokens": 128000,
+        "fallbacks": [{"model": "claude-opus-4-8"}],
+        "betas": ["server-side-fallback-2026-06-01"],
+        "tools": [
+            {"type": "web_search_20260318", "name": "web_search"},
+            {"type": "web_fetch_20260318", "name": "web_fetch"},
+        ],
+    }
+
+    high = model_runs.MODEL_RUNS_BY_KEY["claude-fable-5-run-variant-01"]
+    assert high.slug == "claude-fable-5-high-web-search-code-execution-128k"
+    assert high.options == {
+        **shared,
+        "output_config": {"effort": "high"},
+        "tools": [
+            *shared["tools"],
+            {
+                "type": "code_execution_20260521",
+                "name": "code_execution",
+            },
+        ],
+    }
+
+    max_effort = model_runs.MODEL_RUNS_BY_KEY["claude-fable-5-run-variant-02"]
+    assert max_effort.slug == "claude-fable-5-max-web-search-code-execution-128k"
+    assert max_effort.options == {
+        **shared,
+        "output_config": {"effort": "max"},
+        "tools": [
+            *shared["tools"],
+            {
+                "type": "code_execution_20260521",
+                "name": "code_execution",
+            },
+        ],
+    }
+
+
 def test_minimax_variants_declare_provider_controls_on_existing_run_keys():
     """Keep MiniMax provider controls on the intended stable run keys."""
     from utils.llm import model_runs
@@ -1053,10 +1098,14 @@ def _declared_option_names_by_provider() -> dict[str, frozenset[str]]:
     from openai import OpenAI
     from together import Together
 
+    anthropic = Anthropic(api_key="test")
+    anthropic_names = _keyword_parameter_names(
+        anthropic.messages.stream
+    ) | _keyword_parameter_names(anthropic.beta.messages.stream)
     openai_names = _keyword_parameter_names(OpenAI(api_key="test").responses.create)
     moonshot_ai_names = _keyword_parameter_names(OpenAI(api_key="test").chat.completions.create)
     return {
-        "Anthropic": _keyword_parameter_names(Anthropic(api_key="test").messages.stream),
+        "Anthropic": anthropic_names,
         "Google": _google_generate_content_config_names(),
         "Moonshot AI": moonshot_ai_names,
         "OpenAI": openai_names,

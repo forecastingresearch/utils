@@ -263,6 +263,56 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
         options={"max_tokens": 1024, "temperature": 0},
     ),
     _model_run(
+        model_run_key="claude-fable-5-run-variant-01",
+        slug="claude-fable-5-high-web-search-code-execution-128k",
+        model_key="claude-fable-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "high"},
+            "fallbacks": [{"model": "claude-opus-4-8"}],
+            "betas": ["server-side-fallback-2026-06-01"],
+            "tools": [
+                {
+                    "type": "web_search_20260318",
+                    "name": "web_search",
+                },
+                {
+                    "type": "web_fetch_20260318",
+                    "name": "web_fetch",
+                },
+                {
+                    "type": "code_execution_20260521",
+                    "name": "code_execution",
+                },
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-fable-5-run-variant-02",
+        slug="claude-fable-5-max-web-search-code-execution-128k",
+        model_key="claude-fable-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "max"},
+            "fallbacks": [{"model": "claude-opus-4-8"}],
+            "betas": ["server-side-fallback-2026-06-01"],
+            "tools": [
+                {
+                    "type": "web_search_20260318",
+                    "name": "web_search",
+                },
+                {
+                    "type": "web_fetch_20260318",
+                    "name": "web_fetch",
+                },
+                {
+                    "type": "code_execution_20260521",
+                    "name": "code_execution",
+                },
+            ],
+        },
+    ),
+    _model_run(
         model_run_key="claude-haiku-4-5-20251001-run-variant-01",
         slug="claude-haiku-4-5-20251001-1024",
         model_key="claude-haiku-4-5-20251001",
