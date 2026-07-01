@@ -182,6 +182,18 @@
           "release_date": "2026-02-17",
           "temperature": true,
           "tool_call": true
+        },
+        "claude-sonnet-5": {
+          "id": "claude-sonnet-5",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "name": "Claude Sonnet 5",
+          "reasoning": true,
+          "release_date": "2026-06-30",
+          "temperature": false,
+          "tool_call": true
         }
       },
       "name": "Anthropic"
@@ -358,7 +370,7 @@
         "MiniMax-M3": {
           "id": "MiniMax-M3",
           "limit": {
-            "context": 512000,
+            "context": 1000000,
             "output": 128000
           },
           "name": "MiniMax-M3",

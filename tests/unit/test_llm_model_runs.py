@@ -54,6 +54,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "claude-sonnet-4-6-run-variant-01",
     "claude-sonnet-4-6-run-variant-02",
     "claude-sonnet-4-6-run-variant-03",
+    "claude-sonnet-5-run-variant-01",
     "deepseek-r1-run-variant-01",
     "deepseek-v3-run-variant-01",
     "deepseek-v3.1-run-variant-01",
@@ -247,6 +248,36 @@ def test_model_release_date_resolves_from_models_dev_metadata():
     assert model.models_dev_metadata is not None
     assert model.release_date == model.models_dev_metadata.release_date
     assert model.release_date == date(2024, 11, 20)
+
+
+def test_claude_sonnet_5_uses_models_dev_metadata_and_supported_options():
+    """Keep Claude Sonnet 5 linked to Models.dev and avoid unsupported temperature options."""
+    from utils.llm import model_registry, model_runs
+
+    model = model_registry.MODELS_BY_KEY["claude-sonnet-5"]
+    run = model_runs.MODEL_RUNS_BY_KEY["claude-sonnet-5-run-variant-01"]
+
+    assert model.provider_model_id == "claude-sonnet-5"
+    assert model.lab == LABS["Anthropic"]
+    assert model.provider == PROVIDERS["Anthropic"]
+    assert model.models_dev_reference == model_registry.ModelsDevReference(
+        provider_id="anthropic",
+        model_id="claude-sonnet-5",
+    )
+    assert model.release_date == date(2026, 6, 30)
+    assert model.models_dev_metadata.raw["limit"] == {
+        "context": 1000000,
+        "output": 128000,
+    }
+    assert model.models_dev_metadata.raw["reasoning"] is True
+    assert model.models_dev_metadata.raw["temperature"] is False
+    assert model.models_dev_metadata.raw["tool_call"] is True
+    assert run.model is model
+    assert run.slug == "claude-sonnet-5-adaptive-thinking-16000"
+    assert run.options == {
+        "max_tokens": 16000,
+        "thinking": {"type": "adaptive"},
+    }
 
 
 def test_model_api_provider_route_is_independent_from_models_dev_provider():
@@ -618,34 +649,43 @@ def test_artificial_analysis_non_reasoning_runs_default_to_16384_max_tokens():
     assert invalid_caps == {}
 
 
-def test_anthropic_1024_token_runs_use_zero_temperature_except_opus_4_7_and_4_8():
+def test_anthropic_1024_token_runs_use_temperature_only_when_models_dev_supports_it():
     """Keep deterministic sampling on supported 1024-token Anthropic runs."""
     from utils.llm import model_runs
 
-    excluded_model_keys = {"claude-opus-4-7", "claude-opus-4-8"}
     matching_runs = [
         run
         for run in model_runs.MODEL_RUNS
         if run.provider == PROVIDERS["Anthropic"]
         and run.options.get("max_tokens") == 1024
-        and run.model_key not in excluded_model_keys
+        and (
+            run.model.models_dev_metadata is None
+            or run.model.models_dev_metadata.raw.get("temperature") is True
+        )
     ]
-    excluded_runs = [
+    unsupported_temperature_runs = [
         run
         for run in model_runs.MODEL_RUNS
         if run.provider == PROVIDERS["Anthropic"]
         and run.options.get("max_tokens") == 1024
-        and run.model_key in excluded_model_keys
+        and run.model.models_dev_metadata is not None
+        and run.model.models_dev_metadata.raw.get("temperature") is not True
     ]
     invalid_temperatures = {
         run.slug: run.options.get("temperature")
         for run in matching_runs
         if run.options.get("temperature") != 0
     }
+    invalid_unsupported_temperatures = {
+        run.slug: run.options.get("temperature")
+        for run in unsupported_temperature_runs
+        if "temperature" in run.options
+    }
 
     assert matching_runs
-    assert {run.model_key for run in excluded_runs} == excluded_model_keys
+    assert unsupported_temperature_runs
     assert invalid_temperatures == {}
+    assert invalid_unsupported_temperatures == {}
 
 
 def test_minimax_variants_declare_provider_controls_on_existing_run_keys():

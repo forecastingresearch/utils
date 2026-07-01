@@ -420,6 +420,15 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
             "thinking": {"type": "adaptive"},
         },
     ),
+    _model_run(
+        model_run_key="claude-sonnet-5-run-variant-01",
+        slug="claude-sonnet-5-adaptive-thinking-16000",
+        model_key="claude-sonnet-5",
+        options={
+            "max_tokens": 16000,
+            "thinking": {"type": "adaptive"},
+        },
+    ),
 ]
 
 

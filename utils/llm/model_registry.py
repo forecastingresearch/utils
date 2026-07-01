@@ -858,6 +858,13 @@ ANTHROPIC_MODELS: Final[list[Model]] = [
             model_id="claude-opus-4-8",
         ),
     ),
+    anthropic_model(
+        model_key="claude-sonnet-5",
+        models_dev_reference=ModelsDevReference(
+            provider_id="anthropic",
+            model_id="claude-sonnet-5",
+        ),
+    ),
 ]
 
 # xAI models: https://console.x.ai/ -> API Models
