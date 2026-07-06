@@ -10,6 +10,7 @@ from google.api_core import exceptions
 from utils.llm.model_registry import (  # type: ignore[import]
     AnthropicProvider,
     GoogleProvider,
+    MoonshotAIProvider,
     OpenAIProvider,
     TogetherProvider,
     XAIProvider,
@@ -30,6 +31,7 @@ def test_configure_api_keys_with_explicit_keys():
         openai="sk-test-openai",
         anthropic="sk-ant-test-anthropic",
         google="test-google",
+        moonshot_ai="test-moonshot",
         xai="test-xai",
         together="test-together",
     )
@@ -38,6 +40,7 @@ def test_configure_api_keys_with_explicit_keys():
     assert _PROVIDER_API_KEYS[OpenAIProvider] == "sk-test-openai"
     assert _PROVIDER_API_KEYS[AnthropicProvider] == "sk-ant-test-anthropic"
     assert _PROVIDER_API_KEYS[GoogleProvider] == "test-google"
+    assert _PROVIDER_API_KEYS[MoonshotAIProvider] == "test-moonshot"
     assert _PROVIDER_API_KEYS[XAIProvider] == "test-xai"
     assert _PROVIDER_API_KEYS[TogetherProvider] == "test-together"
 
@@ -75,6 +78,7 @@ def test_configure_api_keys_from_gcp(mock_get_secret):
         "API_KEY_OPENAI": "sk-gcp-openai",
         "API_KEY_ANTHROPIC": "sk-ant-gcp-anthropic",
         "API_KEY_GEMINI": "gcp-google",
+        "API_KEY_MOONSHOT_AI": "gcp-moonshot",
         "API_KEY_XAI": "gcp-xai",
         "API_KEY_TOGETHERAI": "gcp-together",
     }.get
@@ -84,6 +88,7 @@ def test_configure_api_keys_from_gcp(mock_get_secret):
     assert _PROVIDER_API_KEYS[OpenAIProvider] == "sk-gcp-openai"
     assert _PROVIDER_API_KEYS[AnthropicProvider] == "sk-ant-gcp-anthropic"
     assert _PROVIDER_API_KEYS[GoogleProvider] == "gcp-google"
+    assert _PROVIDER_API_KEYS[MoonshotAIProvider] == "gcp-moonshot"
     assert _PROVIDER_API_KEYS[XAIProvider] == "gcp-xai"
     assert _PROVIDER_API_KEYS[TogetherProvider] == "gcp-together"
 
@@ -150,6 +155,7 @@ def test_validate_provider_keys_success():
         openai="sk-test-openai",
         anthropic="sk-ant-test-anthropic",
         google="test-google",
+        moonshot_ai="test-moonshot",
         xai="test-xai",
         together="test-together",
     )

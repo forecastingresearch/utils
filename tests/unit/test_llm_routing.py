@@ -27,6 +27,8 @@ def test_provider_registry_contains_supported_api_routes():
     """Provider registry should describe API routes separately from labs."""
     assert PROVIDERS["Together"].name == "Together"
     assert PROVIDERS["Anthropic"].name == "Anthropic"
+    assert PROVIDERS["Moonshot AI"].name == "Moonshot AI"
+    assert PROVIDERS["Moonshot AI"].key_name == "moonshot_ai"
 
 
 def test_get_response_routes_by_provider_and_preserves_options():
@@ -480,6 +482,38 @@ def test_together_provider_route_fields_override_reserved_options():
         model="deepseek-ai/DeepSeek-V3.1",
         messages=[{"role": "user", "content": "forecast"}],
         temperature=0,
+    )
+
+
+def test_moonshot_ai_provider_uses_openai_chat_completions_route():
+    """Moonshot AI provider should call Kimi through the OpenAI-compatible chat API."""
+    from utils.llm.providers.moonshot_ai import MoonshotAIProvider
+
+    with patch("utils.llm.providers.moonshot_ai.OpenAI") as mock_openai:
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value.choices[0].message.content = " forecast "
+        mock_openai.return_value = mock_client
+
+        provider = MoonshotAIProvider(api_key="moonshot-test")
+        text = provider._call_model(
+            model_id="kimi-k2.6",
+            prompt="forecast",
+            options={
+                "model": "wrong-model",
+                "messages": [{"role": "user", "content": "wrong-prompt"}],
+                "max_tokens": 16000,
+            },
+        )
+
+    assert text == "forecast"
+    mock_openai.assert_called_once_with(
+        api_key="moonshot-test",
+        base_url="https://api.moonshot.ai/v1",
+    )
+    mock_client.chat.completions.create.assert_called_once_with(
+        model="kimi-k2.6",
+        messages=[{"role": "user", "content": "forecast"}],
+        max_tokens=16000,
     )
 
 

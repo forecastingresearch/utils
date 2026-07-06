@@ -611,6 +611,37 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
 ]
 
 
+MOONSHOT_AI_MODEL_RUNS: list[ModelRun] = [
+    # The Moonshot API fixes temperature internally for the kimi-k2.x models and
+    # errors on any explicit temperature, so these runs omit it. Thinking mode is
+    # enabled through extra_body because the OpenAI SDK has no thinking keyword.
+    _model_run(
+        model_run_key="kimi-k2.5-moonshot-ai-run-variant-01",
+        slug="kimi-k2.5-moonshot-ai-thinking",
+        model_key="kimi-k2.5-moonshot-ai",
+        options={"extra_body": {"thinking": {"type": "enabled"}}},
+    ),
+    _model_run(
+        model_run_key="kimi-k2.5-moonshot-ai-run-variant-02",
+        slug="kimi-k2.5-moonshot-ai-thinking-128k",
+        model_key="kimi-k2.5-moonshot-ai",
+        options={"extra_body": {"thinking": {"type": "enabled"}}, "max_tokens": 131072},
+    ),
+    _model_run(
+        model_run_key="kimi-k2.6-moonshot-ai-run-variant-01",
+        slug="kimi-k2.6-moonshot-ai-thinking",
+        model_key="kimi-k2.6-moonshot-ai",
+        options={"extra_body": {"thinking": {"type": "enabled"}}},
+    ),
+    _model_run(
+        model_run_key="kimi-k2.6-moonshot-ai-run-variant-02",
+        slug="kimi-k2.6-moonshot-ai-thinking-128k",
+        model_key="kimi-k2.6-moonshot-ai",
+        options={"extra_body": {"thinking": {"type": "enabled"}}, "max_tokens": 131072},
+    ),
+]
+
+
 OAI_MODEL_RUNS: list[ModelRun] = [
     _model_run(
         model_run_key="gpt-3.5-turbo-0125-run-variant-01",
@@ -1129,6 +1160,7 @@ MODEL_RUNS: list[ModelRun] = create_model_runs_list(
     [
         *ANTHROPIC_MODEL_RUNS,
         *GOOGLE_MODEL_RUNS,
+        *MOONSHOT_AI_MODEL_RUNS,
         *OAI_MODEL_RUNS,
         *TOGETHER_MODEL_RUNS,
         *XAI_MODEL_RUNS,

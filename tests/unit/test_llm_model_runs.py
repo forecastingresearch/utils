@@ -126,7 +126,11 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "kimi-k2-instruct-0905-run-variant-01",
     "kimi-k2-instruct-run-variant-01",
     "kimi-k2-thinking-run-variant-01",
+    "kimi-k2.5-moonshot-ai-run-variant-01",
+    "kimi-k2.5-moonshot-ai-run-variant-02",
     "kimi-k2.5-run-variant-01",
+    "kimi-k2.6-moonshot-ai-run-variant-01",
+    "kimi-k2.6-moonshot-ai-run-variant-02",
     "kimi-k2.6-run-variant-01",
     "kimi-k2.6-run-variant-02",
     "llama-2-70b-chat-hf-run-variant-01",
@@ -407,12 +411,14 @@ def test_model_registry_models_are_grouped_by_provider():
     assert model_registry.MODELS == [
         *model_registry.OPENAI_MODELS,
         *model_registry.TOGETHER_MODELS,
+        *model_registry.MOONSHOT_AI_MODELS,
         *model_registry.ANTHROPIC_MODELS,
         *model_registry.XAI_MODELS,
         *model_registry.GOOGLE_MODELS,
     ]
     assert {model.provider.name for model in model_registry.OPENAI_MODELS} == {"OpenAI"}
     assert {model.provider.name for model in model_registry.TOGETHER_MODELS} == {"Together"}
+    assert {model.provider.name for model in model_registry.MOONSHOT_AI_MODELS} == {"Moonshot AI"}
     assert {model.provider.name for model in model_registry.ANTHROPIC_MODELS} == {"Anthropic"}
     assert {model.provider.name for model in model_registry.XAI_MODELS} == {"xAI"}
     assert {model.provider.name for model in model_registry.GOOGLE_MODELS} == {"Google"}
@@ -425,6 +431,7 @@ def test_model_registry_provider_groups_are_sorted_by_release_date():
     provider_groups = [
         model_registry.OPENAI_MODELS,
         model_registry.TOGETHER_MODELS,
+        model_registry.MOONSHOT_AI_MODELS,
         model_registry.ANTHROPIC_MODELS,
         model_registry.XAI_MODELS,
         model_registry.GOOGLE_MODELS,
@@ -772,19 +779,55 @@ def test_gemini_3_1_pro_preview_declares_high_thinking_variant():
     }
 
 
-def test_kimi_k2_6_keeps_original_run_and_declares_capped_run():
-    """Keep the original Kimi run immutable while adding a capped ForecastBench run."""
+def test_kimi_k2_5_and_k2_6_are_callable_via_together_and_moonshot_ai():
+    """Kimi K2.5/K2.6 keep their historical Together route and gain a direct Moonshot route."""
+    from utils.llm import model_registry
+
+    together_k25 = model_registry.MODELS_BY_KEY["kimi-k2.5"]
+    together_k26 = model_registry.MODELS_BY_KEY["kimi-k2.6"]
+    moonshot_k25 = model_registry.MODELS_BY_KEY["kimi-k2.5-moonshot-ai"]
+    moonshot_k26 = model_registry.MODELS_BY_KEY["kimi-k2.6-moonshot-ai"]
+
+    # Both routes are the same Moonshot-lab model reached through different APIs.
+    for model in (together_k25, together_k26, moonshot_k25, moonshot_k26):
+        assert model.lab == LABS["Moonshot"]
+
+    # Historical Together route sends Together's routed model IDs.
+    assert together_k25.provider == PROVIDERS["Together"]
+    assert together_k25.provider_model_id == "moonshotai/Kimi-K2.5"
+    assert together_k26.provider == PROVIDERS["Together"]
+    assert together_k26.provider_model_id == "moonshotai/Kimi-K2.6"
+
+    # Direct Moonshot route sends Moonshot's own model IDs, not the suffixed keys.
+    assert moonshot_k25.provider == PROVIDERS["Moonshot AI"]
+    assert moonshot_k25.provider_model_id == "kimi-k2.5"
+    assert moonshot_k26.provider == PROVIDERS["Moonshot AI"]
+    assert moonshot_k26.provider_model_id == "kimi-k2.6"
+
+
+def test_moonshot_ai_kimi_runs_enable_thinking_without_temperature():
+    """Direct Moonshot Kimi runs enable thinking, omit temperature (API rejects it), cap at 131072."""
     from utils.llm import model_runs
 
-    original = model_runs.MODEL_RUNS_BY_SLUG["kimi-k2.6"]
-    capped = model_runs.MODEL_RUNS_BY_SLUG["kimi-k2.6-16000"]
+    k25_default = model_runs.MODEL_RUNS_BY_SLUG["kimi-k2.5-moonshot-ai-thinking"]
+    k25_capped = model_runs.MODEL_RUNS_BY_SLUG["kimi-k2.5-moonshot-ai-thinking-128k"]
+    k26_default = model_runs.MODEL_RUNS_BY_SLUG["kimi-k2.6-moonshot-ai-thinking"]
+    k26_capped = model_runs.MODEL_RUNS_BY_SLUG["kimi-k2.6-moonshot-ai-thinking-128k"]
 
-    assert original.model_run_key == "kimi-k2.6-run-variant-01"
-    assert original.options == {"temperature": 0}
-    assert capped.model_run_key == "kimi-k2.6-run-variant-02"
-    assert capped.model_key == "kimi-k2.6"
-    assert capped.provider_model_id == "moonshotai/Kimi-K2.6"
-    assert capped.options == {"max_tokens": 16000}
+    thinking = {"thinking": {"type": "enabled"}}
+    for run in (k25_default, k25_capped, k26_default, k26_capped):
+        assert run.provider == PROVIDERS["Moonshot AI"]
+        assert "temperature" not in run.options
+        assert run.options["extra_body"] == thinking
+
+    assert k25_default.model_run_key == "kimi-k2.5-moonshot-ai-run-variant-01"
+    assert k25_default.options == {"extra_body": thinking}
+    assert k25_capped.model_run_key == "kimi-k2.5-moonshot-ai-run-variant-02"
+    assert k25_capped.options == {"extra_body": thinking, "max_tokens": 131072}
+    assert k26_default.model_run_key == "kimi-k2.6-moonshot-ai-run-variant-01"
+    assert k26_default.options == {"extra_body": thinking}
+    assert k26_capped.model_run_key == "kimi-k2.6-moonshot-ai-run-variant-02"
+    assert k26_capped.options == {"extra_body": thinking, "max_tokens": 131072}
 
 
 # TODO: Add all-run coverage for AA-backed reasoning max-token caps once
@@ -948,6 +991,7 @@ def test_explicit_model_run_groups_are_grouped_by_provider_and_sorted_by_key():
     provider_groups = (
         ("ANTHROPIC_MODEL_RUNS", PROVIDERS["Anthropic"]),
         ("GOOGLE_MODEL_RUNS", PROVIDERS["Google"]),
+        ("MOONSHOT_AI_MODEL_RUNS", PROVIDERS["Moonshot AI"]),
         ("OAI_MODEL_RUNS", PROVIDERS["OpenAI"]),
         ("TOGETHER_MODEL_RUNS", PROVIDERS["Together"]),
         ("XAI_MODEL_RUNS", PROVIDERS["xAI"]),
@@ -1006,9 +1050,11 @@ def _declared_option_names_by_provider() -> dict[str, frozenset[str]]:
     from together import Together
 
     openai_names = _keyword_parameter_names(OpenAI(api_key="test").responses.create)
+    moonshot_ai_names = _keyword_parameter_names(OpenAI(api_key="test").chat.completions.create)
     return {
         "Anthropic": _keyword_parameter_names(Anthropic(api_key="test").messages.stream),
         "Google": _google_generate_content_config_names(),
+        "Moonshot AI": moonshot_ai_names,
         "OpenAI": openai_names,
         "Together": _keyword_parameter_names(Together(api_key="test").chat.completions.create),
         "xAI": openai_names,
