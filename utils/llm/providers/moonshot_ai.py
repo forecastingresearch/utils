@@ -38,18 +38,28 @@ class MoonshotAIProvider(BaseLLMProvider):
         )
 
     def _call_model(self, *, model_id: str, prompt: str, options: dict[str, Any]) -> str:
+        # Moonshot requires streaming: non-streamed requests buffer the whole completion
+        # server-side, so the idle connection is dropped by intermediaries before the
+        # response arrives. Streaming keeps bytes flowing and returns the assembled text.
         request_payload: Dict[str, Any] = {
             **options,
             "model": model_id,
             "messages": [
                 {"role": "user", "content": prompt},
             ],
+            "stream": True,
         }
 
-        response = self._moonshot_ai_client.chat.completions.create(**request_payload)
-        message_content = response.choices[0].message.content
-        if message_content is None:
+        stream = self._moonshot_ai_client.chat.completions.create(**request_payload)
+        content_parts = []
+        for chunk in stream:
+            if not chunk.choices:
+                continue
+            delta_content = chunk.choices[0].delta.content
+            if delta_content:
+                content_parts.append(delta_content)
+
+        content = "".join(content_parts).strip()
+        if not content:
             raise RuntimeError("Moonshot AI response did not include text content.")
-        if isinstance(message_content, str):
-            return message_content.strip()
-        return str(message_content).strip()
+        return content

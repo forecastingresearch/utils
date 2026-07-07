@@ -485,13 +485,26 @@ def test_together_provider_route_fields_override_reserved_options():
     )
 
 
-def test_moonshot_ai_provider_uses_openai_chat_completions_route():
-    """Moonshot AI provider should call Kimi through the OpenAI-compatible chat API."""
+def test_moonshot_ai_provider_streams_openai_chat_completions_route():
+    """Moonshot AI provider should stream Kimi through the OpenAI-compatible chat API."""
     from utils.llm.providers.moonshot_ai import MoonshotAIProvider
+
+    def _chunk(content):
+        chunk = MagicMock()
+        chunk.choices = [MagicMock(delta=MagicMock(content=content))]
+        return chunk
+
+    usage_only_chunk = MagicMock()
+    usage_only_chunk.choices = []
 
     with patch("utils.llm.providers.moonshot_ai.OpenAI") as mock_openai:
         mock_client = MagicMock()
-        mock_client.chat.completions.create.return_value.choices[0].message.content = " forecast "
+        mock_client.chat.completions.create.return_value = [
+            _chunk(None),  # role-only opening chunk carries no text
+            _chunk(" fore"),
+            _chunk("cast "),
+            usage_only_chunk,  # trailing usage chunk has no choices
+        ]
         mock_openai.return_value = mock_client
 
         provider = MoonshotAIProvider(api_key="moonshot-test")
@@ -514,6 +527,7 @@ def test_moonshot_ai_provider_uses_openai_chat_completions_route():
         model="kimi-k2.6",
         messages=[{"role": "user", "content": "forecast"}],
         max_tokens=16000,
+        stream=True,
     )
 
 
