@@ -761,6 +761,19 @@
           "structured_output": true,
           "temperature": true,
           "tool_call": true
+        },
+        "grok-4.5": {
+          "id": "grok-4.5",
+          "limit": {
+            "context": 500000,
+            "output": 500000
+          },
+          "name": "Grok 4.5",
+          "reasoning": true,
+          "release_date": "2026-07-08",
+          "structured_output": true,
+          "temperature": true,
+          "tool_call": true
         }
       },
       "name": "xAI"

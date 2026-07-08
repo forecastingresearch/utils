@@ -995,6 +995,10 @@ XAI_MODELS: Final[list[Model]] = [
         model_key="grok-4.3",
         models_dev_reference=ModelsDevReference(provider_id="xai", model_id="grok-4.3"),
     ),
+    xai_model(
+        model_key="grok-4.5",
+        models_dev_reference=ModelsDevReference(provider_id="xai", model_id="grok-4.5"),
+    ),
 ]
 
 # Google models: https://ai.google.dev/gemini-api/docs/models
