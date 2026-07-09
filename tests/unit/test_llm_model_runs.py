@@ -112,6 +112,10 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gpt-5.5-2026-04-23-run-variant-02",
     "gpt-5.5-2026-04-23-run-variant-03",
     "gpt-5.5-2026-04-23-run-variant-04",
+    "gpt-5.6-sol-run-variant-01",
+    "gpt-5.6-sol-run-variant-02",
+    "gpt-5.6-sol-run-variant-03",
+    "gpt-5.6-sol-run-variant-04",
     "grok-4-0709-run-variant-01",
     "grok-4-1-fast-non-reasoning-run-variant-01",
     "grok-4-1-fast-reasoning-run-variant-01",
@@ -742,6 +746,25 @@ def test_claude_fable_variants_use_effort_fallbacks_and_web_search():
             },
         ],
     }
+
+
+def test_gpt_5_6_sol_variant_02_uses_code_interpreter():
+    """Validate the configured GPT code-interpreter tools."""
+    from openai.types.responses.tool_param import CodeInterpreter
+    from pydantic import TypeAdapter
+
+    from utils.llm import model_runs
+
+    code_interpreter = model_runs.MODEL_RUNS_BY_KEY["gpt-5.6-sol-run-variant-02"]
+
+    assert code_interpreter.slug == "gpt-5.6-sol-pro-max-web-search-code-execution-128k"
+    assert code_interpreter.options["reasoning"] == {
+        "mode": "pro",
+        "effort": "max",
+    }
+    assert code_interpreter.options["max_output_tokens"] == 128000
+    tool = code_interpreter.options["tools"][-1]
+    assert TypeAdapter(CodeInterpreter).validate_python(tool) == tool
 
 
 def test_minimax_variants_declare_provider_controls_on_existing_run_keys():

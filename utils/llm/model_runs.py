@@ -841,6 +841,93 @@ OAI_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="gpt-5.6-sol-run-variant-01",
+        slug="gpt-5.6-sol-standard-medium-web-search-code-execution",
+        model_key="gpt-5.6-sol",
+        options={
+            "reasoning": {
+                "mode": "standard",
+                "effort": "medium",
+            },
+            "tools": [
+                {
+                    "type": "web_search",
+                },
+                {
+                    "type": "code_interpreter",
+                    "container": {"type": "auto", "memory_limit": "4g"},
+                },
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-sol-run-variant-02",
+        slug="gpt-5.6-sol-pro-max-web-search-code-execution-128k",
+        model_key="gpt-5.6-sol",
+        options={
+            "timeout": 900,
+            "reasoning": {
+                "mode": "pro",
+                "effort": "max",
+            },
+            "tools": [
+                {
+                    "type": "web_search",
+                },
+                {
+                    "type": "code_interpreter",
+                    "container": {"type": "auto", "memory_limit": "4g"},
+                },
+            ],
+            "max_output_tokens": 128000,
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-sol-run-variant-03",
+        slug="gpt-5.6-sol-pro-max-web-search-code-execution-128k-cost-optimized",
+        model_key="gpt-5.6-sol",
+        options={
+            "timeout": 900,
+            "reasoning": {
+                "mode": "pro",
+                "effort": "max",
+            },
+            "context_management": [{"type": "compaction", "compact_threshold": 50000}],
+            "tools": [
+                {
+                    "type": "web_search",
+                },
+                {
+                    "type": "code_interpreter",
+                    "container": {"type": "auto", "memory_limit": "4g"},
+                },
+            ],
+            "max_output_tokens": 128000,
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-sol-run-variant-04",
+        slug="gpt-5.6-sol-standard-max-web-search-code-execution-128k",
+        model_key="gpt-5.6-sol",
+        options={
+            "timeout": 900,
+            "reasoning": {
+                "mode": "standard",
+                "effort": "max",
+            },
+            "tools": [
+                {
+                    "type": "web_search",
+                },
+                {
+                    "type": "code_interpreter",
+                    "container": {"type": "auto", "memory_limit": "4g"},
+                },
+            ],
+            "max_output_tokens": 128000,
+        },
+    ),
+    _model_run(
         model_run_key="o3-2025-04-16-run-variant-01",
         slug="o3-2025-04-16",
         model_key="o3-2025-04-16",

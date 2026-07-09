@@ -553,6 +553,10 @@ OPENAI_MODELS: Final[list[Model]] = [
         model_key="gpt-5.5-2026-04-23",
         models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5.5"),
     ),
+    openai_model(
+        model_key="gpt-5.6-sol",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5.6-sol"),
+    ),
 ]
 
 # Together models: https://docs.together.ai/docs/serverless-models
