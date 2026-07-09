@@ -561,6 +561,7 @@ TOGETHER_MODELS: Final[list[Model]] = [
         model_key="llama-2-70b-chat-hf",
         lab_key="Meta",
         manual_release_date=date(2023, 7, 18),
+        active=False,
     ),
     together_model(
         model_key="mixtral-8x7b-instruct-v0.1",
@@ -584,21 +585,25 @@ TOGETHER_MODELS: Final[list[Model]] = [
         model_key="llama-3-70b-chat-hf",
         lab_key="Meta",
         manual_release_date=date(2024, 4, 18),
+        active=False,
     ),
     together_model(
         model_key="llama-3-8b-chat-hf",
         lab_key="Meta",
         manual_release_date=date(2024, 4, 18),
+        active=False,
     ),
     together_model(
         model_key="qwen1.5-110b-chat",
         lab_key="Qwen",
         manual_release_date=date(2024, 4, 25),
+        active=False,
     ),
     together_model(
         model_key="meta-llama-3.1-405b-instruct-turbo",
         lab_key="Meta",
         manual_release_date=date(2024, 7, 23),
+        active=False,
     ),
     together_model(
         model_key="mistral-large-2407",
@@ -610,11 +615,13 @@ TOGETHER_MODELS: Final[list[Model]] = [
         model_key="qwen2.5-72b-instruct-turbo",
         lab_key="Qwen",
         manual_release_date=date(2024, 9, 19),
+        active=False,
     ),
     together_model(
         model_key="llama-3.2-3b-instruct-turbo",
         lab_key="Meta",
         manual_release_date=date(2024, 9, 25),
+        active=False,
     ),
     together_model(
         model_key="mistral-large-2411",
@@ -628,6 +635,7 @@ TOGETHER_MODELS: Final[list[Model]] = [
         model_key="qwq-32b-preview",
         lab_key="Qwen",
         manual_release_date=date(2024, 11, 28),
+        active=False,
     ),
     together_model(
         model_key="llama-3.3-70b-instruct-turbo",
@@ -635,6 +643,7 @@ TOGETHER_MODELS: Final[list[Model]] = [
         models_dev_reference=ModelsDevReference(
             provider_id="togetherai", model_id="meta-llama/Llama-3.3-70B-Instruct-Turbo"
         ),
+        active=False,
     ),
     together_model(
         model_key="deepseek-v3",
@@ -642,6 +651,7 @@ TOGETHER_MODELS: Final[list[Model]] = [
         models_dev_reference=ModelsDevReference(
             provider_id="togetherai", model_id="deepseek-ai/DeepSeek-V3"
         ),
+        active=False,
     ),
     together_model(
         model_key="deepseek-r1",
@@ -649,21 +659,25 @@ TOGETHER_MODELS: Final[list[Model]] = [
         models_dev_reference=ModelsDevReference(
             provider_id="togetherai", model_id="deepseek-ai/DeepSeek-R1"
         ),
+        active=False,
     ),
     together_model(
         model_key="llama-4-maverick-17b-128e-instruct-fp8",
         lab_key="Meta",
         manual_release_date=date(2025, 4, 5),
+        active=False,
     ),
     together_model(
         model_key="llama-4-scout-17b-16e-instruct",
         lab_key="Meta",
         manual_release_date=date(2025, 4, 5),
+        active=False,
     ),
     together_model(
         model_key="qwen3-235b-a22b-fp8-tput",
         lab_key="Qwen",
         manual_release_date=date(2025, 4, 29),
+        active=False,
     ),
     together_model(
         model_key="magistral-medium-2506",
@@ -675,35 +689,40 @@ TOGETHER_MODELS: Final[list[Model]] = [
         model_key="kimi-k2-instruct",
         lab_key="Moonshot",
         manual_release_date=date(2025, 7, 12),
+        active=False,
     ),
     together_model(
         model_key="qwen3-235b-a22b-thinking-2507",
         lab_key="Qwen",
         manual_release_date=date(2025, 7, 25),
+        active=False,
     ),
     together_model(
         model_key="glm-4.5-air-fp8",
         lab_key="Z.ai",
         manual_release_date=date(2025, 7, 28),
+        active=False,
     ),
     together_model(
         model_key="deepseek-v3.1",
         provider_model_id="deepseek-ai/DeepSeek-V3.1",
         lab_key="DeepSeek",
-        active=False,
         models_dev_reference=ModelsDevReference(
             provider_id="togetherai", model_id="deepseek-ai/DeepSeek-V3-1"
         ),
+        active=False,
     ),
     together_model(
         model_key="kimi-k2-instruct-0905",
         lab_key="Moonshot",
         manual_release_date=date(2025, 9, 5),
+        active=False,
     ),
     together_model(
         model_key="glm-4.6",
         lab_key="Z.ai",
         models_dev_reference=ModelsDevReference(provider_id="zai", model_id="glm-4.6"),
+        active=False,
     ),
     together_model(
         model_key="kimi-k2-thinking",
@@ -711,11 +730,13 @@ TOGETHER_MODELS: Final[list[Model]] = [
         models_dev_reference=ModelsDevReference(
             provider_id="moonshotai", model_id="kimi-k2-thinking"
         ),
+        active=False,
     ),
     together_model(
         model_key="glm-4.7",
         lab_key="Z.ai",
         models_dev_reference=ModelsDevReference(provider_id="zai", model_id="glm-4.7"),
+        active=False,
     ),
     together_model(
         model_key="kimi-k2.5",
@@ -724,23 +745,27 @@ TOGETHER_MODELS: Final[list[Model]] = [
         models_dev_reference=ModelsDevReference(
             provider_id="togetherai", model_id="moonshotai/Kimi-K2.5"
         ),
+        active=False,
     ),
     together_model(
         model_key="glm-5",
         lab_key="Z.ai",
         models_dev_reference=ModelsDevReference(provider_id="zai", model_id="glm-5"),
+        active=False,
     ),
     together_model(
         model_key="minimax-m2.5",
         provider_model_id="MiniMaxAI/MiniMax-M2.5",
         lab_key="MiniMax",
         models_dev_reference=ModelsDevReference(provider_id="minimax", model_id="MiniMax-M2.5"),
+        active=False,
     ),
     together_model(
         model_key="minimax-m2.7",
         provider_model_id="MiniMaxAI/MiniMax-M2.7",
         lab_key="MiniMax",
         models_dev_reference=ModelsDevReference(provider_id="minimax", model_id="MiniMax-M2.7"),
+        active=False,
     ),
     together_model(
         model_key="gemma-4-31b-it",
@@ -753,6 +778,7 @@ TOGETHER_MODELS: Final[list[Model]] = [
         provider_model_id="zai-org/GLM-5.1",
         lab_key="Z.ai",
         models_dev_reference=ModelsDevReference(provider_id="zai", model_id="glm-5.1"),
+        active=False,
     ),
     together_model(
         model_key="kimi-k2.6",
@@ -857,6 +883,7 @@ ANTHROPIC_MODELS: Final[list[Model]] = [
         models_dev_reference=ModelsDevReference(
             provider_id="anthropic", model_id="claude-opus-4-1-20250805"
         ),
+        active=False,
     ),
     anthropic_model(
         model_key="claude-sonnet-4-5-20250929",
