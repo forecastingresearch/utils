@@ -1148,6 +1148,14 @@ XAI_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="grok-4.3-run-variant-03",
+        slug="grok-4.3-high",
+        model_key="grok-4.3",
+        options={
+            "reasoning": {"effort": "high"},
+        },
+    ),
+    _model_run(
         model_run_key="grok-beta-run-variant-01",
         slug="grok-beta",
         model_key="grok-beta",
