@@ -26,15 +26,30 @@ uv add fri-utils
 
 ## LLM model-run quickstart
 
+Shared `ModelRun` objects are the primary surface for LLM calls. A model run is an exact base model
+plus the provider options used for benchmarking. It's identified by an immutable `model_run_key` or
+by a more-easily-interpreted `slug`.
+
+To list available model run `slug` and `model_run_key` values:
 ```python
-from utils.llm.model_runs import get_model_run
+from utils.llm import ACTIVE_MODEL_RUNS
+
+width = max(len(run.slug) for run in ACTIVE_MODEL_RUNS)
+for run in ACTIVE_MODEL_RUNS:
+    print(f"{run.slug:<{width}}  {run.model_run_key}")
+```
+
+You can call a model run using the `get_response(prompt)` method as shown below:
+```python
+from utils.llm.model_runs import get_model_run, get_model_run_by_slug
 from utils.llm.model_registry import configure_api_keys
 
 configure_api_keys(from_gcp=True)
+# configure_api_keys(openai="...", anthropic="...")  # if not using GCP, pass keys explicitly
 
 model_runs = [
     get_model_run("gpt-5-mini-2025-08-07-run-variant-02"),
-    get_model_run("claude-sonnet-4-6-run-variant-01"),
+    get_model_run_by_slug("claude-sonnet-4-6-1024"),
 ]
 
 for model_run in model_runs:
@@ -42,14 +57,10 @@ for model_run in model_runs:
     print(model_run.slug, response)
 ```
 
-Shared `ModelRun` objects are the primary surface for LLM calls. A model run is
-an exact base model plus the provider options used for benchmarking. The example
-above selects two runs by immutable `model_run_key`; the first has the
-human-readable slug `gpt-5-mini-2025-08-07-1024`.
-
-Use immutable `model_run_key` values for durable references. Human-readable
-slugs are available for display and convenience lookups, but they are not the
-stable integration contract.
+The example above selects the first run by immutable `model_run_key` and the second by its
+human-readable slug `claude-sonnet-4-6-1024`. Use immutable `model_run_key` values for durable
+references. Human-readable slugs are available for display and convenience lookups but while the
+`model_run_key` should be used for stable lookups
 
 # Methods
 
