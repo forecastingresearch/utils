@@ -43,6 +43,25 @@ Users of this registry should choose from `MODEL_RUNS` by `model_run_key`; that 
 
 Any new option or set of options to a model will require a new model run entry.
 
+### Before adding a model or model run
+
+Before writing any registry entry, research what changed; do not just clone the
+previous model's options.
+
+- Check for provider **SDK/API changes** since the last run of that provider:
+  new, renamed, or removed request parameters; new reasoning/verbosity/effort
+  controls; new tool types; endpoint or default changes. The unit tests validate
+  declared option names against the installed SDK, so they catch removed names —
+  but not new options you failed to adopt.
+- Research the **model-specific options** the new model supports, from the
+  provider's release notes/docs and the Models.dev capability flags: reasoning
+  effort levels, thinking/verbosity settings, context and output-token limits,
+  web search or other tools, temperature support.
+- **Discuss the proposed options and the set of model-run variants with the
+  maintainer before finalizing.** Options are benchmark-defining and each
+  distinct option set is its own immutable `model_run_key`, so the run matrix is
+  a decision to make together, not to guess.
+
 ### Adding a base model
 
 - Add provider/lab registry entries first only if the provider or lab is missing.
