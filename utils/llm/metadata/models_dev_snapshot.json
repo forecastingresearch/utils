@@ -427,6 +427,19 @@
           "structured_output": true,
           "temperature": true,
           "tool_call": true
+        },
+        "kimi-k3": {
+          "id": "kimi-k3",
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "name": "Kimi K3",
+          "reasoning": true,
+          "release_date": "2026-07-16",
+          "structured_output": true,
+          "temperature": false,
+          "tool_call": true
         }
       },
       "name": "Moonshot AI"

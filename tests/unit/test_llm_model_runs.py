@@ -134,6 +134,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "kimi-k2.6-moonshot-ai-run-variant-02",
     "kimi-k2.6-run-variant-01",
     "kimi-k2.6-run-variant-02",
+    "kimi-k3-run-variant-01",
     "llama-2-70b-chat-hf-run-variant-01",
     "llama-3-70b-chat-hf-run-variant-01",
     "llama-3-8b-chat-hf-run-variant-01",
