@@ -79,6 +79,8 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gemini-3.1-pro-preview-run-variant-03",
     "gemini-3.5-flash-run-variant-01",
     "gemini-3.5-flash-run-variant-02",
+    "gemini-3.6-flash-run-variant-01",
+    "gemini-3.6-flash-run-variant-02",
     "gemma-4-31b-it-run-variant-01",
     "gemma-4-31b-it-run-variant-02",
     "glm-4.5-air-fp8-run-variant-01",
@@ -746,6 +748,20 @@ def test_claude_fable_variants_use_effort_fallbacks_and_web_search():
             },
         ],
     }
+
+
+def test_gemini_3_6_flash_variant_02_uses_code_execution():
+    """Validate the configured Gemini code-execution tools."""
+    from google.genai import types
+
+    from utils.llm import model_runs
+
+    code_execution = model_runs.MODEL_RUNS_BY_KEY["gemini-3.6-flash-run-variant-02"]
+
+    assert code_execution.slug == "gemini-3.6-flash-high-web-search-code-execution"
+    config = types.GenerateContentConfig(**code_execution.options)
+    assert config.tools is not None
+    assert config.tools[-1].code_execution is not None
 
 
 def test_gpt_5_6_sol_variant_02_uses_code_interpreter():
