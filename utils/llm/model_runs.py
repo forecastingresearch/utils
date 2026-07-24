@@ -637,6 +637,12 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="gemini-3.1-flash-lite-run-variant-02",
+        slug="gemini-3.1-flash-lite-defaults",
+        model_key="gemini-3.1-flash-lite",
+        options={},
+    ),
+    _model_run(
         model_run_key="gemini-3.1-pro-preview-run-variant-01",
         slug="gemini-3.1-pro-preview",
         model_key="gemini-3.1-pro-preview",
@@ -664,6 +670,12 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="gemini-3.1-pro-preview-run-variant-04",
+        slug="gemini-3.1-pro-preview-defaults",
+        model_key="gemini-3.1-pro-preview",
+        options={},
+    ),
+    _model_run(
         model_run_key="gemini-3.5-flash-run-variant-01",
         slug="gemini-3.5-flash",
         model_key="gemini-3.5-flash",
@@ -681,6 +693,12 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
             "thinking_config": {"thinking_level": "high"},
             "tools": [{"googleSearch": {}}],
         },
+    ),
+    _model_run(
+        model_run_key="gemini-3.5-flash-run-variant-03",
+        slug="gemini-3.5-flash-defaults",
+        model_key="gemini-3.5-flash",
+        options={},
     ),
     _model_run(
         model_run_key="gemini-3.6-flash-run-variant-01",
@@ -1034,6 +1052,12 @@ TOGETHER_MODEL_RUNS: list[ModelRun] = [
         options={"temperature": 0},
     ),
     _model_run(
+        model_run_key="deepseek-v4-pro-run-variant-02",
+        slug="deepseek-v4-pro-defaults",
+        model_key="deepseek-v4-pro",
+        options={},
+    ),
+    _model_run(
         model_run_key="gemma-4-31b-it-run-variant-01",
         slug="gemma-4-31b-it",
         model_key="gemma-4-31b-it",
@@ -1310,6 +1334,12 @@ XAI_MODEL_RUNS: list[ModelRun] = [
         options={"temperature": 0},
     ),
     _model_run(
+        model_run_key="grok-4.20-0309-non-reasoning-run-variant-02",
+        slug="grok-4.20-0309-non-reasoning-defaults",
+        model_key="grok-4.20-0309-non-reasoning",
+        options={},
+    ),
+    _model_run(
         model_run_key="grok-4.20-0309-reasoning-run-variant-01",
         slug="grok-4.20-0309-reasoning",
         model_key="grok-4.20-0309-reasoning",
@@ -1322,6 +1352,12 @@ XAI_MODEL_RUNS: list[ModelRun] = [
         options={
             "tools": [{"type": "web_search"}, {"type": "x_search"}],
         },
+    ),
+    _model_run(
+        model_run_key="grok-4.20-0309-reasoning-run-variant-03",
+        slug="grok-4.20-0309-reasoning-defaults",
+        model_key="grok-4.20-0309-reasoning",
+        options={},
     ),
     _model_run(
         model_run_key="grok-4.20-beta-0309-non-reasoning-run-variant-01",
