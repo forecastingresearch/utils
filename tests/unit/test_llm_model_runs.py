@@ -50,6 +50,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "claude-opus-4-8-run-variant-02",
     "claude-opus-4-8-run-variant-03",
     "claude-opus-4-8-run-variant-04",
+    "claude-opus-5-run-variant-01",
     "claude-sonnet-4-20250514-run-variant-01",
     "claude-sonnet-4-5-20250929-run-variant-01",
     "claude-sonnet-4-5-20250929-run-variant-02",
@@ -278,7 +279,7 @@ def test_claude_sonnet_5_uses_models_dev_metadata_and_supported_options():
         provider_id="anthropic",
         model_id="claude-sonnet-5",
     )
-    assert model.release_date == date(2026, 6, 30)
+    assert model.release_date == date(2026, 6, 29)
     assert model.models_dev_metadata.raw["limit"] == {
         "context": 1000000,
         "output": 128000,
@@ -288,10 +289,7 @@ def test_claude_sonnet_5_uses_models_dev_metadata_and_supported_options():
     assert model.models_dev_metadata.raw["tool_call"] is True
     assert run.model is model
     assert run.slug == "claude-sonnet-5-adaptive-thinking-16000"
-    assert run.options == {
-        "max_tokens": 16000,
-        "thinking": {"type": "adaptive"},
-    }
+    assert run.options == {"max_tokens": 16000}
 
 
 def test_model_api_provider_route_is_independent_from_models_dev_provider():
@@ -706,7 +704,7 @@ def test_anthropic_1024_token_runs_use_temperature_only_when_models_dev_supports
 
 
 def test_claude_fable_variants_use_effort_fallbacks_and_web_search():
-    """Keep both Fable runs on the intended effort, fallback, and web-search/fetch config."""
+    """Keep Fable effort variants on their configured tools and stable keys."""
     from utils.llm import model_runs
 
     shared = {
@@ -724,8 +722,51 @@ def test_claude_fable_variants_use_effort_fallbacks_and_web_search():
     assert high.options == {**shared, "output_config": {"effort": "high"}}
 
     max_effort = model_runs.MODEL_RUNS_BY_KEY["claude-fable-5-run-variant-02"]
-    assert max_effort.slug == "claude-fable-5-max-web-search-128k"
-    assert max_effort.options == {**shared, "output_config": {"effort": "max"}}
+    assert max_effort.slug == "claude-fable-5-max-web-search-code-execution-128k"
+    assert max_effort.options == {
+        **shared,
+        "output_config": {"effort": "max"},
+        "tools": [
+            *shared["tools"],
+            {
+                "type": "code_execution_20260521",
+                "name": "code_execution",
+            },
+        ],
+    }
+
+
+def test_gemini_3_6_flash_variant_02_uses_code_execution():
+    """Validate the configured Gemini code-execution tools."""
+    from google.genai import types
+
+    from utils.llm import model_runs
+
+    code_execution = model_runs.MODEL_RUNS_BY_KEY["gemini-3.6-flash-run-variant-02"]
+
+    assert code_execution.slug == "gemini-3.6-flash-high-web-search-code-execution"
+    config = types.GenerateContentConfig(**code_execution.options)
+    assert config.tools is not None
+    assert config.tools[-1].code_execution is not None
+
+
+def test_gpt_5_6_sol_variant_02_uses_code_interpreter():
+    """Validate the configured GPT code-interpreter tools."""
+    from openai.types.responses.tool_param import CodeInterpreter
+    from pydantic import TypeAdapter
+
+    from utils.llm import model_runs
+
+    code_interpreter = model_runs.MODEL_RUNS_BY_KEY["gpt-5.6-sol-run-variant-02"]
+
+    assert code_interpreter.slug == "gpt-5.6-sol-pro-max-web-search-code-execution-128k"
+    assert code_interpreter.options["reasoning"] == {
+        "mode": "standard",
+        "effort": "max",
+    }
+    assert code_interpreter.options["max_output_tokens"] == 128000
+    tool = code_interpreter.options["tools"][-1]
+    assert TypeAdapter(CodeInterpreter).validate_python(tool) == tool
 
 
 def test_minimax_variants_declare_provider_controls_on_existing_run_keys():

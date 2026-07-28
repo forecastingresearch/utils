@@ -44,10 +44,10 @@ def test_models_dev_snapshot_can_lookup_model_by_provider_and_model_id():
     """Look up a normalized model by Models.dev provider and model IDs."""
     snapshot = models_dev.load_models_dev_snapshot()
 
-    model = snapshot.get_model(provider_id="anthropic", model_id="claude-3-haiku-20240307")
+    model = snapshot.get_model(provider_id="anthropic", model_id="claude-opus-4-8")
 
-    assert model.name == "Claude Haiku 3"
-    assert model.release_date == date(2024, 3, 13)
+    assert model.name == "Claude Opus 4.8"
+    assert model.release_date == date(2026, 5, 28)
 
 
 def test_models_dev_snapshot_rejects_unknown_provider_or_model():
