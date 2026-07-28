@@ -50,6 +50,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "claude-opus-4-8-run-variant-02",
     "claude-opus-4-8-run-variant-03",
     "claude-opus-4-8-run-variant-04",
+    "claude-opus-5-run-variant-01",
     "claude-sonnet-4-20250514-run-variant-01",
     "claude-sonnet-4-5-20250929-run-variant-01",
     "claude-sonnet-4-5-20250929-run-variant-02",

@@ -432,6 +432,30 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="claude-opus-5-run-variant-01",
+        slug="claude-opus-5-adaptive-thinking-max-web-search-code-execution-128k",
+        model_key="claude-opus-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "max"},
+            "thinking": {"type": "adaptive"},
+            "tools": [
+                {
+                    "type": "web_search_20260318",
+                    "name": "web_search",
+                },
+                {
+                    "type": "web_fetch_20260318",
+                    "name": "web_fetch",
+                },
+                {
+                    "type": "code_execution_20260521",
+                    "name": "code_execution",
+                },
+            ],
+        },
+    ),
+    _model_run(
         model_run_key="claude-sonnet-4-20250514-run-variant-01",
         slug="claude-sonnet-4-20250514",
         model_key="claude-sonnet-4-20250514",

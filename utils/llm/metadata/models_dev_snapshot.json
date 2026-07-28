@@ -94,6 +94,19 @@
           "temperature": false,
           "tool_call": true
         },
+        "claude-opus-5": {
+          "id": "claude-opus-5",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "name": "Claude Opus 5",
+          "reasoning": true,
+          "release_date": "2026-07-24",
+          "structured_output": true,
+          "temperature": false,
+          "tool_call": true
+        },
         "claude-sonnet-4-5-20250929": {
           "id": "claude-sonnet-4-5-20250929",
           "limit": {
