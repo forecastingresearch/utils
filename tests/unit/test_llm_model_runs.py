@@ -280,7 +280,7 @@ def test_claude_sonnet_5_uses_models_dev_metadata_and_supported_options():
         provider_id="anthropic",
         model_id="claude-sonnet-5",
     )
-    assert model.release_date == date(2026, 6, 30)
+    assert model.release_date == date(2026, 6, 29)
     assert model.models_dev_metadata.raw["limit"] == {
         "context": 1000000,
         "output": 128000,

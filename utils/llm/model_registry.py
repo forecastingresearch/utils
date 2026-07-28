@@ -839,51 +839,37 @@ ANTHROPIC_MODELS: Final[list[Model]] = [
     ),
     anthropic_model(
         model_key="claude-3-opus-20240229",
-        models_dev_reference=ModelsDevReference(
-            provider_id="anthropic", model_id="claude-3-opus-20240229"
-        ),
+        manual_release_date=date(2024, 2, 29),
         active=False,
     ),
     anthropic_model(
         model_key="claude-3-haiku-20240307",
-        models_dev_reference=ModelsDevReference(
-            provider_id="anthropic", model_id="claude-3-haiku-20240307"
-        ),
+        manual_release_date=date(2024, 3, 13),
         active=False,
     ),
     anthropic_model(
         model_key="claude-3-5-sonnet-20240620",
-        models_dev_reference=ModelsDevReference(
-            provider_id="anthropic", model_id="claude-3-5-sonnet-20240620"
-        ),
+        manual_release_date=date(2024, 6, 20),
         active=False,
     ),
     anthropic_model(
         model_key="claude-3-5-sonnet-20241022",
-        models_dev_reference=ModelsDevReference(
-            provider_id="anthropic", model_id="claude-3-5-sonnet-20241022"
-        ),
+        manual_release_date=date(2024, 10, 22),
         active=False,
     ),
     anthropic_model(
         model_key="claude-3-7-sonnet-20250219",
-        models_dev_reference=ModelsDevReference(
-            provider_id="anthropic", model_id="claude-3-7-sonnet-20250219"
-        ),
+        manual_release_date=date(2025, 2, 19),
         active=False,
     ),
     anthropic_model(
         model_key="claude-opus-4-20250514",
-        models_dev_reference=ModelsDevReference(
-            provider_id="anthropic", model_id="claude-opus-4-20250514"
-        ),
+        manual_release_date=date(2025, 5, 22),
         active=False,
     ),
     anthropic_model(
         model_key="claude-sonnet-4-20250514",
-        models_dev_reference=ModelsDevReference(
-            provider_id="anthropic", model_id="claude-sonnet-4-20250514"
-        ),
+        manual_release_date=date(2025, 5, 22),
         active=False,
     ),
     anthropic_model(
