@@ -264,10 +264,10 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
     ),
     _model_run(
         model_run_key="claude-fable-5-run-variant-01",
-        slug="claude-fable-5-high-web-search-128k",
+        slug="claude-fable-5-high-web-search-code-execution-128k",
         model_key="claude-fable-5",
         options={
-            "max_tokens": 128000,
+            "max_tokens": 128_000,
             "output_config": {"effort": "high"},
             "fallbacks": [{"model": "claude-opus-4-8"}],
             "betas": ["server-side-fallback-2026-06-01"],
@@ -280,6 +280,10 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
                     "type": "web_fetch_20260318",
                     "name": "web_fetch",
                 },
+                {
+                    "type": "code_execution_20260521",
+                    "name": "code_execution",
+                },                
             ],
         },
     ),
@@ -288,7 +292,7 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
         slug="claude-fable-5-max-web-search-code-execution-128k",
         model_key="claude-fable-5",
         options={
-            "max_tokens": 128000,
+            "max_tokens": 128_000,
             "output_config": {"effort": "max"},
             "fallbacks": [{"model": "claude-opus-4-8"}],
             "betas": ["server-side-fallback-2026-06-01"],
@@ -432,7 +436,7 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
         slug="claude-opus-5-adaptive-thinking-max-web-search-code-execution-128k",
         model_key="claude-opus-5",
         options={
-            "max_tokens": 128000,
+            "max_tokens": 128_000,
             "output_config": {"effort": "max"},
             "thinking": {"type": "adaptive"},
             "tools": [
@@ -680,11 +684,12 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
     ),
     _model_run(
         model_run_key="gemini-3.6-flash-run-variant-01",
-        slug="gemini-3.6-flash-medium-web-search",
+        slug="gemini-3.6-flash-medium-web-search-code-execution-128k",
         model_key="gemini-3.6-flash",
         options={
             "thinking_config": {"thinking_level": "medium"},
-            "tools": [{"googleSearch": {}}, {"urlContext": {}}],
+            "max_output_tokens": 128_000,
+            "tools": [{"googleSearch": {}}, {"urlContext": {}},{"codeExecution": {}}],
         },
     ),
     _model_run(
@@ -693,7 +698,7 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
         model_key="gemini-3.6-flash",
         options={
             "thinking_config": {"thinking_level": "high"},
-            "max_output_tokens": 128000,
+            "max_output_tokens": 128_000,
             "tools": [
                 {"googleSearch": {}},
                 {"urlContext": {}},
@@ -885,14 +890,22 @@ OAI_MODEL_RUNS: list[ModelRun] = [
     ),
     _model_run(
         model_run_key="gpt-5.6-sol-run-variant-01",
-        slug="gpt-5.6-sol-standard-medium-web-search",
+        slug="gpt-5.6-sol-standard-medium-web-search-code-execution",
         model_key="gpt-5.6-sol",
         options={
             "reasoning": {
                 "mode": "standard",
                 "effort": "medium",
             },
-            "tools": [{"type": "web_search"}],
+            "tools": [
+                {
+                    "type": "web_search",
+                },
+                {
+                    "type": "code_interpreter",
+                    "container": {"type": "auto", "memory_limit": "4g"},
+                },
+                ],
         },
     ),
     _model_run(
@@ -900,14 +913,11 @@ OAI_MODEL_RUNS: list[ModelRun] = [
         slug="gpt-5.6-sol-pro-max-web-search-code-execution-128k",
         model_key="gpt-5.6-sol",
         options={
+            "timeout": 900,
             "reasoning": {
-                # "mode": "pro",
-                "mode": "standard",
+                "mode": "pro",
                 "effort": "max",
             },
-            # to reduce costs if using mode "pro" reasoning mode, uncomment the next two lines
-            # "context_management": [{"type": "compaction", "compact_threshold": 50_000}],
-            # "service_tier": "flex",
             "tools": [
                 {
                     "type": "web_search",
@@ -920,6 +930,52 @@ OAI_MODEL_RUNS: list[ModelRun] = [
             "max_output_tokens": 128_000,
         },
     ),
+    _model_run(
+        model_run_key="gpt-5.6-sol-run-variant-03",
+        slug="gpt-5.6-sol-pro-max-web-search-code-execution-128k-cost-optimized",
+        model_key="gpt-5.6-sol",
+        options={
+            "timeout": 900,
+            "reasoning": {
+                "mode": "pro",
+                "effort": "max",
+            },
+            "context_management": [{"type": "compaction", "compact_threshold": 50_000}],
+            # "service_tier": "flex", # too many "We're currently processing too many requests — please try again later." errors
+            "tools": [
+                {
+                    "type": "web_search",
+                },
+                {
+                    "type": "code_interpreter",
+                    "container": {"type": "auto", "memory_limit": "4g"},
+                },
+            ],
+            "max_output_tokens": 128_000,
+        },
+    ),    
+    _model_run(
+        model_run_key="gpt-5.6-sol-run-variant-04",
+        slug="gpt-5.6-sol-standard-max-web-search-code-execution-128k",
+        model_key="gpt-5.6-sol",
+        options={
+            "timeout": 900,
+            "reasoning": {
+                "mode": "standard",
+                "effort": "max",
+            },
+            "tools": [
+                {
+                    "type": "web_search",
+                },
+                {
+                    "type": "code_interpreter",
+                    "container": {"type": "auto", "memory_limit": "4g"},
+                },
+            ],
+            "max_output_tokens": 128_000,
+        },
+    ),    
     _model_run(
         model_run_key="o3-2025-04-16-run-variant-01",
         slug="o3-2025-04-16",
