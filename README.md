@@ -24,7 +24,7 @@ uv add fri-utils
 
 # Quickstart
 
-## LLM model-run quickstart
+## LLM Text Output
 
 Shared `ModelRun` objects are the primary surface for LLM calls. A model run is an exact base model
 plus the provider options used for benchmarking. It's identified by an immutable `model_run_key` or
@@ -61,6 +61,150 @@ The example above selects the first run by immutable `model_run_key` and the sec
 human-readable slug `claude-sonnet-4-6-1024`. Use immutable `model_run_key` values for durable
 references. Human-readable slugs are available for display and convenience lookups but while the
 `model_run_key` should be used for stable lookups
+
+## LLM Structured Output
+
+`get_response` returns the model's text. When you ask a provider for structured output, that
+text is the JSON, so you parse it yourself with `json.loads`.
+
+Structured output needs no special support in this package: the options you pass to
+`get_response` are forwarded to the provider unchanged. That means you use each provider's
+own option names, which differ. Every example below continues from this shared setup, and
+they all request the same quantile forecast:
+
+```python
+import json
+
+from pydantic import BaseModel
+
+from utils.llm.model_registry import configure_api_keys
+from utils.llm.model_runs import get_model_run
+
+configure_api_keys(from_gcp=True)
+# configure_api_keys(openai="...", anthropic="...")  # if not using GCP, pass keys explicitly
+
+
+class Quantile(BaseModel):
+    """One point of a predictive distribution."""
+
+    value: float
+    rationale: str
+
+
+class QuantileForecast(BaseModel):
+    """Five-point quantile forecast for a numeric quantity."""
+
+    p10: Quantile
+    p25: Quantile
+    p50: Quantile
+    p75: Quantile
+    p90: Quantile
+
+
+PROMPT = (
+    "Forecast the global average surface temperature anomaly in 2030, in degrees "
+    "Celsius above the 1850-1900 pre-industrial baseline. Give the 10th, 25th, 50th, "
+    "75th, and 90th percentiles, and a one-sentence rationale for each."
+)
+```
+
+Not every model supports structured output. Check the `structured_output` flag on the model's
+Models.dev metadata (`model_run.model.models_dev_metadata.raw`) before relying on it.
+
+Output handling is the same everywhere — `json.loads` the response, then validate it into
+your model. Only the option you send differs.
+
+### Anthropic
+
+Anthropic takes the Pydantic class directly as `output_format` and derives the JSON schema
+itself:
+
+```python
+model_run = get_model_run("claude-haiku-4-5-20251001-run-variant-02")
+response = model_run.get_response(PROMPT, output_format=QuantileForecast)
+
+forecast = QuantileForecast.model_validate(json.loads(response))
+print(forecast.p50.value, forecast.p50.rationale)
+```
+
+### Gemini
+
+Gemini's SDK likewise accepts the class, as `response_schema`, and converts it before
+sending. It additionally requires a matching `response_mime_type`:
+
+```python
+model_run = get_model_run("gemini-3.1-flash-lite-run-variant-01")
+response = model_run.get_response(
+    PROMPT,
+    response_schema=QuantileForecast,
+    response_mime_type="application/json",
+)
+
+forecast = QuantileForecast.model_validate(json.loads(response))
+print(forecast.p50.value, forecast.p50.rationale)
+```
+
+### OpenAI
+
+OpenAI cannot take the class, because the Pydantic-aware parameter belongs to the SDK's
+`responses.parse()` while this package calls `responses.create()`. You pass a JSON schema
+dict under `text` instead, and derive it from the class with `model_json_schema()`:
+
+```python
+# OpenAI requires every object, nested ones included, to forbid extra properties and to
+# list all of its properties as required. Pydantic emits neither.
+schema = QuantileForecast.model_json_schema()
+for obj in [schema, *schema.get("$defs", {}).values()]:
+    obj["additionalProperties"] = False
+    obj["required"] = list(obj["properties"])
+
+model_run = get_model_run("gpt-5.4-nano-2026-03-17-run-variant-01")
+response = model_run.get_response(
+    PROMPT,
+    text={
+        "format": {
+            "type": "json_schema",
+            "name": "quantile_forecast",
+            "schema": schema,
+            "strict": True,
+        }
+    },
+)
+
+forecast = QuantileForecast.model_validate(json.loads(response))
+print(forecast.p50.value, forecast.p50.rationale)
+```
+
+### Moonshot AI
+
+Moonshot uses an OpenAI-compatible `chat.completions` endpoint rather than the Responses
+API, so the option is `response_format` and the schema sits one level deeper, under
+`json_schema`:
+
+```python
+# Same requirement as OpenAI: every object, nested ones included, must forbid extra
+# properties and list all of its properties as required.
+schema = QuantileForecast.model_json_schema()
+for obj in [schema, *schema.get("$defs", {}).values()]:
+    obj["additionalProperties"] = False
+    obj["required"] = list(obj["properties"])
+
+model_run = get_model_run("kimi-k3-run-variant-01")
+response = model_run.get_response(
+    PROMPT,
+    response_format={
+        "type": "json_schema",
+        "json_schema": {
+            "name": "quantile_forecast",
+            "schema": schema,
+            "strict": True,
+        },
+    },
+)
+
+forecast = QuantileForecast.model_validate(json.loads(response))
+print(forecast.p50.value, forecast.p50.rationale)
+```
 
 # Methods
 
