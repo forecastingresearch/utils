@@ -708,6 +708,19 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
             ],
         },
     ),
+    _model_run(
+        model_run_key="gemini-3.7-flash-run-variant-01",
+        slug="gemini-3.7-flash-high-web-search-code-execution",
+        model_key="gemini-3.7-flash",
+        options={
+            "thinking_config": {"thinking_level": "high"},
+            "tools": [
+                {"googleSearch": {}},
+                {"urlContext": {}},
+                {"codeExecution": {}},
+            ],
+        },
+    ),
 ]
 
 

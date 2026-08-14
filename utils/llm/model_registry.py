@@ -1081,6 +1081,10 @@ GOOGLE_MODELS: Final[list[Model]] = [
         model_key="gemini-3.6-flash",
         models_dev_reference=ModelsDevReference(provider_id="google", model_id="gemini-3.6-flash"),
     ),
+    google_model(
+        model_key="gemini-3.7-flash",
+        models_dev_reference=ModelsDevReference(provider_id="google", model_id="gemini-3.7-flash"),
+    ),
 ]
 
 

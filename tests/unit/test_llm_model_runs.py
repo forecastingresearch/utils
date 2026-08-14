@@ -82,6 +82,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gemini-3.5-flash-run-variant-02",
     "gemini-3.6-flash-run-variant-01",
     "gemini-3.6-flash-run-variant-02",
+    "gemini-3.7-flash-run-variant-01",
     "gemma-4-31b-it-run-variant-01",
     "gemma-4-31b-it-run-variant-02",
     "glm-4.5-air-fp8-run-variant-01",

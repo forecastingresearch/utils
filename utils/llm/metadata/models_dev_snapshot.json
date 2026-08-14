@@ -288,6 +288,19 @@
           "temperature": true,
           "tool_call": true
         },
+        "gemini-3.7-flash": {
+          "id": "gemini-3.7-flash",
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "name": "Gemini 3.7 Flash",
+          "reasoning": true,
+          "release_date": "2026-08-13",
+          "structured_output": true,
+          "temperature": true,
+          "tool_call": true
+        },
         "gemma-4-31b-it": {
           "id": "gemma-4-31b-it",
           "limit": {
