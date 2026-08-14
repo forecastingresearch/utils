@@ -1364,6 +1364,15 @@ XAI_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="grok-4.6-run-variant-01",
+        slug="grok-4.6-xhigh-web-x-search",
+        model_key="grok-4.6",
+        options={
+            "reasoning": {"effort": "xhigh"},
+            "tools": [{"type": "web_search"}, {"type": "x_search"}],
+        },
+    ),
+    _model_run(
         model_run_key="grok-beta-run-variant-01",
         slug="grok-beta",
         model_key="grok-beta",
