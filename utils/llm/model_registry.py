@@ -874,9 +874,7 @@ ANTHROPIC_MODELS: Final[list[Model]] = [
     ),
     anthropic_model(
         model_key="claude-opus-4-1-20250805",
-        models_dev_reference=ModelsDevReference(
-            provider_id="anthropic", model_id="claude-opus-4-1-20250805"
-        ),
+        manual_release_date=date(2025, 8, 5),
         active=False,
     ),
     anthropic_model(

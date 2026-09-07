@@ -29,19 +29,6 @@
           "temperature": true,
           "tool_call": true
         },
-        "claude-opus-4-1-20250805": {
-          "id": "claude-opus-4-1-20250805",
-          "limit": {
-            "context": 200000,
-            "output": 32000
-          },
-          "name": "Claude Opus 4.1",
-          "reasoning": true,
-          "release_date": "2025-08-05",
-          "structured_output": true,
-          "temperature": true,
-          "tool_call": true
-        },
         "claude-opus-4-5-20251101": {
           "id": "claude-opus-4-5-20251101",
           "limit": {
