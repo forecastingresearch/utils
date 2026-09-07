@@ -34,6 +34,7 @@ def get_response_with_retry(
     wait_time: int,
     error_msg: str,
     max_retries: int = _DEFAULT_MAX_RETRIES,
+    non_retryable: tuple[type[BaseException], ...] = (),
 ) -> str | Any:
     """Execute an API call, retrying with a delay when errors occur.
 
@@ -42,10 +43,13 @@ def get_response_with_retry(
         wait_time (int): Seconds to wait between retries.
         error_msg (str): Message prefix for retry log entries.
         max_retries (int): Maximum number of attempts before raising.
+        non_retryable (tuple): Exception types that propagate immediately without retrying.
     """
     for attempt in range(max_retries):
         try:
             return api_call()
+        except non_retryable:
+            raise
         except Exception as exc:  # noqa: BLE001 - retries must catch broad exceptions
             logger.info(
                 "%s (attempt %d/%d): %s: %s",

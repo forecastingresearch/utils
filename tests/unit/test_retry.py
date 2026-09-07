@@ -27,6 +27,27 @@ def test_raises_after_max_retries():
     assert attempts == 3
 
 
+def test_non_retryable_exceptions_raise_immediately():
+    """Exceptions listed as non-retryable must propagate after the first attempt."""
+    attempts = 0
+
+    def forbidden_call():
+        nonlocal attempts
+        attempts += 1
+        raise PermissionError("forbidden")
+
+    with pytest.raises(PermissionError, match="forbidden"):
+        get_response_with_retry(
+            forbidden_call,
+            wait_time=0,
+            error_msg="test",
+            max_retries=3,
+            non_retryable=(PermissionError,),
+        )
+
+    assert attempts == 1
+
+
 def test_returns_on_success():
     """A successful call should return immediately without retrying."""
     result = get_response_with_retry(lambda: "ok", wait_time=0, error_msg="test")

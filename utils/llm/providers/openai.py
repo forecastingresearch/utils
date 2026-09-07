@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from openai import OpenAI  # type: ignore[import]
+from openai import OpenAI, PermissionDeniedError  # type: ignore[import]
 
 from .base import BaseLLMProvider
 
@@ -13,6 +13,8 @@ class OpenAIProvider(BaseLLMProvider):
     """LLM provider that wraps the OpenAI Responses API."""
 
     retry_message = "OpenAI API request failed."
+    # HTTP 403, including misalignment_policy_violation, which OpenAI says not to retry.
+    non_retryable_exceptions = (PermissionDeniedError,)
 
     def __init__(self, *, api_key: str | None = None, default_wait_time: int | None = None) -> None:
         """Instantiate the OpenAI client using the provided API key.

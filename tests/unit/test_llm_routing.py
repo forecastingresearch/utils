@@ -205,6 +205,35 @@ def test_openai_provider_forwards_options_without_defaults():
     )
 
 
+def test_openai_provider_does_not_retry_forbidden_responses():
+    """A 403 such as a misalignment policy violation must fail without retrying."""
+    import httpx
+    from openai import PermissionDeniedError
+
+    from utils.llm.providers.openai import OpenAIProvider
+
+    forbidden = PermissionDeniedError(
+        "misalignment_policy_violation",
+        response=httpx.Response(403, request=httpx.Request("POST", "https://api.openai.com")),
+        body={"code": "misalignment_policy_violation"},
+    )
+
+    with (
+        patch("utils.llm.providers.openai.OpenAI") as mock_openai,
+        patch("utils.llm.utils.time.sleep") as mock_sleep,
+    ):
+        mock_client = MagicMock()
+        mock_client.responses.create.side_effect = forbidden
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test")
+        with pytest.raises(PermissionDeniedError):
+            provider.get_response(model_id="gpt-6-astra", prompt="forecast", options={})
+
+    assert mock_client.responses.create.call_count == 1
+    mock_sleep.assert_not_called()
+
+
 def test_openai_provider_route_fields_override_reserved_options():
     """Provider should keep OpenAI route-owned fields authoritative."""
     from utils.llm.providers.openai import OpenAIProvider

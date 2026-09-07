@@ -14,6 +14,8 @@ class BaseLLMProvider(ABC):
     """Abstract base provider that wraps provider-specific API calls with retry logic."""
 
     retry_message: str = "LLM provider request failed."
+    # Provider errors that a retry cannot fix, such as a request the provider refused.
+    non_retryable_exceptions: tuple[type[BaseException], ...] = ()
 
     def __init__(self, *, default_wait_time: int | None = None) -> None:
         """Initialize the provider with an optional custom backoff interval."""
@@ -35,6 +37,7 @@ class BaseLLMProvider(ABC):
             api_call,
             self._default_wait_time,
             self.retry_message,
+            non_retryable=self.non_retryable_exceptions,
         )
 
     @abstractmethod
