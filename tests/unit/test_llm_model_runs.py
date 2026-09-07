@@ -31,6 +31,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "claude-3-7-sonnet-20250219-run-variant-01",
     "claude-3-haiku-20240307-run-variant-01",
     "claude-3-opus-20240229-run-variant-01",
+    "claude-fable-5-1-run-variant-01",
     "claude-fable-5-run-variant-01",
     "claude-fable-5-run-variant-02",
     "claude-haiku-4-5-20251001-run-variant-01",
@@ -755,6 +756,25 @@ def test_claude_fable_variants_use_effort_fallbacks_and_web_search():
                 "type": "code_execution_20260521",
                 "name": "code_execution",
             },
+        ],
+    }
+
+
+def test_claude_fable_5_1_variant_uses_medium_effort_opus_5_fallback_and_web_search():
+    """Keep the Fable 5.1 run on its configured tools and stable key."""
+    from utils.llm import model_runs
+
+    medium = model_runs.MODEL_RUNS_BY_KEY["claude-fable-5-1-run-variant-01"]
+    assert medium.model_key == "claude-fable-5-1"
+    assert medium.slug == "claude-fable-5-1-medium-web-search-64k"
+    assert medium.options == {
+        "max_tokens": 64000,
+        "output_config": {"effort": "medium"},
+        "fallbacks": [{"model": "claude-opus-5"}],
+        "betas": ["server-side-fallback-2026-06-01"],
+        "tools": [
+            {"type": "web_search_20260318", "name": "web_search"},
+            {"type": "web_fetch_20260318", "name": "web_fetch"},
         ],
     }
 
@@ -1491,7 +1511,7 @@ def test_integration_model_run_default_selection_uses_latest_active_run_per_prov
         for provider_name in sorted(expected_latest_by_provider)
     )
     assert any(
-        run.provider.name == "Anthropic" and "thinking" in run.options for run in default_runs
+        run.provider.name == "Anthropic" and "output_config" in run.options for run in default_runs
     )
     assert any("tools" in run.options for run in default_runs)
     assert any(run.provider.name == "Together" for run in default_runs)

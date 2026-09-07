@@ -263,6 +263,27 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
         options={"max_tokens": 1024, "temperature": 0},
     ),
     _model_run(
+        model_run_key="claude-fable-5-1-run-variant-01",
+        slug="claude-fable-5-1-medium-web-search-64k",
+        model_key="claude-fable-5-1",
+        options={
+            "max_tokens": 64000,
+            "output_config": {"effort": "medium"},
+            "fallbacks": [{"model": "claude-opus-5"}],
+            "betas": ["server-side-fallback-2026-06-01"],
+            "tools": [
+                {
+                    "type": "web_search_20260318",
+                    "name": "web_search",
+                },
+                {
+                    "type": "web_fetch_20260318",
+                    "name": "web_fetch",
+                },
+            ],
+        },
+    ),
+    _model_run(
         model_run_key="claude-fable-5-run-variant-01",
         slug="claude-fable-5-high-web-search-code-execution-128k",
         model_key="claude-fable-5",
