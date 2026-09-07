@@ -1030,6 +1030,22 @@ OAI_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="gpt-6-astra-run-variant-01",
+        slug="gpt-6-astra-standard-high-web-search",
+        model_key="gpt-6-astra",
+        options={
+            "reasoning": {
+                "mode": "standard",
+                "effort": "high",
+            },
+            "tools": [
+                {
+                    "type": "web_search",
+                },
+            ],
+        },
+    ),
+    _model_run(
         model_run_key="o3-2025-04-16-run-variant-01",
         slug="o3-2025-04-16",
         model_key="o3-2025-04-16",

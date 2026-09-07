@@ -591,6 +591,20 @@
           "temperature": false,
           "tool_call": true
         },
+        "gpt-6-astra": {
+          "id": "gpt-6-astra",
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "name": "GPT-6 Astra",
+          "reasoning": true,
+          "release_date": "2026-09-04",
+          "structured_output": true,
+          "temperature": false,
+          "tool_call": true
+        },
         "o3": {
           "id": "o3",
           "limit": {

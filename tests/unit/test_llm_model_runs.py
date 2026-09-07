@@ -125,6 +125,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gpt-5.6-sol-run-variant-02",
     "gpt-5.6-sol-run-variant-03",
     "gpt-5.6-sol-run-variant-04",
+    "gpt-6-astra-run-variant-01",
     "grok-4-0709-run-variant-01",
     "grok-4-1-fast-non-reasoning-run-variant-01",
     "grok-4-1-fast-reasoning-run-variant-01",
@@ -810,6 +811,19 @@ def test_gpt_5_6_sol_variant_02_uses_code_interpreter():
     assert code_interpreter.options["max_output_tokens"] == 128000
     tool = code_interpreter.options["tools"][-1]
     assert TypeAdapter(CodeInterpreter).validate_python(tool) == tool
+
+
+def test_gpt_6_astra_variant_uses_standard_high_reasoning_and_web_search():
+    """Keep the GPT-6 Astra run on standard mode, high effort, and web search only."""
+    from utils.llm import model_runs
+
+    high = model_runs.MODEL_RUNS_BY_KEY["gpt-6-astra-run-variant-01"]
+    assert high.model_key == "gpt-6-astra"
+    assert high.slug == "gpt-6-astra-standard-high-web-search"
+    assert high.options == {
+        "reasoning": {"mode": "standard", "effort": "high"},
+        "tools": [{"type": "web_search"}],
+    }
 
 
 def test_minimax_variants_declare_provider_controls_on_existing_run_keys():

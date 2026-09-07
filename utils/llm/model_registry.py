@@ -557,6 +557,10 @@ OPENAI_MODELS: Final[list[Model]] = [
         model_key="gpt-5.6-sol",
         models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5.6-sol"),
     ),
+    openai_model(
+        model_key="gpt-6-astra",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-6-astra"),
+    ),
 ]
 
 # Together models: https://docs.together.ai/docs/serverless-models
