@@ -354,18 +354,6 @@
     "moonshotai": {
       "id": "moonshotai",
       "models": {
-        "kimi-k2-thinking": {
-          "id": "kimi-k2-thinking",
-          "limit": {
-            "context": 262144,
-            "output": 262144
-          },
-          "name": "Kimi K2 Thinking",
-          "reasoning": true,
-          "release_date": "2025-11-06",
-          "temperature": true,
-          "tool_call": true
-        },
         "kimi-k2.6": {
           "id": "kimi-k2.6",
           "limit": {

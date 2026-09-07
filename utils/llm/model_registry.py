@@ -731,9 +731,7 @@ TOGETHER_MODELS: Final[list[Model]] = [
     together_model(
         model_key="kimi-k2-thinking",
         lab_key="Moonshot",
-        models_dev_reference=ModelsDevReference(
-            provider_id="moonshotai", model_id="kimi-k2-thinking"
-        ),
+        manual_release_date=date(2025, 11, 6),
         active=False,
     ),
     together_model(
