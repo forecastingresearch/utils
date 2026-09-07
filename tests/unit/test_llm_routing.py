@@ -29,6 +29,8 @@ def test_provider_registry_contains_supported_api_routes():
     assert PROVIDERS["Anthropic"].name == "Anthropic"
     assert PROVIDERS["Moonshot AI"].name == "Moonshot AI"
     assert PROVIDERS["Moonshot AI"].key_name == "moonshot_ai"
+    assert PROVIDERS["Meta"].name == "Meta"
+    assert PROVIDERS["Meta"].key_name == "meta"
 
 
 def test_get_response_routes_by_provider_and_preserves_options():
@@ -593,6 +595,34 @@ def test_moonshot_ai_provider_streams_openai_chat_completions_route():
         max_tokens=16000,
         stream=True,
     )
+
+
+def test_meta_provider_uses_openai_responses_route():
+    """Meta provider should call the Meta Model API through the OpenAI Responses route."""
+    from utils.llm.providers.meta import MetaProvider
+
+    with patch("utils.llm.providers.meta.OpenAI") as mock_openai:
+        response = MagicMock(status="completed", output_text=" 42 ")
+        mock_client = MagicMock()
+        mock_client.responses.create.return_value = response
+        mock_openai.return_value = mock_client
+
+        provider = MetaProvider(api_key="meta-test")
+        text = provider._call_model(
+            model_id="muse-spark-1.3",
+            prompt="forecast",
+            options={"reasoning": {"effort": "xhigh"}, "tools": [{"type": "web_search"}]},
+        )
+
+    assert text == "42"
+    mock_openai.assert_called_once_with(api_key="meta-test", base_url="https://api.meta.ai/v1")
+    mock_client.responses.create.assert_called_once_with(
+        model="muse-spark-1.3",
+        input="forecast",
+        reasoning={"effort": "xhigh"},
+        tools=[{"type": "web_search"}],
+    )
+    mock_client.chat.completions.create.assert_not_called()
 
 
 def test_retry_helper_does_not_return_prompt_rewrite_sentinel():

@@ -775,6 +775,19 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
 ]
 
 
+META_MODEL_RUNS: list[ModelRun] = [
+    _model_run(
+        model_run_key="muse-spark-1.3-run-variant-01",
+        slug="muse-spark-1.3-max-web-search",
+        model_key="muse-spark-1.3",
+        options={
+            "reasoning": {"effort": "max"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+]
+
+
 MOONSHOT_AI_MODEL_RUNS: list[ModelRun] = [
     _model_run(
         model_run_key="kimi-k2.5-moonshot-ai-run-variant-01",
@@ -1483,6 +1496,7 @@ MODEL_RUNS: list[ModelRun] = create_model_runs_list(
     [
         *ANTHROPIC_MODEL_RUNS,
         *GOOGLE_MODEL_RUNS,
+        *META_MODEL_RUNS,
         *MOONSHOT_AI_MODEL_RUNS,
         *OAI_MODEL_RUNS,
         *TOGETHER_MODEL_RUNS,

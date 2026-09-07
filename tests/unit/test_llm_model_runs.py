@@ -175,6 +175,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "mistral-large-latest-run-variant-01",
     "mixtral-8x22b-instruct-v0.1-run-variant-01",
     "mixtral-8x7b-instruct-v0.1-run-variant-01",
+    "muse-spark-1.3-run-variant-01",
     "o3-2025-04-16-run-variant-01",
     "o3-mini-2025-01-31-run-variant-01",
     "o4-mini-2025-04-16-run-variant-01",
@@ -436,6 +437,7 @@ def test_model_registry_models_are_grouped_by_provider():
         *model_registry.OPENAI_MODELS,
         *model_registry.TOGETHER_MODELS,
         *model_registry.MOONSHOT_AI_MODELS,
+        *model_registry.META_MODELS,
         *model_registry.ANTHROPIC_MODELS,
         *model_registry.XAI_MODELS,
         *model_registry.GOOGLE_MODELS,
@@ -443,6 +445,7 @@ def test_model_registry_models_are_grouped_by_provider():
     assert {model.provider.name for model in model_registry.OPENAI_MODELS} == {"OpenAI"}
     assert {model.provider.name for model in model_registry.TOGETHER_MODELS} == {"Together"}
     assert {model.provider.name for model in model_registry.MOONSHOT_AI_MODELS} == {"Moonshot AI"}
+    assert {model.provider.name for model in model_registry.META_MODELS} == {"Meta"}
     assert {model.provider.name for model in model_registry.ANTHROPIC_MODELS} == {"Anthropic"}
     assert {model.provider.name for model in model_registry.XAI_MODELS} == {"xAI"}
     assert {model.provider.name for model in model_registry.GOOGLE_MODELS} == {"Google"}
@@ -456,6 +459,7 @@ def test_model_registry_provider_groups_are_sorted_by_release_date():
         model_registry.OPENAI_MODELS,
         model_registry.TOGETHER_MODELS,
         model_registry.MOONSHOT_AI_MODELS,
+        model_registry.META_MODELS,
         model_registry.ANTHROPIC_MODELS,
         model_registry.XAI_MODELS,
         model_registry.GOOGLE_MODELS,
@@ -845,6 +849,20 @@ def test_gpt_6_astra_variant_uses_standard_high_reasoning_and_web_search():
     }
 
 
+def test_muse_spark_1_3_variant_uses_max_effort_and_web_search():
+    """Keep the Muse Spark 1.3 run on the Meta route with max effort and web search."""
+    from utils.llm import model_runs
+
+    max_effort = model_runs.MODEL_RUNS_BY_KEY["muse-spark-1.3-run-variant-01"]
+    assert max_effort.provider == PROVIDERS["Meta"]
+    assert max_effort.model_key == "muse-spark-1.3"
+    assert max_effort.slug == "muse-spark-1.3-max-web-search"
+    assert max_effort.options == {
+        "reasoning": {"effort": "max"},
+        "tools": [{"type": "web_search"}],
+    }
+
+
 def test_minimax_variants_declare_provider_controls_on_existing_run_keys():
     """Keep MiniMax provider controls on the intended stable run keys."""
     from utils.llm import model_runs
@@ -1141,6 +1159,7 @@ def test_explicit_model_run_groups_are_grouped_by_provider_and_sorted_by_key():
     provider_groups = (
         ("ANTHROPIC_MODEL_RUNS", PROVIDERS["Anthropic"]),
         ("GOOGLE_MODEL_RUNS", PROVIDERS["Google"]),
+        ("META_MODEL_RUNS", PROVIDERS["Meta"]),
         ("MOONSHOT_AI_MODEL_RUNS", PROVIDERS["Moonshot AI"]),
         ("OAI_MODEL_RUNS", PROVIDERS["OpenAI"]),
         ("TOGETHER_MODEL_RUNS", PROVIDERS["Together"]),
@@ -1208,6 +1227,7 @@ def _declared_option_names_by_provider() -> dict[str, frozenset[str]]:
     return {
         "Anthropic": anthropic_names,
         "Google": _google_generate_content_config_names(),
+        "Meta": openai_names,
         "Moonshot AI": moonshot_ai_names,
         "OpenAI": openai_names,
         "Together": _keyword_parameter_names(Together(api_key="test").chat.completions.create),

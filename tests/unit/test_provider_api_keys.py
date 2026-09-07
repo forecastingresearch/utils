@@ -8,6 +8,7 @@ import pytest
 
 from utils.llm.providers.anthropic import AnthropicProvider  # type: ignore[import]
 from utils.llm.providers.google import GoogleProvider  # type: ignore[import]
+from utils.llm.providers.meta import MetaProvider  # type: ignore[import]
 from utils.llm.providers.moonshot_ai import MoonshotAIProvider  # type: ignore[import]
 from utils.llm.providers.openai import OpenAIProvider  # type: ignore[import]
 from utils.llm.providers.together import TogetherProvider  # type: ignore[import]
@@ -20,6 +21,7 @@ from utils.llm.providers.xai import XAIProvider  # type: ignore[import]
         OpenAIProvider,
         AnthropicProvider,
         GoogleProvider,
+        MetaProvider,
         MoonshotAIProvider,
         XAIProvider,
         TogetherProvider,
@@ -37,6 +39,7 @@ def test_provider_requires_api_key(provider_class):
         (OpenAIProvider, "sk-test-openai-key"),
         (AnthropicProvider, "sk-ant-test-anthropic-key"),
         (GoogleProvider, "test-google-key"),
+        (MetaProvider, "test-meta-key"),
         (MoonshotAIProvider, "test-moonshot-key"),
         (XAIProvider, "test-xai-key"),
         (TogetherProvider, "test-together-key"),
@@ -72,6 +75,16 @@ def test_provider_accepts_api_key(provider_class, api_key):
             mock_openai.return_value = mock_client
             provider = provider_class(api_key=api_key)
             mock_openai.assert_called_once_with(api_key=api_key, base_url="https://api.x.ai/v1")
+            assert provider is not None
+    elif provider_class == MetaProvider:
+        with patch("utils.llm.providers.meta.OpenAI") as mock_openai:
+            mock_client = MagicMock()
+            mock_openai.return_value = mock_client
+            provider = provider_class(api_key=api_key)
+            mock_openai.assert_called_once_with(
+                api_key=api_key,
+                base_url="https://api.meta.ai/v1",
+            )
             assert provider is not None
     elif provider_class == MoonshotAIProvider:
         with patch("utils.llm.providers.moonshot_ai.OpenAI") as mock_openai:

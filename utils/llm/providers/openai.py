@@ -32,7 +32,11 @@ class OpenAIProvider(BaseLLMProvider):
                 "API key required for OpenAIProvider. "
                 "Call configure_api_keys() or provide api_key parameter."
             )
-        self._openai_client = OpenAI(api_key=api_key)
+        self._openai_client = self._create_client(api_key)
+
+    def _create_client(self, api_key: str) -> OpenAI:
+        """Return the OpenAI SDK client for this provider's API."""
+        return OpenAI(api_key=api_key)
 
     def _call_model(self, *, model_id: str, prompt: str, options: dict[str, Any]) -> str:
         request_payload: Dict[str, Any] = {

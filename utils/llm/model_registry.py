@@ -59,6 +59,7 @@ from ..gcp.secret_manager import get_secret
 from ..helpers.constants import (
     ANTHROPIC_API_KEY_SECRET_NAME,
     GOOGLE_GEMINI_API_KEY_SECRET_NAME,
+    META_API_KEY_SECRET_NAME,
     MOONSHOT_AI_API_KEY_SECRET_NAME,
     OPENAI_API_KEY_SECRET_NAME,
     TOGETHER_API_KEY_SECRET_NAME,
@@ -71,6 +72,7 @@ from .provider_registry import PROVIDERS, Provider
 from .providers.anthropic import AnthropicProvider
 from .providers.base import BaseLLMProvider
 from .providers.google import GoogleProvider
+from .providers.meta import MetaProvider
 from .providers.moonshot_ai import MoonshotAIProvider
 from .providers.openai import OpenAIProvider
 from .providers.together import TogetherProvider
@@ -84,6 +86,7 @@ _PROVIDER_TO_CLASS: dict[Provider, Type[BaseLLMProvider]] = {
     PROVIDERS["OpenAI"]: OpenAIProvider,
     PROVIDERS["Anthropic"]: AnthropicProvider,
     PROVIDERS["Google"]: GoogleProvider,
+    PROVIDERS["Meta"]: MetaProvider,
     PROVIDERS["Moonshot AI"]: MoonshotAIProvider,
     PROVIDERS["xAI"]: XAIProvider,
     PROVIDERS["Together"]: TogetherProvider,
@@ -94,6 +97,7 @@ _PROVIDER_CLASS_TO_SECRET_NAME: dict[Type[BaseLLMProvider], str] = {
     OpenAIProvider: OPENAI_API_KEY_SECRET_NAME,
     AnthropicProvider: ANTHROPIC_API_KEY_SECRET_NAME,
     GoogleProvider: GOOGLE_GEMINI_API_KEY_SECRET_NAME,
+    MetaProvider: META_API_KEY_SECRET_NAME,
     MoonshotAIProvider: MOONSHOT_AI_API_KEY_SECRET_NAME,
     XAIProvider: XAI_API_KEY_SECRET_NAME,
     TogetherProvider: TOGETHER_API_KEY_SECRET_NAME,
@@ -330,6 +334,26 @@ def together_model(
     )
 
 
+def meta_model(
+    *,
+    model_key: str,
+    provider_model_id: str | None = None,
+    models_dev_reference: ModelsDevReference | None = None,
+    manual_release_date: date | None = None,
+    active: bool = True,
+) -> Model:
+    """Create a Meta Model API-routed model declaration."""
+    return provider_model(
+        model_key=model_key,
+        provider_model_id=provider_model_id,
+        lab_key="Meta",
+        provider_key="Meta",
+        models_dev_reference=models_dev_reference,
+        manual_release_date=manual_release_date,
+        active=active,
+    )
+
+
 def moonshot_ai_model(
     *,
     model_key: str,
@@ -365,6 +389,7 @@ def configure_api_keys(
     openai: str | None = None,
     anthropic: str | None = None,
     google: str | None = None,
+    meta: str | None = None,
     moonshot_ai: str | None = None,
     xai: str | None = None,
     together: str | None = None,
@@ -381,6 +406,7 @@ def configure_api_keys(
         openai: OpenAI API key (e.g., "sk-...")
         anthropic: Anthropic API key (e.g., "sk-ant-...")
         google: Google Gemini API key
+        meta: Meta Model API key
         moonshot_ai: Moonshot AI API key
         xai: xAI API key
         together: Together AI API key
@@ -410,6 +436,7 @@ def configure_api_keys(
         PROVIDERS["OpenAI"]: openai,
         PROVIDERS["Anthropic"]: anthropic,
         PROVIDERS["Google"]: google,
+        PROVIDERS["Meta"]: meta,
         PROVIDERS["Moonshot AI"]: moonshot_ai,
         PROVIDERS["xAI"]: xai,
         PROVIDERS["Together"]: together,
@@ -832,6 +859,15 @@ MOONSHOT_AI_MODELS: Final[list[Model]] = [
 ]
 
 
+# Meta models: https://developer.meta.com/ai/models/
+META_MODELS: Final[list[Model]] = [
+    meta_model(
+        model_key="muse-spark-1.3",
+        models_dev_reference=ModelsDevReference(provider_id="meta", model_id="muse-spark-1.3"),
+    ),
+]
+
+
 # Anthropic models: https://platform.claude.com/docs/en/about-claude/models/overview
 ANTHROPIC_MODELS: Final[list[Model]] = [
     anthropic_model(
@@ -1118,6 +1154,7 @@ MODELS: Final[list[Model]] = create_models_list(
         *OPENAI_MODELS,
         *TOGETHER_MODELS,
         *MOONSHOT_AI_MODELS,
+        *META_MODELS,
         *ANTHROPIC_MODELS,
         *XAI_MODELS,
         *GOOGLE_MODELS,
