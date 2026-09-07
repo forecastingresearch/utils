@@ -1043,9 +1043,8 @@ GOOGLE_MODELS: Final[list[Model]] = [
     ),
     google_model(
         model_key="gemini-3-pro-preview",
-        models_dev_reference=ModelsDevReference(
-            provider_id="google", model_id="gemini-3-pro-preview"
-        ),
+        manual_release_date=date(2025, 11, 18),
+        active=False,
     ),
     google_model(
         model_key="gemini-3-flash-preview",

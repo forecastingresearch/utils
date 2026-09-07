@@ -197,19 +197,6 @@
           "temperature": true,
           "tool_call": true
         },
-        "gemini-3-pro-preview": {
-          "id": "gemini-3-pro-preview",
-          "limit": {
-            "context": 1048576,
-            "output": 65536
-          },
-          "name": "Gemini 3 Pro Preview",
-          "reasoning": true,
-          "release_date": "2025-11-18",
-          "structured_output": true,
-          "temperature": true,
-          "tool_call": true
-        },
         "gemini-3.1-flash-lite": {
           "id": "gemini-3.1-flash-lite",
           "limit": {
