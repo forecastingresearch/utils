@@ -88,6 +88,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gemini-3.6-flash-run-variant-01",
     "gemini-3.6-flash-run-variant-02",
     "gemini-3.7-flash-run-variant-01",
+    "gemini-3.8-flash-run-variant-01",
     "gemma-4-31b-it-run-variant-01",
     "gemma-4-31b-it-run-variant-02",
     "glm-4.5-air-fp8-run-variant-01",
@@ -792,6 +793,24 @@ def test_gemini_3_6_flash_variant_02_uses_code_execution():
     config = types.GenerateContentConfig(**code_execution.options)
     assert config.tools is not None
     assert config.tools[-1].code_execution is not None
+
+
+def test_gemini_3_8_flash_variant_uses_high_thinking_search_and_url_context():
+    """Keep the Gemini 3.8 Flash run on high thinking with search and URL context only."""
+    from google.genai import types
+
+    from utils.llm import model_runs
+
+    high = model_runs.MODEL_RUNS_BY_KEY["gemini-3.8-flash-run-variant-01"]
+    assert high.model_key == "gemini-3.8-flash"
+    assert high.slug == "gemini-3.8-flash-high-web-search"
+    assert high.options == {
+        "thinking_config": {"thinking_level": "high"},
+        "tools": [{"googleSearch": {}}, {"urlContext": {}}],
+    }
+    config = types.GenerateContentConfig(**high.options)
+    assert config.thinking_config.thinking_level == types.ThinkingLevel.HIGH
+    assert all(tool.code_execution is None for tool in config.tools)
 
 
 def test_gpt_5_6_sol_variant_02_uses_code_interpreter():

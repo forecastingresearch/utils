@@ -760,6 +760,18 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
             ],
         },
     ),
+    _model_run(
+        model_run_key="gemini-3.8-flash-run-variant-01",
+        slug="gemini-3.8-flash-high-web-search",
+        model_key="gemini-3.8-flash",
+        options={
+            "thinking_config": {"thinking_level": "high"},
+            "tools": [
+                {"googleSearch": {}},
+                {"urlContext": {}},
+            ],
+        },
+    ),
 ]
 
 
