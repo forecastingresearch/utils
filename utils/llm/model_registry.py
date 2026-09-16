@@ -805,6 +805,7 @@ TOGETHER_MODELS: Final[list[Model]] = [
         provider_model_id="google/gemma-4-31B-it",
         lab_key="Google DeepMind",
         models_dev_reference=ModelsDevReference(provider_id="google", model_id="gemma-4-31b-it"),
+        active=False,
     ),
     together_model(
         model_key="glm-5.1",
