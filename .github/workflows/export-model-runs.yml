@@ -1,0 +1,62 @@
+# Regenerate the LLM model-run export and overwrite the single warehouse file
+# gs://github-ci-export-for-dwh-ingestion/llm-forecasters.ndjson on every push
+# to main that touches the registry. The export is streamed from the script's
+# stdout straight into GCS; nothing is written to disk or committed. The file
+# is a full snapshot, not a delta: the registry itself is append-only and git
+# history is the audit trail, so no per-commit copies are kept in the bucket.
+#
+# Auth is keyless via Workload Identity Federation. Two repository variables
+# must be set (Settings -> Secrets and variables -> Actions -> Variables):
+#   GCP_WORKLOAD_IDENTITY_PROVIDER  projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>
+#   GCP_EXPORT_SERVICE_ACCOUNT      <sa-name>@<project>.iam.gserviceaccount.com
+# The service account needs roles/storage.objectUser on the bucket so it can
+# overwrite the existing object.
+
+name: Export model runs to GCS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "utils/llm/**"
+      - "scripts/export_model_runs.py"
+      - ".github/workflows/export-model-runs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+# Serialize runs so two quick pushes cannot overwrite the file out of order.
+concurrency:
+  group: export-model-runs
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install package
+        run: python -m pip install .
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_EXPORT_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      # GitHub runs bash steps with `set -o pipefail`, so an export failure
+      # fails the step. The script builds the whole document before writing a
+      # byte, so gcloud never receives a partial file.
+      - name: Overwrite llm-forecasters.ndjson in the bucket
+        run: |
+          python -m scripts.export_model_runs \
+            | gcloud storage cp - gs://github-ci-export-for-dwh-ingestion/llm-forecasters.ndjson
