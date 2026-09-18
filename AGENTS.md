@@ -104,6 +104,16 @@ PY
   use `model_key` plus `-run-variant-XX`; Artificial Analysis-backed runs use
   `model_key` plus `-aa-run-variant-XX`. In both cases, `XX` is the next two-digit
   variant number for that `model_key`, and the key must never change after publication.
+- Once a run is on `main` it is frozen: never edit its `model_key` or `options`
+  and never delete it. CI enforces this on every PR
+  (`.github/workflows/model-run-immutability.yml` runs
+  `scripts/check_model_run_immutability.py` against the base branch). To change
+  options, add a new run with the next variant number; to retire a model, set
+  `active=False` on the base `Model`.
+  Everything else on a run or its base model is descriptive and may change
+  after publication: `slug` (renameable), `active`, and the release date and
+  Models.dev metadata, which are resolved from the checked-in snapshot and
+  change when it is refreshed or a `manual_release_date` correction lands.
 - Add every new `model_run_key` to `HISTORICAL_MODEL_RUN_KEYS` in `tests/unit/test_llm_model_runs.py`; the test ledger is the explicit list of all model-run keys ever created.
 - Write `slug` explicitly as the descriptive human-readable identifier. Slugs must be unique, but may be changed before or after publication when naming conventions improve.
 - Use `filename_safe_name` when a model-run key needs to become part of a filename; do not hand-roll lossy replacements for characters such as `/` or `*`.

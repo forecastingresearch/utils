@@ -1,0 +1,70 @@
+# Guard: published LLM model runs never change.
+#
+# model_run_key is the immutable benchmark identity of one model plus one option
+# set; benchmark result files and the data warehouse's dim_model_run key on it.
+# On every PR that touches the registry this job dumps the immutable fields
+# (model_run_key, model_key, options) of every run on the BASE branch and on the
+# PR head, then fails if any base run is missing from the PR or has different
+# model_key/options. Adding runs is fine; editing or deleting one is not — declare
+# a new variant instead. Mutable fields (slug, release dates, Models.dev metadata,
+# active) are not compared.
+#
+# Both dumps are produced by the PR's copy of scripts/check_model_run_immutability.py,
+# run BY FILE PATH against two separate installs of the package: the base branch's
+# and the PR's. Running by path keeps the checkout directory off sys.path, so
+# `import utils` resolves to whichever install the interpreter carries.
+
+name: Model run immutability
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "utils/llm/**"
+      - "scripts/check_model_run_immutability.py"
+      - ".github/workflows/model-run-immutability.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PR head
+        uses: actions/checkout@v7
+        with:
+          path: pr
+
+      - name: Check out base branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+
+      - name: Install the base branch's package
+        run: |
+          python -m venv "$RUNNER_TEMP/venv-base"
+          "$RUNNER_TEMP/venv-base/bin/python" -m pip install --quiet ./base
+
+      - name: Install the PR's package
+        run: |
+          python -m venv "$RUNNER_TEMP/venv-pr"
+          "$RUNNER_TEMP/venv-pr/bin/python" -m pip install --quiet ./pr
+
+      - name: Dump model runs on base and PR
+        run: |
+          "$RUNNER_TEMP/venv-base/bin/python" pr/scripts/check_model_run_immutability.py dump \
+            --output "$RUNNER_TEMP/base.ndjson"
+          "$RUNNER_TEMP/venv-pr/bin/python" pr/scripts/check_model_run_immutability.py dump \
+            --output "$RUNNER_TEMP/pr.ndjson"
+          echo "base: $(wc -l < "$RUNNER_TEMP/base.ndjson") runs, pr: $(wc -l < "$RUNNER_TEMP/pr.ndjson") runs"
+
+      - name: Verify every published run is unchanged
+        run: |
+          "$RUNNER_TEMP/venv-pr/bin/python" pr/scripts/check_model_run_immutability.py check \
+            "$RUNNER_TEMP/base.ndjson" "$RUNNER_TEMP/pr.ndjson"
