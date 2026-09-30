@@ -59,6 +59,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "claude-sonnet-4-6-run-variant-01",
     "claude-sonnet-4-6-run-variant-02",
     "claude-sonnet-4-6-run-variant-03",
+    "claude-sonnet-5-5-run-variant-01",
     "claude-sonnet-5-run-variant-01",
     "deepseek-r1-run-variant-01",
     "deepseek-v3-run-variant-01",

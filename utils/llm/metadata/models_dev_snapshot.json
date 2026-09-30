@@ -158,6 +158,19 @@
           "structured_output": true,
           "temperature": false,
           "tool_call": true
+        },
+        "claude-sonnet-5-5": {
+          "id": "claude-sonnet-5-5",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "name": "Claude Sonnet 5.5",
+          "reasoning": true,
+          "release_date": "2026-09-28",
+          "structured_output": true,
+          "temperature": false,
+          "tool_call": true
         }
       },
       "name": "Anthropic"
