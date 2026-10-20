@@ -204,6 +204,7 @@ def test_openai_provider_forwards_options_without_defaults():
         input="forecast",
         reasoning={"effort": "low"},
         tools=[{"type": "web_search"}],
+        background=True,
     )
 
 
@@ -257,6 +258,7 @@ def test_openai_provider_route_fields_override_reserved_options():
         model="gpt-5-mini-2025-08-07",
         input="forecast",
         temperature=0,
+        background=True,
     )
 
 
@@ -384,7 +386,8 @@ def test_anthropic_provider_uses_sdk_final_text_helper():
 
     assert text == "*0.25\n*0.50"
     stream.get_final_text.assert_called_once_with()
-    stream.get_final_message.assert_not_called()
+    # The final message is read for its id and usage only, after the text helper ran.
+    stream.get_final_message.assert_called_once_with()
 
 
 def test_anthropic_provider_logs_raw_response_when_response_has_no_text(caplog):
@@ -639,3 +642,216 @@ def test_retry_helper_does_not_return_prompt_rewrite_sentinel():
             error_msg="provider failed",
             max_retries=1,
         )
+
+
+def _openai_background_client(statuses: list[str], **final_fields: Any) -> MagicMock:
+    """Fake OpenAI client whose background response moves through `statuses` on retrieve."""
+    created = MagicMock(id="resp_123", status=statuses[0])
+    polled = [MagicMock(id="resp_123", status=status, **final_fields) for status in statuses[1:]]
+    mock_client = MagicMock()
+    mock_client.responses.create.return_value = created
+    mock_client.responses.retrieve.side_effect = polled
+    return mock_client
+
+
+def test_openai_provider_polls_background_response_and_reports_id_and_usage():
+    """A background response is polled until completed; its id goes to the caller at once."""
+    from utils.llm.providers.openai import OpenAIProvider
+    from utils.llm.types import CallContext
+
+    usage = SimpleNamespace(
+        input_tokens=71_000,
+        output_tokens=2_300,
+        output_tokens_details=SimpleNamespace(reasoning_tokens=1_900),
+    )
+    output = [
+        SimpleNamespace(type="web_search_call"),
+        SimpleNamespace(type="reasoning"),
+        SimpleNamespace(type="web_search_call"),
+        SimpleNamespace(type="message"),
+    ]
+    seen_ids: list[str] = []
+    polls_before_id: list[int] = []
+
+    with (
+        patch("utils.llm.providers.openai.OpenAI") as mock_openai,
+        patch("utils.llm.providers.openai.time.sleep") as mock_sleep,
+    ):
+        mock_client = _openai_background_client(
+            ["queued", "in_progress", "completed"],
+            output_text=" 0.42 ",
+            usage=usage,
+            output=output,
+        )
+        mock_openai.return_value = mock_client
+
+        def record_id(response_id: str) -> None:
+            seen_ids.append(response_id)
+            polls_before_id.append(mock_client.responses.retrieve.call_count)
+
+        provider = OpenAIProvider(api_key="sk-test")
+        response = provider.get_response_with_metadata(
+            model_id="gpt-6-astra",
+            prompt="forecast",
+            options={"reasoning": {"effort": "high"}},
+            context=CallContext(on_response_id=record_id),
+        )
+
+    assert response.text == "0.42"
+    assert response.provider_response_id == "resp_123"
+    assert response.status == "completed"
+    assert response.usage.input_tokens == 71_000
+    assert response.usage.output_tokens == 2_300
+    assert response.usage.reasoning_tokens == 1_900
+    assert response.usage.tool_calls == 2
+    assert response.attempts == 1
+    assert response.duration_s is not None
+    assert seen_ids == ["resp_123"]
+    assert polls_before_id == [0]
+    assert mock_client.responses.retrieve.call_count == 2
+    assert mock_sleep.call_count == 2
+    mock_client.responses.cancel.assert_not_called()
+
+
+def test_openai_provider_cancels_background_response_without_retrying():
+    """A set cancel event cancels the server-side response and is never retried."""
+    import threading
+
+    from utils.llm.providers.openai import OpenAIProvider
+    from utils.llm.types import CallContext, LLMCallCancelled
+
+    cancel_event = threading.Event()
+
+    with patch("utils.llm.providers.openai.OpenAI") as mock_openai:
+        mock_client = _openai_background_client(["queued", "completed"], output_text="late")
+        created = mock_client.responses.create.return_value
+
+        def accept_then_cancel(**kwargs):
+            del kwargs
+            cancel_event.set()  # the caller gives up right after the request is accepted
+            return created
+
+        mock_client.responses.create.side_effect = accept_then_cancel
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test")
+        with pytest.raises(LLMCallCancelled):
+            provider.get_response_with_metadata(
+                model_id="gpt-6-astra",
+                prompt="forecast",
+                options={},
+                context=CallContext(cancel_event=cancel_event),
+            )
+
+    mock_client.responses.create.assert_called_once()
+    mock_client.responses.cancel.assert_called_once_with("resp_123")
+    mock_client.responses.retrieve.assert_not_called()
+
+
+def test_openai_provider_budget_cancels_overrunning_response():
+    """The run's `timeout` option bounds the whole background response, then cancels it."""
+    from utils.llm.providers.openai import OpenAIProvider
+
+    with (
+        patch("utils.llm.providers.openai.OpenAI") as mock_openai,
+        patch("utils.llm.providers.openai.time.sleep"),
+        patch("utils.llm.providers.openai.time.monotonic", side_effect=[0.0, 0.0, 1000.0]),
+    ):
+        mock_client = _openai_background_client(["queued", "in_progress", "in_progress"])
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test")
+        with pytest.raises(TimeoutError, match="did not finish within 900s"):
+            provider._call_model(
+                model_id="gpt-5.6-sol", prompt="forecast", options={"timeout": 900}
+            )
+
+    # The budget never reaches the SDK as a per-request timeout.
+    assert "timeout" not in mock_client.responses.create.call_args.kwargs
+    mock_client.responses.cancel.assert_called_once_with("resp_123")
+
+
+def test_openai_provider_reports_failed_background_response_with_its_id():
+    """A terminal non-completed status raises, naming the response so it can be looked up."""
+    from utils.llm.providers.openai import OpenAIProvider
+
+    with (
+        patch("utils.llm.providers.openai.OpenAI") as mock_openai,
+        patch("utils.llm.providers.openai.time.sleep"),
+    ):
+        mock_client = _openai_background_client(
+            ["queued", "incomplete"], incomplete_details=SimpleNamespace(reason="max_output_tokens")
+        )
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test")
+        with pytest.raises(RuntimeError, match="status=incomplete, id=resp_123"):
+            provider._call_model(model_id="gpt-6-astra", prompt="forecast", options={})
+
+
+def test_openai_provider_fetches_response_by_id():
+    """fetch_response returns a finished response without creating a new one."""
+    from utils.llm.providers.openai import OpenAIProvider
+
+    with patch("utils.llm.providers.openai.OpenAI") as mock_openai:
+        mock_client = MagicMock()
+        mock_client.responses.retrieve.side_effect = [
+            MagicMock(id="resp_9", status="in_progress"),
+            MagicMock(id="resp_9", status="completed", output_text="0.7", usage=None, output=[]),
+        ]
+        mock_openai.return_value = mock_client
+        provider = OpenAIProvider(api_key="sk-test")
+
+        pending = provider.fetch_response("resp_9")
+        finished = provider.fetch_response("resp_9")
+
+    assert (pending.status, pending.text) == ("in_progress", "")
+    assert (finished.status, finished.text, finished.provider_response_id) == (
+        "completed",
+        "0.7",
+        "resp_9",
+    )
+    assert finished.usage.tool_calls == 0
+    mock_client.responses.create.assert_not_called()
+
+
+def test_anthropic_provider_reports_message_id_and_usage():
+    """The streamed final message supplies the id, token counts and server tool uses."""
+    from utils.llm.providers.anthropic import AnthropicProvider
+    from utils.llm.types import CallContext
+
+    message = SimpleNamespace(
+        id="msg_abc",
+        stop_reason="end_turn",
+        usage=SimpleNamespace(input_tokens=1200, output_tokens=340),
+        content=[
+            SimpleNamespace(type="server_tool_use"),
+            SimpleNamespace(type="web_search_tool_result"),
+            SimpleNamespace(type="text"),
+        ],
+    )
+    stream = MagicMock()
+    stream.__enter__.return_value = stream
+    stream.get_final_text.return_value = "0.3"
+    stream.get_final_message.return_value = message
+    seen_ids: list[str] = []
+
+    with patch("anthropic.Anthropic") as mock_anthropic:
+        mock_client = MagicMock()
+        mock_client.messages.stream.return_value = stream
+        mock_anthropic.return_value = mock_client
+
+        provider = AnthropicProvider(api_key="sk-ant-test")
+        response = provider.get_response_with_metadata(
+            model_id="claude-opus-5-5",
+            prompt="forecast",
+            options={"max_tokens": 4096},
+            context=CallContext(on_response_id=seen_ids.append),
+        )
+
+    assert response.text == "0.3"
+    assert response.provider_response_id == "msg_abc"
+    assert response.status == "end_turn"
+    assert (response.usage.input_tokens, response.usage.output_tokens) == (1200, 340)
+    assert response.usage.tool_calls == 1
+    assert seen_ids == ["msg_abc"]

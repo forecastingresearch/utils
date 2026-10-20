@@ -77,6 +77,7 @@ from .providers.moonshot_ai import MoonshotAIProvider
 from .providers.openai import OpenAIProvider
 from .providers.together import TogetherProvider
 from .providers.xai import XAIProvider
+from .types import CallContext, LLMResponse
 
 # Registry for API keys by provider class
 _PROVIDER_API_KEYS: dict[Type[BaseLLMProvider], str] = {}
@@ -465,6 +466,31 @@ def get_response(
         prompt=prompt,
         options=options if options is not None else {},
     )
+
+
+def get_response_with_metadata(
+    provider: Provider,
+    model_id: str,
+    prompt: str,
+    options: dict[str, Any] | None = None,
+    context: CallContext | None = None,
+) -> LLMResponse:
+    """Request a response with its metadata (id, usage, attempts) through the provider."""
+    provider_cls = _get_provider_class(provider)
+    provider_instance = _get_provider_instance(provider_cls)
+    return provider_instance.get_response_with_metadata(
+        model_id=model_id,
+        prompt=prompt,
+        options=options if options is not None else {},
+        context=context,
+    )
+
+
+def fetch_response(provider: Provider, provider_response_id: str) -> LLMResponse:
+    """Fetch an earlier response by its provider id, for providers that keep responses."""
+    provider_cls = _get_provider_class(provider)
+    provider_instance = _get_provider_instance(provider_cls)
+    return provider_instance.fetch_response(provider_response_id)
 
 
 def _get_provider_class(provider: Provider) -> Type[BaseLLMProvider]:

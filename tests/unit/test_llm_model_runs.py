@@ -1602,3 +1602,42 @@ def test_get_model_run_by_slug_is_convenience_lookup_for_human_slugs():
     assert model_runs.get_model_run_by_slug("gpt-5.5-2026-04-23-high") is run
     with pytest.raises(KeyError, match="missing-slug"):
         model_runs.get_model_run_by_slug("missing-slug")
+
+
+def test_model_run_get_response_with_metadata_routes_context_and_returns_metadata():
+    """The metadata entry point passes the caller's context through and returns the record."""
+    from utils.llm import model_registry, model_runs
+    from utils.llm.types import CallContext, LLMResponse, LLMUsage
+
+    run = model_runs.ModelRun(
+        model_run_key="gpt-5.5-2026-04-23-run-variant-02",
+        slug="gpt-5.5-2026-04-23-high",
+        model=model_registry.MODELS_BY_KEY["gpt-5.5-2026-04-23"],
+        options={"reasoning": {"effort": "high"}},
+    )
+    context = CallContext()
+    expected = LLMResponse(
+        text="forecast",
+        provider_response_id="resp_1",
+        status="completed",
+        usage=LLMUsage(input_tokens=10, output_tokens=5, reasoning_tokens=3, tool_calls=0),
+        attempts=2,
+        duration_s=1.5,
+    )
+
+    with patch(
+        "utils.llm.model_registry.get_response_with_metadata", return_value=expected
+    ) as get_response_with_metadata:
+        response = run.get_response_with_metadata("prompt", context=context, max_output_tokens=10)
+
+    assert response == expected
+    get_response_with_metadata.assert_called_once_with(
+        provider=PROVIDERS["OpenAI"],
+        model_id="gpt-5.5-2026-04-23",
+        prompt="prompt",
+        options={"reasoning": {"effort": "high"}, "max_output_tokens": 10},
+        context=context,
+    )
+    # The text-only entry point is unchanged for callers that want just the text.
+    with patch("utils.llm.model_registry.get_response", return_value="forecast"):
+        assert run.get_response("prompt") == "forecast"

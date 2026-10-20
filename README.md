@@ -62,6 +62,24 @@ human-readable slug `claude-sonnet-4-6-1024`. Use immutable `model_run_key` valu
 references. Human-readable slugs are available for display and convenience lookups but while the
 `model_run_key` should be used for stable lookups
 
+## Call metadata, cancellation and fetching by id
+
+`get_response_with_metadata(prompt, context=..., **options)` makes the same call as
+`get_response` but returns a `utils.llm.types.LLMResponse`: the text plus the provider's
+response id, final status, token usage (`input_tokens`, `output_tokens`, `reasoning_tokens`,
+`tool_calls`) and the number of attempts the retry wrapper made. A `CallContext` carries a
+`threading.Event` that cancels the call between retries and, for OpenAI, cancels the
+server-side response, and an `on_response_id` hook that receives the provider's id as soon
+as the request is accepted. `model_run.fetch_response(id)` returns an earlier OpenAI
+response by id without a new call.
+
+OpenAI calls run in the Responses API background mode: the request returns immediately and
+the result is polled, so no connection sits idle while the model works and a finished
+response is never lost to a dropped connection. This is how the provider talks to the API,
+not a model option, so it is not part of any run's declared options.
+
+Failed attempts are retried once (two attempts in total) and logged at WARNING.
+
 ## LLM Structured Output
 
 `get_response` returns the model's text. When you ask a provider for structured output, that
