@@ -92,6 +92,9 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gemini-3.6-flash-run-variant-02",
     "gemini-3.7-flash-run-variant-01",
     "gemini-3.8-flash-run-variant-01",
+    "gemini-4-argon-run-variant-01",
+    "gemini-4-argon-run-variant-02",
+    "gemini-4-argon-run-variant-03",
     "gemma-4-31b-it-run-variant-01",
     "gemma-4-31b-it-run-variant-02",
     "glm-4.5-air-fp8-run-variant-01",
@@ -826,6 +829,30 @@ def test_gemini_3_8_flash_variant_uses_high_thinking_search_and_url_context():
     config = types.GenerateContentConfig(**high.options)
     assert config.thinking_config.thinking_level == types.ThinkingLevel.HIGH
     assert all(tool.code_execution is None for tool in config.tools)
+
+
+def test_gemini_4_argon_variants_sweep_thinking_level_with_search_and_url_context():
+    """Gemini 4 Argon runs differ only by thinking level; search and URL context on all."""
+    from google.genai import types
+
+    from utils.llm import model_runs
+
+    expected = {
+        "gemini-4-argon-run-variant-01": ("gemini-4-argon-low-web-search-32k", "low"),
+        "gemini-4-argon-run-variant-02": ("gemini-4-argon-medium-web-search-32k", "medium"),
+        "gemini-4-argon-run-variant-03": ("gemini-4-argon-high-web-search-32k", "high"),
+    }
+    for key, (slug, level) in expected.items():
+        run = model_runs.MODEL_RUNS_BY_KEY[key]
+        assert run.model_key == "gemini-4-argon"
+        assert run.slug == slug
+        assert run.options == {
+            "thinking_config": {"thinking_level": level},
+            "tools": [{"googleSearch": {}}, {"urlContext": {}}],
+            "max_output_tokens": 32768,
+        }
+        config = types.GenerateContentConfig(**run.options)
+        assert all(tool.code_execution is None for tool in config.tools)
 
 
 def test_gpt_5_6_sol_variant_02_uses_code_interpreter():

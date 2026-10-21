@@ -829,6 +829,45 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
             ],
         },
     ),
+    _model_run(
+        model_run_key="gemini-4-argon-run-variant-01",
+        slug="gemini-4-argon-low-web-search-32k",
+        model_key="gemini-4-argon",
+        options={
+            "thinking_config": {"thinking_level": "low"},
+            "tools": [
+                {"googleSearch": {}},
+                {"urlContext": {}},
+            ],
+            "max_output_tokens": 32768,
+        },
+    ),
+    _model_run(
+        model_run_key="gemini-4-argon-run-variant-02",
+        slug="gemini-4-argon-medium-web-search-32k",
+        model_key="gemini-4-argon",
+        options={
+            "thinking_config": {"thinking_level": "medium"},
+            "tools": [
+                {"googleSearch": {}},
+                {"urlContext": {}},
+            ],
+            "max_output_tokens": 32768,
+        },
+    ),
+    _model_run(
+        model_run_key="gemini-4-argon-run-variant-03",
+        slug="gemini-4-argon-high-web-search-32k",
+        model_key="gemini-4-argon",
+        options={
+            "thinking_config": {"thinking_level": "high"},
+            "tools": [
+                {"googleSearch": {}},
+                {"urlContext": {}},
+            ],
+            "max_output_tokens": 32768,
+        },
+    ),
 ]
 
 

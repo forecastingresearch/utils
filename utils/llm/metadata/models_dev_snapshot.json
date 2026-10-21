@@ -340,6 +340,19 @@
           "temperature": true,
           "tool_call": true
         },
+        "gemini-4-argon": {
+          "id": "gemini-4-argon",
+          "limit": {
+            "context": 1048576,
+            "output": 32768
+          },
+          "name": "Gemini 4 Argon",
+          "reasoning": true,
+          "release_date": "2026-10-13",
+          "structured_output": true,
+          "temperature": true,
+          "tool_call": true
+        },
         "gemma-4-31b-it": {
           "id": "gemma-4-31b-it",
           "limit": {
