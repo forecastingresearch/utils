@@ -94,6 +94,8 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gemini-3.6-flash-run-variant-02",
     "gemini-3.7-flash-run-variant-01",
     "gemini-3.8-flash-run-variant-01",
+    "gemini-3.8-flash-run-variant-02",
+    "gemini-3.8-flash-run-variant-03",
     "gemini-4-argon-run-variant-01",
     "gemini-4-argon-run-variant-02",
     "gemini-4-argon-run-variant-03",
@@ -1733,3 +1735,21 @@ def test_claude_opus_4_8_variant_05_adds_web_fetch_to_max_effort_web_search():
             {"type": "web_fetch_20260318", "name": "web_fetch"},
         ],
     }
+
+
+def test_gemini_3_8_flash_variants_sweep_thinking_level_with_search_and_url_context():
+    """Gemini 3.8 Flash runs 02 and 03 lower the thinking level and keep the same tools."""
+    from utils.llm import model_runs
+
+    expected = {
+        "gemini-3.8-flash-run-variant-02": ("gemini-3.8-flash-low-web-search", "low"),
+        "gemini-3.8-flash-run-variant-03": ("gemini-3.8-flash-medium-web-search", "medium"),
+    }
+    for key, (slug, level) in expected.items():
+        run = model_runs.MODEL_RUNS_BY_KEY[key]
+        assert run.model_key == "gemini-3.8-flash"
+        assert run.slug == slug
+        assert run.options == {
+            "thinking_config": {"thinking_level": level},
+            "tools": [{"googleSearch": {}}, {"urlContext": {}}],
+        }
