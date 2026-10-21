@@ -878,6 +878,10 @@ META_MODELS: Final[list[Model]] = [
         model_key="muse-spark-1.3",
         models_dev_reference=ModelsDevReference(provider_id="meta", model_id="muse-spark-1.3"),
     ),
+    meta_model(
+        model_key="muse-wonder-1.0",
+        models_dev_reference=ModelsDevReference(provider_id="meta", model_id="muse-wonder-1.0"),
+    ),
 ]
 
 

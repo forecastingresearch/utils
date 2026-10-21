@@ -183,6 +183,10 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "mixtral-8x22b-instruct-v0.1-run-variant-01",
     "mixtral-8x7b-instruct-v0.1-run-variant-01",
     "muse-spark-1.3-run-variant-01",
+    "muse-wonder-1.0-run-variant-01",
+    "muse-wonder-1.0-run-variant-02",
+    "muse-wonder-1.0-run-variant-03",
+    "muse-wonder-1.0-run-variant-04",
     "o3-2025-04-16-run-variant-01",
     "o3-mini-2025-01-31-run-variant-01",
     "o4-mini-2025-04-16-run-variant-01",
@@ -868,6 +872,27 @@ def test_muse_spark_1_3_variant_uses_max_effort_and_web_search():
         "reasoning": {"effort": "max"},
         "tools": [{"type": "web_search"}],
     }
+
+
+def test_muse_wonder_1_0_variants_sweep_effort_with_web_search():
+    """Muse Wonder runs differ only by reasoning effort and all carry web search."""
+    from utils.llm import model_runs
+
+    expected = {
+        "muse-wonder-1.0-run-variant-01": ("muse-wonder-1.0-low-web-search-128k", "low"),
+        "muse-wonder-1.0-run-variant-02": ("muse-wonder-1.0-medium-web-search-128k", "medium"),
+        "muse-wonder-1.0-run-variant-03": ("muse-wonder-1.0-high-web-search-128k", "high"),
+        "muse-wonder-1.0-run-variant-04": ("muse-wonder-1.0-max-web-search-128k", "max"),
+    }
+    for key, (slug, effort) in expected.items():
+        run = model_runs.MODEL_RUNS_BY_KEY[key]
+        assert run.model_key == "muse-wonder-1.0"
+        assert run.slug == slug
+        assert run.options == {
+            "reasoning": {"effort": effort},
+            "tools": [{"type": "web_search"}],
+            "max_output_tokens": 131072,
+        }
 
 
 def test_minimax_variants_declare_provider_controls_on_existing_run_keys():

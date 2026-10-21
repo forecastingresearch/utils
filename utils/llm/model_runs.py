@@ -842,6 +842,46 @@ META_MODEL_RUNS: list[ModelRun] = [
             "tools": [{"type": "web_search"}],
         },
     ),
+    _model_run(
+        model_run_key="muse-wonder-1.0-run-variant-01",
+        slug="muse-wonder-1.0-low-web-search-128k",
+        model_key="muse-wonder-1.0",
+        options={
+            "reasoning": {"effort": "low"},
+            "tools": [{"type": "web_search"}],
+            "max_output_tokens": 131072,
+        },
+    ),
+    _model_run(
+        model_run_key="muse-wonder-1.0-run-variant-02",
+        slug="muse-wonder-1.0-medium-web-search-128k",
+        model_key="muse-wonder-1.0",
+        options={
+            "reasoning": {"effort": "medium"},
+            "tools": [{"type": "web_search"}],
+            "max_output_tokens": 131072,
+        },
+    ),
+    _model_run(
+        model_run_key="muse-wonder-1.0-run-variant-03",
+        slug="muse-wonder-1.0-high-web-search-128k",
+        model_key="muse-wonder-1.0",
+        options={
+            "reasoning": {"effort": "high"},
+            "tools": [{"type": "web_search"}],
+            "max_output_tokens": 131072,
+        },
+    ),
+    _model_run(
+        model_run_key="muse-wonder-1.0-run-variant-04",
+        slug="muse-wonder-1.0-max-web-search-128k",
+        model_key="muse-wonder-1.0",
+        options={
+            "reasoning": {"effort": "max"},
+            "tools": [{"type": "web_search"}],
+            "max_output_tokens": 131072,
+        },
+    ),
 ]
 
 
