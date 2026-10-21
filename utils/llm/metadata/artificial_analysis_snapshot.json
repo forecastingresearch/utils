@@ -6,15 +6,19 @@
     },
     {
       "id": "0097ebf5-124f-42f6-9463-33b00e711f03",
-      "name": "Gemini 3.5 Flash (high)"
+      "name": "Gemini 3.5 Flash (High)"
     },
     {
       "id": "00f1248e-78e3-4230-8dc8-5e13ba8645e2",
-      "name": "MiMo-V2.5-Pro"
+      "name": "MiMo-V2.5-Pro (Reasoning)"
     },
     {
       "id": "0121d27b-5b8a-4901-8684-80589cc6d40d",
       "name": "JT-35B-Flash"
+    },
+    {
+      "id": "01459872-433a-4ab2-8e99-7083162172eb",
+      "name": "GPT-6 Sol (Low)"
     },
     {
       "id": "016d330a-2141-4afa-b2fc-62b314423dc1",
@@ -26,11 +30,11 @@
     },
     {
       "id": "018c60e8-e908-431a-ba57-c840b1df3987",
-      "name": "Nova 2.0 Omni (medium)"
+      "name": "Nova 2.0 Omni (Medium)"
     },
     {
       "id": "019e86f6-e66b-42d8-8a50-235a06b53003",
-      "name": "GPT-5.2 Codex (xhigh)"
+      "name": "GPT-5.2 Codex (Xhigh)"
     },
     {
       "id": "021b1b31-d2fc-4653-ab74-c10bd2f41c8e",
@@ -42,7 +46,7 @@
     },
     {
       "id": "033ade17-d9ec-44e0-b792-b5f1fcd5ab4c",
-      "name": "Gemini 3.5 Flash (minimal)"
+      "name": "Gemini 3.5 Flash (Minimal)"
     },
     {
       "id": "033e4aa9-a556-4224-87b0-341ed1070257",
@@ -55,6 +59,10 @@
     {
       "id": "0399e614-5d46-484f-9183-e4f32d74e1c6",
       "name": "Gemini 2.0 Flash Thinking Experimental (Jan '25)"
+    },
+    {
+      "id": "042e8a37-fcd0-40f4-8f41-99215fb68eda",
+      "name": "Claude Sonnet 5.5 (Medium, Default Fallback)"
     },
     {
       "id": "04586102-6a28-48f8-a82e-85775d7ed779",
@@ -74,7 +82,19 @@
     },
     {
       "id": "04d023f3-025c-4d78-9571-53edda3eaf2a",
-      "name": "GPT-5.1 Codex (high)"
+      "name": "GPT-5.1 Codex (High)"
+    },
+    {
+      "id": "04ee6719-0327-463b-a1a1-70a6a78254f9",
+      "name": "Muse Spark 1.2 (Xhigh)"
+    },
+    {
+      "id": "050c61cd-cddc-463a-a30a-a82aaa37be59",
+      "name": "GPT-5.6 Luna (Low)"
+    },
+    {
+      "id": "05776db7-f5c0-40f7-b824-079160f8cfa8",
+      "name": "Claude Fable 5.1 (Low, Default Fallback)"
     },
     {
       "id": "05a32e26-e609-4377-951b-8fa23d329926",
@@ -82,7 +102,7 @@
     },
     {
       "id": "05e45a36-b5c6-47a1-8adb-9ddc19add5b3",
-      "name": "GPT-5 nano (minimal)"
+      "name": "GPT-5 nano (Minimal)"
     },
     {
       "id": "073b5329-c4b3-4f1f-8f97-4753aadf4398",
@@ -90,7 +110,7 @@
     },
     {
       "id": "076f2674-bc4b-4925-be59-50832eb8c090",
-      "name": "o3-mini (high)"
+      "name": "o3-mini (High)"
     },
     {
       "id": "078f4dc8-5350-40a2-a5ea-e8359f795b70",
@@ -101,8 +121,28 @@
       "name": "DeepSeek V3.2 Exp (Non-reasoning)"
     },
     {
+      "id": "08242385-ee91-4de6-be7f-271a6d9780ce",
+      "name": "Apodex 1.1"
+    },
+    {
+      "id": "0904b596-8932-43bd-9b21-324f128e1723",
+      "name": "GPT-5.6 Sol (Low)"
+    },
+    {
+      "id": "092a3b0e-c5c8-45dc-bf1b-53673c8ff352",
+      "name": "GPT-6.1 Sol (Xhigh)"
+    },
+    {
       "id": "093883ed-f5fc-443b-8e18-afbfb166699e",
       "name": "Qwen3 Coder 480B A35B Instruct"
+    },
+    {
+      "id": "093b9df2-ebee-4309-943f-5a7e88360adf",
+      "name": "Gemini 3.5 Flash-Lite"
+    },
+    {
+      "id": "094ea3e3-ce41-419e-8bd1-723389663158",
+      "name": "Step 5 Preview"
     },
     {
       "id": "0985ada8-2ed8-404d-bd8b-7357666ce40f",
@@ -125,12 +165,24 @@
       "name": "Qwen3 Omni 30B A3B Instruct"
     },
     {
+      "id": "0b7efa66-2115-49e0-a1b7-a2ba225fe9f6",
+      "name": "Grok Build 0.1 0616"
+    },
+    {
+      "id": "0c64b008-20c3-408d-bd68-15136df8cd2c",
+      "name": "Granite 4.2 3B"
+    },
+    {
       "id": "0d94dc87-12c8-4d4a-8d99-804ce3f17bc2",
-      "name": "Nova 2.0 Pro Preview (medium)"
+      "name": "Nova 2.0 Pro Preview (Medium)"
+    },
+    {
+      "id": "0de09623-2b1a-4c8d-86ef-7f5245d4e24b",
+      "name": "Inkling (Xhigh)"
     },
     {
       "id": "0de67206-4d36-4d10-b8f6-cf37fa747a03",
-      "name": "Kimi K2.6"
+      "name": "Kimi K2.6 (Reasoning)"
     },
     {
       "id": "0e34f05c-387e-4968-be15-ccec4a55d8c1",
@@ -161,6 +213,18 @@
       "name": "Magistral Small 1"
     },
     {
+      "id": "1071dea1-43e7-4fe9-b936-3034bb622b2e",
+      "name": "Granite 4.2 30B"
+    },
+    {
+      "id": "122a1fa1-976a-4089-87a2-5a0a13e2a52c",
+      "name": "K2 Horizon 7B"
+    },
+    {
+      "id": "127de816-57d3-4037-8484-480a613cd413",
+      "name": "MiMo-V2.6-Flash"
+    },
+    {
       "id": "1299b9a8-af50-4742-a58b-24ff7eb48f9f",
       "name": "LFM 40B"
     },
@@ -173,8 +237,16 @@
       "name": "Mistral Small 4 (Non-reasoning)"
     },
     {
+      "id": "1305c921-7aaa-4d6d-99b5-99b3acf15e19",
+      "name": "Claude Opus 5 (Xhigh)"
+    },
+    {
       "id": "13358187-4584-479c-ab43-5bcdf8f297a4",
       "name": "Claude 3.7 Sonnet (Reasoning)"
+    },
+    {
+      "id": "142b93bf-09c4-42dc-9c3a-50b1a222cbd4",
+      "name": "Claude Sonnet 5 (Low)"
     },
     {
       "id": "1479f50b-d37f-4b55-bb8b-4212a15042eb",
@@ -189,8 +261,12 @@
       "name": "Ling-1T"
     },
     {
+      "id": "15c4cbd7-b9aa-42c8-9ce5-5abbde0e6963",
+      "name": "Solar Pro 4"
+    },
+    {
       "id": "16149b9c-a1e9-4669-a5cb-ff3c00d78f89",
-      "name": "gpt-oss-20B (low)"
+      "name": "gpt-oss-20b (Low)"
     },
     {
       "id": "169e47f5-3d4d-4ad4-8f8b-ab46f0c73f67",
@@ -205,8 +281,20 @@
       "name": "Gemini 1.5 Pro (May '24)"
     },
     {
+      "id": "18721247-4e56-4cf7-9a9d-c71cc60c0961",
+      "name": "K-EXAONE 2.0 0803"
+    },
+    {
       "id": "191a2097-cce3-49cf-881e-0c790892059f",
       "name": "Qwen3 4B (Reasoning)"
+    },
+    {
+      "id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+      "name": "GLM-5.3-Flash"
+    },
+    {
+      "id": "19813eb2-460a-475c-af65-810bb8660fec",
+      "name": "GPT-6 Luna (Xhigh)"
     },
     {
       "id": "198b717f-42c8-4ab7-a699-ae9373d669d3",
@@ -254,11 +342,15 @@
     },
     {
       "id": "1f054429-397e-4fdb-9e71-67bc92c1735e",
-      "name": "GPT-5.5 (xhigh)"
+      "name": "GPT-5.5 (Xhigh)"
     },
     {
       "id": "1f05af98-1ec6-4506-a0b8-57a8c9b63878",
       "name": "Mistral Medium"
+    },
+    {
+      "id": "1f541ef3-913f-4eb2-9d07-0e93c7a9a5e3",
+      "name": "GPT-6 Astra (Xhigh)"
     },
     {
       "id": "1f6478c9-3e22-4586-adbe-841782859677",
@@ -271,6 +363,18 @@
     {
       "id": "1fc54cef-d179-48b1-a27d-046874e9b208",
       "name": "Claude 3 Haiku"
+    },
+    {
+      "id": "20829974-af06-497e-9f42-77fb958d43b9",
+      "name": "Claude Haiku 5.5 (High)"
+    },
+    {
+      "id": "208c16f0-8c5b-4524-ac8a-ac74c02e80a9",
+      "name": "Grok 4.7 (Low)"
+    },
+    {
+      "id": "20928ba9-3a3f-415f-9519-b84ff64ecf34",
+      "name": "Claude Opus 5 (Low)"
     },
     {
       "id": "20da3b31-fc0a-4359-abec-d59367bf1d9f",
@@ -309,6 +413,10 @@
       "name": "NVIDIA Nemotron 3 Nano 30B A3B (Non-reasoning)"
     },
     {
+      "id": "23c86e4a-c769-43c0-a056-79e3cd15834f",
+      "name": "Claude Sonnet 5 (Max)"
+    },
+    {
       "id": "2443ac9e-a3db-423d-accb-8963f6fb0a53",
       "name": "Grok 3"
     },
@@ -321,8 +429,20 @@
       "name": "Mistral Small 3.1"
     },
     {
+      "id": "24d8fdfe-6241-424e-b7b7-1b6efb06e4fb",
+      "name": "MiMo-V2.6-Pro"
+    },
+    {
       "id": "2660d74f-ce79-48a8-8b53-6e668e2071a2",
       "name": "Claude Opus 4.5 (Reasoning)"
+    },
+    {
+      "id": "26614164-6840-4e17-a65a-2deb2fe7e87b",
+      "name": "Grok 4.6 (Medium)"
+    },
+    {
+      "id": "268525e2-f873-4178-bc07-e6a0ee1f002d",
+      "name": "Claude Sonnet 5.5 (High, Default Fallback)"
     },
     {
       "id": "2698f6c6-e436-47ce-a583-dbc25596c571",
@@ -333,8 +453,16 @@
       "name": "Llama Nemotron Super 49B v1.5 (Non-reasoning)"
     },
     {
+      "id": "26e0f83a-ca98-4f34-94ac-7c5e251ee410",
+      "name": "GPT-5.6 Terra (Medium)"
+    },
+    {
       "id": "27202e5f-c82d-4710-92e9-4317877d4883",
       "name": "Gemini 2.5 Pro"
+    },
+    {
+      "id": "272f5f03-aea9-4675-a244-2b753b618cdf",
+      "name": "Grok 4.7 (High)"
     },
     {
       "id": "272ff333-442f-4169-a804-ac9177bc99d7",
@@ -354,7 +482,11 @@
     },
     {
       "id": "29855680-7469-43eb-8b88-cd3fb1d99da3",
-      "name": "GPT-5 mini (high)"
+      "name": "GPT-5 mini (High)"
+    },
+    {
+      "id": "29976311-665a-4b2f-ac72-557c33e0758e",
+      "name": "Nemotron 3.5 Lightning"
     },
     {
       "id": "2aacdc07-5f4e-4ab9-8ea5-5f7ab93f9eeb",
@@ -406,7 +538,7 @@
     },
     {
       "id": "2e40e695-3cec-43da-83f9-615af30b8e91",
-      "name": "Claude Sonnet 4.6 (Non-reasoning, High Effort)"
+      "name": "Claude Sonnet 4.6 (Non-reasoning, High)"
     },
     {
       "id": "2e46d2fd-eb2b-42b9-9fe4-be50630fe870",
@@ -425,12 +557,24 @@
       "name": "Command A+"
     },
     {
+      "id": "2f339a97-9a0d-499a-9cb5-e0db665bfa25",
+      "name": "GPT-6 Astra (Max)"
+    },
+    {
+      "id": "2f3c4dc9-a450-4303-8697-0237257cf08f",
+      "name": "Claude Opus 5.5 (Max, Default Fallback)"
+    },
+    {
       "id": "2f60d80d-c3d3-4a43-bded-0557898c4618",
       "name": "EXAONE 4.0 32B (Non-reasoning)"
     },
     {
       "id": "2fa8e143-77a8-4d05-bfa8-d3b54634c00f",
-      "name": "Claude Opus 4.7 (Non-reasoning, High Effort)"
+      "name": "Claude Opus 4.7 (Non-reasoning, High)"
+    },
+    {
+      "id": "2ffa7571-fa78-453a-b589-9aa3fac702d2",
+      "name": "G9v3-3B"
     },
     {
       "id": "3068def4-7270-4c06-a320-6f6a5623d564",
@@ -443,6 +587,10 @@
     {
       "id": "30ef2a79-e800-4165-9f13-2a338f120db7",
       "name": "Qwen3.5 397B A17B (Non-reasoning)"
+    },
+    {
+      "id": "31da3a71-0773-47d9-8560-9f19f069926b",
+      "name": "K2 Horizon 3.7B"
     },
     {
       "id": "3373245b-e6dc-4b66-a7b0-3f06f9b7bd46",
@@ -458,7 +606,7 @@
     },
     {
       "id": "340fb211-4fad-41d3-87d5-ed0d0cd34088",
-      "name": "HyperNova 60B 2605"
+      "name": "HyperNova 60B 2605 (High, Based on gpt-oss-120b)"
     },
     {
       "id": "3435db18-9227-45a5-8e79-9546b14b5aaa",
@@ -470,7 +618,11 @@
     },
     {
       "id": "34ef2b5c-3df3-437e-b9c5-81346f8c14a8",
-      "name": "Sarvam M (Reasoning)"
+      "name": "Sarvam M (Reasoning, Based on Mistral Small 3.1)"
+    },
+    {
+      "id": "34fc646a-0174-470e-9e62-d8df452210b3",
+      "name": "Mistral Large 4 Preview"
     },
     {
       "id": "352f834f-a03c-4117-8a29-c3ccd8a568ce",
@@ -481,16 +633,28 @@
       "name": "EXAONE 4.5 33B (Non-reasoning)"
     },
     {
+      "id": "353c92f3-2148-4c2d-9231-aa7e1322a1fd",
+      "name": "Qwen3.8 27B (Non-reasoning)"
+    },
+    {
       "id": "35d602fc-b8b8-4698-9f4d-f2ce11ca50e4",
       "name": "Mistral Small (Feb '24)"
     },
     {
+      "id": "3661c8fb-caf7-4118-aa18-65b84fea8e44",
+      "name": "Muse Spark Open (Xhigh)"
+    },
+    {
+      "id": "36667da0-9222-4967-adbb-f7efa15ad213",
+      "name": "GPT-6 Luna (Medium)"
+    },
+    {
       "id": "369329e4-629f-425d-975a-e8980aec2965",
-      "name": "INTELLECT-3"
+      "name": "INTELLECT-3 (Based on GLM-4.5-Air)"
     },
     {
       "id": "36f73aaf-d38a-4b56-a2b3-d04d17186910",
-      "name": "gpt-oss-20B (high)"
+      "name": "gpt-oss-20b (High)"
     },
     {
       "id": "385376b1-9815-47dd-83cc-85aac34f247d",
@@ -498,7 +662,7 @@
     },
     {
       "id": "392063ba-c3b5-47e8-ba67-a7b0b34f6824",
-      "name": "GPT-5.4 mini (medium)"
+      "name": "GPT-5.4 mini (Medium)"
     },
     {
       "id": "39b64e04-7a69-4aa2-9e2e-fe38c24681ec",
@@ -509,8 +673,20 @@
       "name": "Qwen3.6 27B (Non-reasoning)"
     },
     {
+      "id": "3b5ba264-ad25-429b-a460-4d8698205f0d",
+      "name": "Nex-N2-Pro (Based on Qwen3.5-397B-A17B)"
+    },
+    {
       "id": "3b608b70-6434-4baa-99ad-45d499703c67",
       "name": "GPT-4.1"
+    },
+    {
+      "id": "3b7de71c-e034-4591-8ca6-6b6be2fa471f",
+      "name": "Claude Fable 5.1 (Medium, Default Fallback)"
+    },
+    {
+      "id": "3b84fee3-b70a-41bc-819e-5fbdef9a0042",
+      "name": "GPT-6.1 Sol (High)"
     },
     {
       "id": "3bc32f13-5afa-4e28-bce1-10e57376686b",
@@ -541,6 +717,10 @@
       "name": "Qwen3 30B A3B (Reasoning)"
     },
     {
+      "id": "3e87c73e-a257-495e-9730-367a66229811",
+      "name": "Claude Fable 5.1 (Max, Default Fallback)"
+    },
+    {
       "id": "3edcb2ed-6981-4f88-a556-563f7f8f00aa",
       "name": "Mixtral 8x7B Instruct"
     },
@@ -565,6 +745,10 @@
       "name": "Claude Opus 4.5 (Non-reasoning)"
     },
     {
+      "id": "41b5bf5e-daf6-42d9-b8d1-60e340a3028d",
+      "name": "Claude Haiku 5.5 (Xhigh)"
+    },
+    {
       "id": "41f73c27-880c-4f30-8b07-9999ce89a4ae",
       "name": "Qwen Chat 72B"
     },
@@ -573,12 +757,24 @@
       "name": "Gemini 1.5 Flash (Sep '24)"
     },
     {
+      "id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+      "name": "GPT-5.6 Luna (Max)"
+    },
+    {
+      "id": "42908ae3-d3bd-4934-be19-fbff93d3fde8",
+      "name": "Claude Haiku 5.5 (Low)"
+    },
+    {
       "id": "43098bd0-77ca-408b-b698-9d60b1d1c3b8",
       "name": "GLM-4.6V (Non-reasoning)"
     },
     {
       "id": "432d6c36-8825-47f3-b4eb-58529cea346b",
       "name": "Solar Pro 2 (Preview) (Non-reasoning)"
+    },
+    {
+      "id": "433d5c5d-3092-4026-9727-1587ca07915d",
+      "name": "Ling-3.0-flash-VL"
     },
     {
       "id": "433e410e-5170-4f03-b92f-7927c220b2fe",
@@ -594,7 +790,7 @@
     },
     {
       "id": "4386585e-71b4-4a0c-8a63-afb333419cd6",
-      "name": "Claude Opus 4.6 (Non-reasoning, High Effort)"
+      "name": "Claude Opus 4.6 (Non-reasoning, High)"
     },
     {
       "id": "43da3718-3d6e-40dd-901a-05664179ff7f",
@@ -603,6 +799,10 @@
     {
       "id": "43fc5506-c5ed-4dee-9b85-962bf7ae3986",
       "name": "DeepSeek V3 (Dec '24)"
+    },
+    {
+      "id": "4416ca93-fde6-4b7b-abbc-3a6be109cc3d",
+      "name": "Claude Opus 5.5 (Low, Default Fallback)"
     },
     {
       "id": "441734a9-8901-4850-9bae-b474c370291f",
@@ -626,7 +826,7 @@
     },
     {
       "id": "45790612-02e3-4c42-b5bd-cd7ed2ea1f2f",
-      "name": "Sarvam 105B (high)"
+      "name": "Sarvam 105B (High)"
     },
     {
       "id": "45c87531-2d57-48e0-8012-202cd636189e",
@@ -639,6 +839,10 @@
     {
       "id": "46d8315e-1630-463f-ab62-84185fa0faab",
       "name": "Qwen3.5 35B A3B (Reasoning)"
+    },
+    {
+      "id": "46f11cdf-1725-4abb-b39b-bd6bd948149c",
+      "name": "JT-4.1 Flash 236B A21B (Reasoning)"
     },
     {
       "id": "4764d31d-f4af-4297-8bd1-e993f26bcb64",
@@ -654,7 +858,7 @@
     },
     {
       "id": "48e50f00-1fd1-4acc-b337-61078aa341e6",
-      "name": "GPT-5 (high)"
+      "name": "GPT-5 (High)"
     },
     {
       "id": "4928e950-7f37-4475-b0dc-c5bad781a321",
@@ -666,7 +870,7 @@
     },
     {
       "id": "498862c3-f9ac-49d2-852f-16a02bb0c38f",
-      "name": "GPT-5.2 (xhigh)"
+      "name": "GPT-5.2 (Xhigh)"
     },
     {
       "id": "49e70a38-4ac1-4659-b490-09b2c7ff21d6",
@@ -698,11 +902,11 @@
     },
     {
       "id": "4dc12a38-b18f-4c43-8e1b-678f8434b5b1",
-      "name": "GPT-5.1 (high)"
+      "name": "GPT-5.1 (High)"
     },
     {
       "id": "5016ea75-7b0e-4737-a7e6-1062c6d90fd4",
-      "name": "Gemini 3.5 Flash (medium)"
+      "name": "Gemini 3.5 Flash (Medium)"
     },
     {
       "id": "504412c2-2ada-499b-aebf-7e0a35c9d286",
@@ -710,7 +914,7 @@
     },
     {
       "id": "508943e4-e9e1-4d10-9c0e-a7650e9d7315",
-      "name": "EXAONE 4.5 33B"
+      "name": "EXAONE 4.5 33B (Reasoning)"
     },
     {
       "id": "509e94e3-f1cb-43fb-98ff-e0e9872cfd1f",
@@ -719,6 +923,10 @@
     {
       "id": "50f92d5f-f413-4c97-8dab-331101622a28",
       "name": "Mistral Large 2 (Nov '24)"
+    },
+    {
+      "id": "512d17ef-13d2-4f65-bf9b-154b0dec7e8d",
+      "name": "Kimi K3 (Low)"
     },
     {
       "id": "515852e7-ba9c-4571-8cf9-82ad6b45f22f",
@@ -737,16 +945,24 @@
       "name": "DeepSeek V3.2 Speciale"
     },
     {
+      "id": "52eebe3e-6ede-4e46-92db-c5dea49fc410",
+      "name": "GPT-6 Sol (High)"
+    },
+    {
       "id": "5303601c-8133-4f52-bc4e-5241ee6b3c10",
       "name": "Gemma 4 E4B (Non-reasoning)"
     },
     {
       "id": "538e945c-6c27-4fd3-995d-ded80a36cd10",
-      "name": "GPT-5.4 (low)"
+      "name": "GPT-5.4 (Low)"
+    },
+    {
+      "id": "53b9e276-e360-4a39-9076-1a19d72c25fe",
+      "name": "K2 Horizon MoVA 36B A4B"
     },
     {
       "id": "53c98840-47af-49aa-94e6-469fb17e9a1b",
-      "name": "Claude Opus 4.6 (Adaptive Reasoning, Max Effort)"
+      "name": "Claude Opus 4.6 (Max)"
     },
     {
       "id": "540ebc58-a2d8-4dc9-ba6b-973efa52fab1",
@@ -777,6 +993,18 @@
       "name": "GPT-4o (March 2025, chatgpt-4o-latest)"
     },
     {
+      "id": "583f98fb-c4b8-4df3-8d40-60ac0ed69882",
+      "name": "Muse Glimmer (High)"
+    },
+    {
+      "id": "58b812bf-8498-46db-b834-f43ccc614b61",
+      "name": "GPT-5.6 Luna (Medium)"
+    },
+    {
+      "id": "59627802-1546-422c-9a65-65b61c022d36",
+      "name": "Grok 4.7 (Xhigh)"
+    },
+    {
       "id": "5962d643-0a6f-4630-bb08-ab5720d80056",
       "name": "Qwen3 1.7B (Reasoning)"
     },
@@ -798,7 +1026,7 @@
     },
     {
       "id": "59b5b14b-5365-4ee7-824a-18a8e6309644",
-      "name": "GPT-5.3 Codex (xhigh)"
+      "name": "GPT-5.3 Codex (Xhigh)"
     },
     {
       "id": "59e22326-1bca-4432-a5fa-147fbe8854e7",
@@ -830,7 +1058,11 @@
     },
     {
       "id": "5bb1f426-2d64-4d03-99fb-8041ee85c33b",
-      "name": "GPT-5.4 Pro (xhigh)"
+      "name": "GPT-5.4 Pro (Xhigh)"
+    },
+    {
+      "id": "5c3bdc0d-abab-4526-8079-34de4089bb4a",
+      "name": "LongCat 2.0"
     },
     {
       "id": "5c3dd927-48a3-4f3c-8045-9b135f62dfbb",
@@ -846,7 +1078,7 @@
     },
     {
       "id": "5d11e7a1-4f70-4e5a-9364-e193761d6757",
-      "name": "GPT-5 Codex (high)"
+      "name": "GPT-5 Codex (High)"
     },
     {
       "id": "5d303dc9-c027-401f-9803-4e9aa3331007",
@@ -866,7 +1098,7 @@
     },
     {
       "id": "5da3c0e2-65d2-4bff-a410-cb2132ddafb6",
-      "name": "DeepSeek V4 Pro (Reasoning, High Effort)"
+      "name": "DeepSeek V4 Pro 0424 (High)"
     },
     {
       "id": "5dba8d07-9992-483c-81db-dac97cb15ba8",
@@ -881,12 +1113,16 @@
       "name": "Mistral Large (Feb '24)"
     },
     {
+      "id": "5e5b4ce7-bc54-47b2-b911-21b9cad8394c",
+      "name": "Qwen3.8 Max"
+    },
+    {
       "id": "5e8b0d98-a3b4-42b5-93d8-ecb748788754",
-      "name": "Grok 4.3 (medium)"
+      "name": "Grok 4.3 (Medium)"
     },
     {
       "id": "5e965af0-ca5c-4f47-9ba9-06000508b84a",
-      "name": "GPT-5 (medium)"
+      "name": "GPT-5 (Medium)"
     },
     {
       "id": "5ea94a4a-55ac-4ea1-8898-2b3971e94af6",
@@ -918,15 +1154,27 @@
     },
     {
       "id": "61bd9367-e520-4ec8-989e-5fbf50e61610",
-      "name": "Nova 2.0 Lite (high)"
+      "name": "Nova 2.0 Lite (High)"
     },
     {
       "id": "62de31e8-a1a3-429c-b634-a2afccfd9363",
       "name": "Gemini 2.5 Pro Preview (Mar' 25)"
     },
     {
+      "id": "62ea3198-9866-4d9f-8406-a79ee78c7164",
+      "name": "Solar Mini 4"
+    },
+    {
       "id": "63872e9c-3377-4a6b-b477-7bba244c38e9",
-      "name": "NVIDIA Nemotron 3 Super 120B A12B (Reasoning)"
+      "name": "Nemotron 3 Super 120B A12B (Reasoning)"
+    },
+    {
+      "id": "63cb48ea-0b0c-4e07-8ded-6d28dec4fa28",
+      "name": "GPT-6 Luna (Non-reasoning)"
+    },
+    {
+      "id": "641a073a-41c9-4773-9b02-d965c16607c5",
+      "name": "MiniCPM5-2B"
     },
     {
       "id": "64312f37-3701-4243-a4c9-7c07a58cd6b9",
@@ -943,6 +1191,10 @@
     {
       "id": "66445f84-b2e3-4202-afdc-92ba0f0e5f36",
       "name": "Kimi K2 0905"
+    },
+    {
+      "id": "6657d7de-a2a9-40bc-a32f-86e80ad63698",
+      "name": "Qwen3.8 27B (Medium)"
     },
     {
       "id": "666eb13f-0d22-4438-8eb0-01876e1a8604",
@@ -963,6 +1215,10 @@
     {
       "id": "68c89ebf-779c-4445-9241-de964cd17355",
       "name": "Gemini 2.5 Flash Preview (Reasoning)"
+    },
+    {
+      "id": "69468cce-7b5c-414a-b498-41df4c34df85",
+      "name": "Beam 1.0"
     },
     {
       "id": "69534bed-2ffd-4235-832b-e20a810333ab",
@@ -986,7 +1242,7 @@
     },
     {
       "id": "6b79f899-e3c0-45f6-923c-243faccdb2fc",
-      "name": "GPT-5.5 (medium)"
+      "name": "GPT-5.5 (Medium)"
     },
     {
       "id": "6ba9e8eb-8124-436d-842f-dbe36df80c27",
@@ -995,6 +1251,10 @@
     {
       "id": "6c7b322e-2f35-48ff-9171-fb621a726fc0",
       "name": "Step 3.7 Flash"
+    },
+    {
+      "id": "6d6fa1c9-b833-40b2-8a58-fa810e24a84e",
+      "name": "Ling-3.0-flash-Fin"
     },
     {
       "id": "6d9a176d-feb8-4dac-8872-afe32b31897f",
@@ -1014,11 +1274,15 @@
     },
     {
       "id": "6e2a2572-ed8d-4616-8d7d-68d125fc8ee7",
-      "name": "DeepSeek V4 Pro (Non-reasoning)"
+      "name": "DeepSeek V4 Pro 0424 (Non-reasoning)"
     },
     {
       "id": "6e6e02fd-9cbd-417f-9bfc-673df89c313d",
       "name": "NVIDIA Nemotron Nano 12B v2 VL (Reasoning)"
+    },
+    {
+      "id": "6f174934-5b7d-4333-86cb-f5ebf4a862e3",
+      "name": "GPT-5.6 Sol (Medium)"
     },
     {
       "id": "6f1a7562-6e96-46ac-af4f-6ba5a7a3da96",
@@ -1029,12 +1293,16 @@
       "name": "Qwen3.5 Omni Flash"
     },
     {
+      "id": "6fb13851-40ce-4bda-ad3f-6b38e0c5daa7",
+      "name": "GPT-6 Luna (Max)"
+    },
+    {
       "id": "6fc35842-0165-44cf-8570-c484a92b3d8c",
       "name": "GLM-4.7 (Reasoning)"
     },
     {
       "id": "6fd796d3-f346-4f66-97df-5da81714fc73",
-      "name": "Nova 2.0 Lite (low)"
+      "name": "Nova 2.0 Lite (Low)"
     },
     {
       "id": "70152cb0-fb36-4732-a925-89ef40994be1",
@@ -1043,6 +1311,10 @@
     {
       "id": "70882ec6-914c-41f0-9754-5e8f75005f77",
       "name": "Gemma 4 26B A4B (Non-reasoning)"
+    },
+    {
+      "id": "712be54a-77ae-41b2-9a58-21181479d6ee",
+      "name": "Claude Opus 5 (High)"
     },
     {
       "id": "713fae11-c75c-4f10-ae2c-8e4074cd58af",
@@ -1061,6 +1333,10 @@
       "name": "Gemini 2.5 Flash-Lite Preview (Sep '25) (Non-reasoning)"
     },
     {
+      "id": "7261504e-503c-4a66-a9d3-a3272cdf9ad6",
+      "name": "Inkling Small"
+    },
+    {
       "id": "72c358fd-7d45-4d68-89aa-699743710924",
       "name": "GPT-4.1 nano"
     },
@@ -1077,6 +1353,14 @@
       "name": "LFM2 2.6B"
     },
     {
+      "id": "73c96f99-0de3-4668-a4bd-b106a0fe18f2",
+      "name": "DeepSeek V4.1 Flash (Non-reasoning)"
+    },
+    {
+      "id": "744fa3c1-42a7-4995-b138-fb6be11f463c",
+      "name": "Gemini 3.8 Flash (Medium)"
+    },
+    {
       "id": "755d7281-2ed8-48c7-808f-709ec4cbfb71",
       "name": "Gemma 4 E2B (Non-reasoning)"
     },
@@ -1090,11 +1374,15 @@
     },
     {
       "id": "764dd095-6ebd-4760-8eb3-cbc40964db2e",
-      "name": "Sarvam 30B (high)"
+      "name": "Sarvam 30B (High)"
     },
     {
       "id": "7656c62b-5345-435b-bf12-b6ce2ca0d58d",
       "name": "Qwen2 Instruct 72B"
+    },
+    {
+      "id": "765c9f31-95ec-4f14-900a-80614c3b0777",
+      "name": "Mercury 2.5"
     },
     {
       "id": "76aa6af5-fdc6-4739-a300-983f14e74a67",
@@ -1109,6 +1397,10 @@
       "name": "NVIDIA Nemotron 3 Nano 30B A3B (Reasoning)"
     },
     {
+      "id": "7707a46f-895f-4247-b7a8-ddab87c9a11d",
+      "name": "DeepSeek V4 Flash Vision (Max)"
+    },
+    {
       "id": "7764d514-694f-444c-8d60-bdc6e24e223f",
       "name": "DeepSeek LLM 67B Chat (V1)"
     },
@@ -1117,8 +1409,16 @@
       "name": "MiniCPM5-1B (Reasoning)"
     },
     {
+      "id": "780a4a85-17ff-4175-a8dd-ebca4823e61b",
+      "name": "GPT-6 Sol (Medium)"
+    },
+    {
       "id": "7829427f-f0e3-4f6d-a228-5fbf70dacc02",
       "name": "Claude 3 Opus"
+    },
+    {
+      "id": "78332c88-fe60-42c8-af9d-3617e44cf1f5",
+      "name": "Gemini 3.6 Flash (High)"
     },
     {
       "id": "783a0ea2-1eef-422a-8c3d-f6d40d943f54",
@@ -1127,6 +1427,10 @@
     {
       "id": "78452c64-7303-4192-bca5-2d9ec5c623d4",
       "name": "Jamba 1.7 Large"
+    },
+    {
+      "id": "794f69b5-cede-482b-b1cc-d769478497cd",
+      "name": "Grok 4.5 (High)"
     },
     {
       "id": "7a7b52f6-fdef-4dae-9203-58c710ccc81d",
@@ -1145,12 +1449,40 @@
       "name": "Mistral Small (Sep '24)"
     },
     {
+      "id": "7c4d1e30-6ecb-46cf-880c-41446d7b51f1",
+      "name": "GPT-5.6 Sol (Non-reasoning)"
+    },
+    {
       "id": "7c73c3be-7f51-4d14-bec8-d5789488df25",
       "name": "Gemini 3 Flash Preview (Reasoning)"
     },
     {
+      "id": "7d064a11-6e78-4030-b535-cdf940615041",
+      "name": "Claude Haiku 5.5 (Max)"
+    },
+    {
+      "id": "7d1229bc-deea-4717-ba5b-f59a35d991e3",
+      "name": "GPT-6 Luna (High)"
+    },
+    {
+      "id": "7d2aa050-888e-4c27-a92d-10337a4dfb3a",
+      "name": "Nemotron 3.5 Bolt 74B-A9B"
+    },
+    {
       "id": "7d73161f-002f-4c9c-b4f8-6c4d91f2ba8e",
       "name": "Nanbeige4.1-3B"
+    },
+    {
+      "id": "7e30585f-fad7-40df-a8cb-03c1d96df38a",
+      "name": "Qwen3.8 27B (Low)"
+    },
+    {
+      "id": "7eabd8ca-bf43-4d56-b3df-efd1c4eebfb0",
+      "name": "Solar Open2 250B"
+    },
+    {
+      "id": "7eaf926c-5f39-4e58-ae50-c38b5fc630fc",
+      "name": "Ling 3.0 Tiny"
     },
     {
       "id": "7ec1065a-c90e-41e4-bd17-abb7042eed76",
@@ -1158,7 +1490,11 @@
     },
     {
       "id": "7f3c9423-3ee3-4369-a6d9-3f2a40aff00e",
-      "name": "GPT-5 (low)"
+      "name": "GPT-5 (Low)"
+    },
+    {
+      "id": "8014c311-fa23-4a4b-8485-8a864db8a113",
+      "name": "Celeris-1"
     },
     {
       "id": "806032ff-6252-4c22-ba99-a126e411b7a4",
@@ -1173,8 +1509,16 @@
       "name": "Tiny Aya Global"
     },
     {
+      "id": "81972fba-1219-477e-bbfb-18c656a63ff7",
+      "name": "GPT-5.6 Terra (High)"
+    },
+    {
       "id": "81b6ddfc-111e-4422-bd44-42ee6165b699",
       "name": "GLM-4.7 (Non-reasoning)"
+    },
+    {
+      "id": "8215372b-66ff-457b-855e-e8abeafc9571",
+      "name": "A.X-K2"
     },
     {
       "id": "8273650d-40e5-45ee-aeda-df71de784164",
@@ -1197,6 +1541,10 @@
       "name": "Granite 4.1 8B"
     },
     {
+      "id": "83173329-c09a-41f1-a028-a282a5f908d7",
+      "name": "DeepSeek V4 Pro 0813 (Max)"
+    },
+    {
       "id": "83cb898e-05d9-4e4b-9de3-2d305014d923",
       "name": "Claude Instant"
     },
@@ -1206,11 +1554,11 @@
     },
     {
       "id": "84b49308-6b93-47aa-a4f6-776ee1a1e8cd",
-      "name": "o4-mini (high)"
+      "name": "o4-mini (High)"
     },
     {
       "id": "84e3f11e-d659-4941-8988-1dbfabbaf538",
-      "name": "GPT-5.2 (medium)"
+      "name": "GPT-5.2 (Medium)"
     },
     {
       "id": "864da2a5-156c-45fd-873c-8923be91914f",
@@ -1219,6 +1567,10 @@
     {
       "id": "8665ca00-c687-44c7-875c-22618cb31c4f",
       "name": "Qwen3.6 35B A3B (Reasoning)"
+    },
+    {
+      "id": "87110ff0-1f79-41b4-9976-eda250597317",
+      "name": "GPT-5.6 Luna (Xhigh)"
     },
     {
       "id": "877fdfc9-2026-477a-af96-e4fd602c0131",
@@ -1234,7 +1586,7 @@
     },
     {
       "id": "8869f28a-a6ff-487f-8d32-93fe335fdda5",
-      "name": "GPT-5.4 nano (medium)"
+      "name": "GPT-5.4 nano (Medium)"
     },
     {
       "id": "891bcdf2-8dd2-4dc3-829b-d963fde25876",
@@ -1242,7 +1594,7 @@
     },
     {
       "id": "89a2c945-1fab-4ee4-9f45-83a9f46cb221",
-      "name": "DeepSeek V4 Flash (Reasoning, High Effort)"
+      "name": "DeepSeek V4 Flash 0420 (High)"
     },
     {
       "id": "8a24865b-90d9-4e2b-a2fd-6851c2e9d627",
@@ -1251,6 +1603,14 @@
     {
       "id": "8a4a5ead-7789-4389-8400-30e9d20370b7",
       "name": "Claude 4 Opus (Reasoning)"
+    },
+    {
+      "id": "8a999846-4c1d-4ce7-a8b7-1310a7166fd7",
+      "name": "Gemini 3.8 Flash (High)"
+    },
+    {
+      "id": "8afc250d-b538-45a2-812a-4605f4ffd87e",
+      "name": "GPT-5.6 Sol (High)"
     },
     {
       "id": "8b1a70d1-e05f-426b-9122-023d4629ab47",
@@ -1281,12 +1641,16 @@
       "name": "Gemini 1.0 Pro"
     },
     {
+      "id": "8df710d3-9dae-4498-9b4e-9818238e6f31",
+      "name": "Qwen3.8 2.4T A95B"
+    },
+    {
       "id": "8e78cf7a-5b76-4beb-beba-b99c6233b208",
       "name": "Solar Pro 2 (Preview) (Reasoning)"
     },
     {
       "id": "8eb02396-f231-4189-ae15-05f7facebd9b",
-      "name": "GPT-5 nano (medium)"
+      "name": "GPT-5 nano (Medium)"
     },
     {
       "id": "8f0a75d6-8d00-4c2e-bcd4-8e88a570a93c",
@@ -1295,6 +1659,10 @@
     {
       "id": "8f74a6ed-f82f-4a2f-a96b-4914993e47da",
       "name": "Olmo 3 7B Instruct"
+    },
+    {
+      "id": "901ec71b-51ec-4f53-b807-06ee17b890b4",
+      "name": "JT-4.1 Flash 236B A21B (Non-reasoning)"
     },
     {
       "id": "90c2a9cf-ad7e-4332-9be2-2fd1309833e2",
@@ -1329,6 +1697,10 @@
       "name": "GLM-5.1 (Non-reasoning)"
     },
     {
+      "id": "93e12518-6e04-4713-b52d-2c56dac49c63",
+      "name": "GPT-6 Sol (Daybreak Blue, max)"
+    },
+    {
       "id": "94229066-9381-4ee1-bf70-a16d63756a6e",
       "name": "Gemini 1.5 Flash-8B"
     },
@@ -1338,7 +1710,7 @@
     },
     {
       "id": "948892b5-db03-4118-a4a8-ccd51ed871ea",
-      "name": "Grok 4.3 (high)"
+      "name": "Grok 4.3 (High)"
     },
     {
       "id": "94a6d26e-a903-47f3-8323-ae422d237bb9",
@@ -1351,6 +1723,10 @@
     {
       "id": "9741f3c2-cbb1-4a3f-99ee-7bd7384d9038",
       "name": "Ministral 3 8B"
+    },
+    {
+      "id": "975aeaef-50bd-4a65-9c73-f1015adcd4d4",
+      "name": "Claude Sonnet 5.5 (Xhigh, Default Fallback)"
     },
     {
       "id": "976cc8ad-7904-4056-83c5-960181f47d5f",
@@ -1366,7 +1742,27 @@
     },
     {
       "id": "992b7b84-5069-4c6a-9295-834252553d50",
-      "name": "Claude Opus 4.8 (Adaptive Reasoning, Max Effort)"
+      "name": "Claude Opus 4.8 (Max)"
+    },
+    {
+      "id": "9999672c-b687-4026-9c15-5cef02ff53bb",
+      "name": "Muse Spark 1.3 (Max)"
+    },
+    {
+      "id": "99f376bf-cbcb-4124-bf3e-6b0a4e6e9bea",
+      "name": "Claude Sonnet 5 (Xhigh)"
+    },
+    {
+      "id": "9ac3908c-9eb2-44db-8c01-3ec7da6fc2ae",
+      "name": "Qwen3.8-Flash-Next"
+    },
+    {
+      "id": "9b166bf3-42db-4f63-8338-1c4a1244ffe8",
+      "name": "Claude Fable 5.1 (Xhigh, Default Fallback)"
+    },
+    {
+      "id": "9b97a35e-6ac7-44d9-91c6-422fa678963e",
+      "name": "GPT-5.6 Terra (Non-reasoning)"
     },
     {
       "id": "9ca246a7-cf13-42c9-9182-5b5ad6b79026",
@@ -1381,12 +1777,24 @@
       "name": "K-EXAONE (Non-reasoning)"
     },
     {
+      "id": "9d7d72cd-d95d-45a0-b109-4ad292c9aabd",
+      "name": "Claude Fable 5.1 (High, Default Fallback)"
+    },
+    {
       "id": "9dba61f5-78ee-4190-8d1d-8e7063ffd386",
       "name": "Qwen3 8B (Reasoning)"
     },
     {
       "id": "9e141c0d-fc82-4e07-bb2e-fe0003bc030b",
       "name": "Claude 2.1"
+    },
+    {
+      "id": "9e30696f-16fa-4b4f-ba53-161895a85fed",
+      "name": "GPT-5.6 Terra (Xhigh)"
+    },
+    {
+      "id": "9e9fb958-87f5-4835-a761-26102ef25898",
+      "name": "K2 Horizon 0.9B"
     },
     {
       "id": "9eae4ec4-61b8-48bc-9843-3edd506ae933",
@@ -1425,8 +1833,20 @@
       "name": "Granite 4.0 1B"
     },
     {
+      "id": "a2e51d62-ea4e-4f15-8be0-be9dc1fb489d",
+      "name": "GPT-6.1 Sol (Medium)"
+    },
+    {
+      "id": "a3043d4f-9b92-4261-8ea2-a2d391b09cf4",
+      "name": "Motif 3 (Beta)"
+    },
+    {
       "id": "a38d719a-709c-4983-b3e7-7090389ae9a6",
-      "name": "K2-V2 (high)"
+      "name": "K2-V2 (High)"
+    },
+    {
+      "id": "a3f8100d-e38f-408b-b0fa-0085dae18dc1",
+      "name": "GPT-6 Astra (Low)"
     },
     {
       "id": "a5092ece-d5a7-461f-b036-3faef262423f",
@@ -1439,6 +1859,10 @@
     {
       "id": "a550ffca-f89e-4381-ade6-a85dc6a1fb4c",
       "name": "Kimi K2.5 (Reasoning)"
+    },
+    {
+      "id": "a6043b9b-628a-4a76-a021-2834e0627d05",
+      "name": "Ling 3.1 Flash"
     },
     {
       "id": "a6340098-d7ae-462d-b372-0a0a67fc44b4",
@@ -1478,7 +1902,7 @@
     },
     {
       "id": "a89c4b28-2d8c-456e-88ea-255fb51fd2b6",
-      "name": "GPT-5.4 (xhigh)"
+      "name": "GPT-5.4 (Xhigh)"
     },
     {
       "id": "a8c67863-9d66-44dd-8d27-f58654ecde03",
@@ -1491,6 +1915,10 @@
     {
       "id": "a971b0c0-4c0f-484a-b018-e36b5be3409e",
       "name": "Reka Flash (Sep '24)"
+    },
+    {
+      "id": "aa55297e-8fbf-4372-b4ab-9b068dc6396c",
+      "name": "GPT-5.6 Luna (High)"
     },
     {
       "id": "aa83359a-d804-4f0b-b5bf-dc637711c26f",
@@ -1526,15 +1954,19 @@
     },
     {
       "id": "ad173c8d-f14f-4230-90e9-60979b7720e7",
-      "name": "DeepSeek V4 Flash (Non-reasoning)"
+      "name": "DeepSeek V4 Flash 0420 (Non-reasoning)"
     },
     {
       "id": "adf9a85e-abc3-4f28-937b-db6655cc5238",
       "name": "Llama 4 Scout"
     },
     {
+      "id": "adfae555-f489-4f3e-9064-c6b7fcdd0783",
+      "name": "Granite 4.2 8B"
+    },
+    {
       "id": "ae447455-940d-4d30-9139-a664fa896eaf",
-      "name": "GPT-5.4 mini (Non-Reasoning)"
+      "name": "GPT-5.4 mini (Non-reasoning)"
     },
     {
       "id": "ae4fe623-80ab-4ea3-8921-70a18ea0fc7e",
@@ -1545,12 +1977,24 @@
       "name": "DeepSeek V3.2 Exp (Reasoning)"
     },
     {
+      "id": "af26fff4-8120-41be-a5f0-86aaea023f20",
+      "name": "Claude Haiku 5.5 (Medium)"
+    },
+    {
       "id": "af74f222-05c7-422d-a653-b9c0707c9c72",
       "name": "Molmo 7B-D"
     },
     {
       "id": "b00ecd62-a53f-4aed-b833-3e9d6b0170ba",
       "name": "Qwen3 32B (Reasoning)"
+    },
+    {
+      "id": "b01dee41-c62b-48ed-8d16-984adc405e5c",
+      "name": "Qwen3.8 27B (Xhigh)"
+    },
+    {
+      "id": "b01eefb1-c9f8-412d-8353-571031a52f23",
+      "name": "Motif 3"
     },
     {
       "id": "b0249961-b8b2-479d-8325-a29ea17c7b89",
@@ -1561,12 +2005,32 @@
       "name": "Gemma 4 E2B (Reasoning)"
     },
     {
+      "id": "b112af07-3bd5-4647-b09f-b23204361bb2",
+      "name": "Qwen3.8 Max (0902)"
+    },
+    {
       "id": "b13c1257-d746-4027-8fc8-4892dc14701c",
-      "name": "GPT-5.5 (high)"
+      "name": "GPT-5.5 (High)"
+    },
+    {
+      "id": "b171d979-5ec1-45de-b8b9-db1ee65e77ec",
+      "name": "Claude Sonnet 5.5 (Max, Default Fallback)"
     },
     {
       "id": "b1fa84f8-1ed3-4124-b403-4655dafa4267",
       "name": "Llama 3.1 Nemotron Nano 4B v1.1 (Reasoning)"
+    },
+    {
+      "id": "b2331108-72ed-415a-82d1-188633875bbc",
+      "name": "Gemini 3.7 Flash (High)"
+    },
+    {
+      "id": "b23e6c69-96e5-44c9-8f58-4b42e0c399d5",
+      "name": "Hy3"
+    },
+    {
+      "id": "b25ac058-1e33-4c31-bbc9-a20c3ad0717a",
+      "name": "GPT-6.1 Sol (Max)"
     },
     {
       "id": "b26ff709-1773-4595-ae44-78e0a5bac29c",
@@ -1582,11 +2046,11 @@
     },
     {
       "id": "b2f3191f-77d6-4155-8be6-330f0baa1ae5",
-      "name": "Gemini 3 Pro Preview (low)"
+      "name": "Gemini 3 Pro Preview (Low)"
     },
     {
       "id": "b36ff8f3-0323-49d1-a063-ab09704fdb0c",
-      "name": "Nova 2.0 Omni (low)"
+      "name": "Nova 2.0 Omni (Low)"
     },
     {
       "id": "b3735511-c6ff-4928-8d72-2181444a4eb3",
@@ -1633,6 +2097,10 @@
       "name": "Solar Pro 3"
     },
     {
+      "id": "b8fc61f7-5e9a-49e6-8547-6ac56db24627",
+      "name": "Claude Opus 5 (Max)"
+    },
+    {
       "id": "b97ef678-2d31-4375-9416-67ea97f87204",
       "name": "Qwen3 Omni 30B A3B (Reasoning)"
     },
@@ -1641,12 +2109,24 @@
       "name": "Qwen2.5 Max"
     },
     {
+      "id": "ba0224cf-0351-4f56-8508-b3f1a740ae4a",
+      "name": "Claude Sonnet 5 (High)"
+    },
+    {
       "id": "ba04694d-326a-4a6a-8f1b-46316f872a7f",
       "name": "Kimi K2.5 (Non-reasoning)"
     },
     {
       "id": "ba242e40-83b7-4cd3-a0e0-b56237984914",
-      "name": "GPT-5.4 mini (xhigh)"
+      "name": "GPT-5.4 mini (Xhigh)"
+    },
+    {
+      "id": "bb3d7e75-8e22-4082-b9d6-1db0803e042f",
+      "name": "K2 Horizon 375B A23B"
+    },
+    {
+      "id": "bbc2ffea-cf6b-43be-8c41-1769347e234d",
+      "name": "Claude Sonnet 5.5 (Low, Default Fallback)"
     },
     {
       "id": "bbd93ebe-80da-4594-bb19-61e69d0331df",
@@ -1658,7 +2138,7 @@
     },
     {
       "id": "bc26bfdb-4923-4442-a6ca-e77392923581",
-      "name": "GPT-5 mini (minimal)"
+      "name": "GPT-5 mini (Minimal)"
     },
     {
       "id": "bc4579d2-9c46-46c3-ace0-454039bf21bb",
@@ -1667,6 +2147,10 @@
     {
       "id": "bcca0e70-7e80-4c07-b1fa-b33bcfb19e51",
       "name": "Gemini 2.0 Flash (Feb '25)"
+    },
+    {
+      "id": "bcf8db0a-3bb6-4d82-9516-0f57370c85a6",
+      "name": "GPT-5.6 Terra (Max)"
     },
     {
       "id": "bd2c3517-00d8-4ba5-a989-1f1e52f3ffab",
@@ -1682,19 +2166,31 @@
     },
     {
       "id": "bf220674-68bd-43cc-a1b8-ce5ed4d2f18d",
-      "name": "DeepSeek V4 Pro (Reasoning, Max Effort)"
+      "name": "DeepSeek V4 Pro 0424 (Max)"
     },
     {
       "id": "bf60740e-6aa5-422f-ba49-ef6e9d171205",
       "name": "Qwen3 32B (Non-reasoning)"
     },
     {
+      "id": "bf9708d8-933d-44f6-affa-b696a7a650c9",
+      "name": "GPT-6 Luna (Low)"
+    },
+    {
+      "id": "c07e65e6-32fc-451e-938d-7477a1c3ffcc",
+      "name": "Grok 4.6 (Low)"
+    },
+    {
       "id": "c1045dc0-4fd3-4adb-9548-18763e0d051f",
       "name": "GPT-4o (Nov '24)"
     },
     {
+      "id": "c1c5db7c-968f-445a-a274-7b5689348bf8",
+      "name": "G9v3-39A5B"
+    },
+    {
       "id": "c298d1a8-606c-4971-8613-ccdaaf941043",
-      "name": "GPT-5.4 nano (Non-Reasoning)"
+      "name": "GPT-5.4 nano (Non-reasoning)"
     },
     {
       "id": "c2b1e769-7aee-4669-8076-73918bdebf6c",
@@ -1702,11 +2198,19 @@
     },
     {
       "id": "c3274a19-6d3c-4d01-ab9b-5055a0a40429",
-      "name": "GPT-5 mini (medium)"
+      "name": "GPT-5 mini (Medium)"
     },
     {
       "id": "c3738fb0-3408-4430-a699-760ae4b70c93",
-      "name": "GPT-5 (minimal)"
+      "name": "GPT-5 (Minimal)"
+    },
+    {
+      "id": "c3f12f61-9d57-4e2c-9106-5a82bb1cfee2",
+      "name": "DiffusionGemma 26B A4B"
+    },
+    {
+      "id": "c4169d75-9d24-4794-a9c3-69e1fe364de5",
+      "name": "GPT-5.5 Instant (June 2026)"
     },
     {
       "id": "c43aa1f9-31bd-4a99-be70-84c5e6bd2e75",
@@ -1715,6 +2219,10 @@
     {
       "id": "c4c3b42f-e0f0-48ca-b6f9-b296e7697806",
       "name": "Llama 3.3 Nemotron Super 49B v1 (Non-reasoning)"
+    },
+    {
+      "id": "c50ea08c-88c0-4eb7-85b8-27f2bbf6d527",
+      "name": "GPT-6 Sol (Max)"
     },
     {
       "id": "c6a47d8a-7517-46e2-8383-329fe7241725",
@@ -1738,7 +2246,7 @@
     },
     {
       "id": "c77cfe51-f4a0-4692-9dee-5061ef667f23",
-      "name": "GPT-5.5 (low)"
+      "name": "GPT-5.5 (Low)"
     },
     {
       "id": "c8158c23-6fff-4c31-911d-954c32d80c28",
@@ -1757,8 +2265,12 @@
       "name": "Qwen3 Next 80B A3B (Reasoning)"
     },
     {
+      "id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+      "name": "Grok 4.6 (High)"
+    },
+    {
       "id": "c99f3bde-7c08-4de8-bd5c-8ee9123ebffa",
-      "name": "gpt-oss-120b (low)"
+      "name": "gpt-oss-120b (Low)"
     },
     {
       "id": "ca04852c-eaae-4881-a208-f9b2ca3b7cd6",
@@ -1773,8 +2285,16 @@
       "name": "Qwen3 Max Thinking (Preview)"
     },
     {
+      "id": "cc1e488b-8ba4-464d-875d-690166b15ad3",
+      "name": "GLM-5.3 (Low)"
+    },
+    {
       "id": "cc1fa238-1a76-486d-a997-22309275eadd",
       "name": "Devstral Small (May '25)"
+    },
+    {
+      "id": "cc4a20cd-09fe-4962-a430-119c815e85fa",
+      "name": "GPT-5.6 Terra (Low)"
     },
     {
       "id": "ccbfa8c3-a762-480b-aade-34fb9697f98c",
@@ -1786,7 +2306,11 @@
     },
     {
       "id": "cd55210d-358e-4df1-ba9c-9acb5f186cc9",
-      "name": "Claude Fable 5 (Adaptive Reasoning, Max Effort, Opus 4.8 Fallback)"
+      "name": "Claude Fable 5 (Max, Opus 4.8 Fallback)"
+    },
+    {
+      "id": "cd684ea4-b475-4269-b001-d469d06d8a7a",
+      "name": "GLM-5.3 (Max)"
     },
     {
       "id": "ce3d286e-093d-413d-a81a-0270309f039e",
@@ -1818,7 +2342,7 @@
     },
     {
       "id": "d1122eff-ee85-4fdc-8a9f-23bee6590667",
-      "name": "Gemini 3 Pro Preview (high)"
+      "name": "Gemini 3 Pro Preview (High)"
     },
     {
       "id": "d1720545-d0a8-4c15-a53e-ef5ca99ac7ea",
@@ -1837,6 +2361,10 @@
       "name": "MiniCPM5-1B (Non-reasoning)"
     },
     {
+      "id": "d366dfa1-d940-4788-aa73-d298c45699b3",
+      "name": "Gemini 4 Argon (High)"
+    },
+    {
       "id": "d370fcbf-c4a1-41a2-abc4-d204fcc3fcbf",
       "name": "Qwen3 VL 32B (Reasoning)"
     },
@@ -1845,20 +2373,48 @@
       "name": "Hermes 4 - Llama-3.1 405B (Non-reasoning)"
     },
     {
+      "id": "d3e20e76-9e1a-45b6-b809-ad6aa37430cf",
+      "name": "GPT-6 Sol (Non-reasoning)"
+    },
+    {
+      "id": "d49c8680-e29b-400e-9511-824f7ddebe07",
+      "name": "MiniMax-M3.1-Flash"
+    },
+    {
       "id": "d4be6393-8915-436c-a3a8-4e59bd5c89a9",
       "name": "Granite 4.1 30B"
     },
     {
+      "id": "d4f5b250-be37-4801-85e6-32fda4179337",
+      "name": "DeepSeek V4 Pro 0813 (Non-reasoning)"
+    },
+    {
       "id": "d4fc3f33-f2b0-4da1-88ee-f1f82bd4de31",
-      "name": "GPT-5.4 nano (xhigh)"
+      "name": "GPT-5.4 nano (Xhigh)"
+    },
+    {
+      "id": "d5170215-69be-4129-849b-26d8d8825bfc",
+      "name": "Muse Spark 1.3 (Xhigh)"
+    },
+    {
+      "id": "d58b9ada-fd9d-4fff-a086-242034657963",
+      "name": "Claude Sonnet 5 (Non-reasoning, High)"
     },
     {
       "id": "d58cf573-1bd3-4d1f-9182-5482a460f570",
       "name": "Qwen3 VL 235B A22B Instruct"
     },
     {
+      "id": "d61493e2-43ff-460c-9054-eaf6ba317360",
+      "name": "Muse Spark 1.1 (Xhigh)"
+    },
+    {
       "id": "d621247c-d47e-458c-82cb-a166bc3b37e5",
       "name": "DeepSeek V3.2 (Reasoning)"
+    },
+    {
+      "id": "d6f43d0a-e8c4-447c-9ff7-5cf0a9d59aa3",
+      "name": "Grok 4.6 (Xhigh)"
     },
     {
       "id": "d734e2ce-5cf8-467f-8148-586d02671333",
@@ -1870,15 +2426,27 @@
     },
     {
       "id": "d8ddb241-b3e4-4c25-a6a3-72eb1b30c541",
-      "name": "DeepSeek V4 Flash (Reasoning, Max Effort)"
+      "name": "DeepSeek V4 Flash 0420 (Max)"
     },
     {
       "id": "d925845d-39ad-4de3-8495-f176b79828c0",
       "name": "Claude 3.7 Sonnet (Non-reasoning)"
     },
     {
+      "id": "d93edfe8-bf35-49ad-b56e-b18116142a1c",
+      "name": "GPT-5.6 Sol (Max)"
+    },
+    {
       "id": "d97713f2-afa6-4f8d-b2f3-ac89a24c4d6c",
       "name": "Solar Mini"
+    },
+    {
+      "id": "d998db47-9b67-4727-a2bb-2e1261020ac0",
+      "name": "GPT-5.6 Sol (Xhigh)"
+    },
+    {
+      "id": "da2642fe-9f73-4788-b5af-24edcd55b37e",
+      "name": "GPT-6 Sol (Xhigh)"
     },
     {
       "id": "da9fe224-8af3-46d7-a8c4-6220779c3f35",
@@ -1886,7 +2454,7 @@
     },
     {
       "id": "dae31abc-0587-44d0-ba53-f78e96b6e486",
-      "name": "K2-V2 (low)"
+      "name": "K2-V2 (Low)"
     },
     {
       "id": "dafbb6d2-4825-43d1-a927-feedcfd2e998",
@@ -1897,16 +2465,28 @@
       "name": "Reka Flash 3"
     },
     {
+      "id": "dbe7c625-3100-4463-b479-a228c41f75dd",
+      "name": "DeepSeek V4.1 Flash (Max)"
+    },
+    {
+      "id": "dc64f856-3ded-497d-9527-d41d31267ed5",
+      "name": "GPT-5.6 Luna (Non-reasoning)"
+    },
+    {
       "id": "dd059b25-d82a-4ead-82a4-4adceaaec48b",
       "name": "Mistral Medium 3.5"
     },
     {
       "id": "dd738be7-2b69-4775-91a5-8851d3341c2d",
-      "name": "K2-V2 (medium)"
+      "name": "K2-V2 (Medium)"
     },
     {
       "id": "ddc748d0-6a9b-466b-8d6c-68417980d56d",
       "name": "Claude 2.0"
+    },
+    {
+      "id": "ddfdaf64-3f8e-40a6-a492-608ee83a1351",
+      "name": "Gemini 3.7 Flash (Low)"
     },
     {
       "id": "de0beaf0-c951-487a-8eb4-3dd12e74122c",
@@ -1925,8 +2505,12 @@
       "name": "Mi:dm K 2.5 Pro"
     },
     {
+      "id": "df5bf99d-d228-4715-b41b-19ca86118777",
+      "name": "Claude Opus 5.5 (Xhigh, Default Fallback)"
+    },
+    {
       "id": "df8d14e0-3997-4e4d-b4ad-9c047acc9c69",
-      "name": "Claude Sonnet 4.6 (Adaptive Reasoning, Max Effort)"
+      "name": "Claude Sonnet 4.6 (Max)"
     },
     {
       "id": "df95f83f-5ebb-466a-9d2d-b95efc8c012c",
@@ -1945,8 +2529,16 @@
       "name": "Mi:dm K 2.5 Pro Preview"
     },
     {
+      "id": "e05a4828-0536-4876-870d-a235023f992b",
+      "name": "GPT-6 Astra (High)"
+    },
+    {
       "id": "e18e5e6a-5a31-4c0b-b80b-ac401392f446",
-      "name": "GPT-5 nano (high)"
+      "name": "GPT-5 nano (High)"
+    },
+    {
+      "id": "e1bfc488-5f48-4d42-abf6-7f3c53d79f9c",
+      "name": "LFM2.5-2.6B"
     },
     {
       "id": "e1cfa926-9e2b-4a0d-8c31-48366a5041c5",
@@ -1957,12 +2549,20 @@
       "name": "LFM2.5-8B-A1B"
     },
     {
+      "id": "e2c0623e-c855-4a61-bb66-be1f1ed43234",
+      "name": "Nemotron 3.5 Super VL"
+    },
+    {
       "id": "e2e9ddc3-8c2d-4bf5-a60a-83a1afe61034",
       "name": "GPT-4o Realtime (Dec '24)"
     },
     {
       "id": "e3396f8f-7994-4df5-bdab-43745681ef0a",
-      "name": "GPT-5.5 Pro (xhigh)"
+      "name": "GPT-5.5 Pro (Xhigh)"
+    },
+    {
+      "id": "e33dc369-ae81-40e0-8c4e-28b002d02197",
+      "name": "Ling 3.0 Flash"
     },
     {
       "id": "e34ffffb-d8e1-4f5c-a2c7-3ca19c235eeb",
@@ -1970,7 +2570,7 @@
     },
     {
       "id": "e410e854-104d-4b35-a171-899ff9d974bb",
-      "name": "Qwen2.5 Coder Instruct 7B "
+      "name": "Qwen2.5 Coder Instruct 7B"
     },
     {
       "id": "e46198a7-cd29-4afd-933d-cdf180f0f305",
@@ -1985,6 +2585,14 @@
       "name": "Mistral Small 3"
     },
     {
+      "id": "e76e0fe5-93ca-4272-9359-2eb1740467d1",
+      "name": "GPT-6.1 Sol (Low)"
+    },
+    {
+      "id": "e8aa417f-18fe-46b0-ba62-ef99785a9585",
+      "name": "GLM-5.2 (Non-reasoning)"
+    },
+    {
       "id": "e8d4100e-165b-4c5d-ac11-ac553590a334",
       "name": "o1-pro"
     },
@@ -1993,20 +2601,36 @@
       "name": "Jamba 1.6 Mini"
     },
     {
+      "id": "e97a4ef5-e817-480e-9595-12f81dc4974f",
+      "name": "GPT-6 Astra (Medium)"
+    },
+    {
       "id": "e98e911e-9fb2-4a9a-826e-3d681d0cdca8",
       "name": "GPT-4o (May '24)"
     },
     {
+      "id": "e994a6e0-d36b-4dab-8ae1-c1b469e4d9e2",
+      "name": "Muse Wonder Full (Max)"
+    },
+    {
       "id": "e9a09db3-8fd6-41dd-ba2f-20e0a2bff7f2",
-      "name": "Claude Opus 4.7 (Adaptive Reasoning, Max Effort)"
+      "name": "Claude Opus 4.7 (Max)"
     },
     {
       "id": "ea5d2c10-1051-437d-95c2-18d5e4d14ff3",
       "name": "Cogito v2.1 (Reasoning)"
     },
     {
+      "id": "ea9e0da6-169f-43c6-92f5-730a10d6ff8d",
+      "name": "Claude Opus 5.5 (Medium, Default Fallback)"
+    },
+    {
       "id": "eab1492c-b853-4852-aa71-06b0ec2481c1",
       "name": "GPT-5 (ChatGPT)"
+    },
+    {
+      "id": "eb0d4272-7204-42b9-b875-8866fed58548",
+      "name": "Gemini 3.7 Flash (Medium)"
     },
     {
       "id": "eb4ba465-3fcd-4065-9fe2-e8225e7b2c6c",
@@ -2041,8 +2665,16 @@
       "name": "Qwen3.5 35B A3B (Non-reasoning)"
     },
     {
+      "id": "effcd151-7c31-4437-af3d-e88daeae9385",
+      "name": "Claude Sonnet 5 (Medium)"
+    },
+    {
       "id": "f0083258-8646-45b8-8082-7aaf6c2ea82a",
-      "name": "gpt-oss-120b (high)"
+      "name": "gpt-oss-120b (High)"
+    },
+    {
+      "id": "f151fd0b-2139-40cf-a3ec-995e8cedc592",
+      "name": "DeepSeek V4.1 Flash 1017 (Max)"
     },
     {
       "id": "f164b41f-44c5-4675-bca3-fea1db4bd9ae",
@@ -2054,11 +2686,15 @@
     },
     {
       "id": "f2e21112-192e-4aed-ae82-68ca3b38e667",
-      "name": "Claude Sonnet 4.6 (Non-reasoning, Low Effort)"
+      "name": "Claude Sonnet 4.6 (Non-reasoning, Low)"
     },
     {
       "id": "f2f60e3a-e5f5-4471-acd2-9f2f29c76007",
       "name": "Claude 4.1 Opus (Non-reasoning)"
+    },
+    {
+      "id": "f314eade-2232-44bf-a3ab-9b326bc67de6",
+      "name": "Claude Opus 5.5 (High, Default Fallback)"
     },
     {
       "id": "f3169f25-8c6f-48e4-ae87-0cf872dc0ec1",
@@ -2069,8 +2705,12 @@
       "name": "Qwen3.6 Plus"
     },
     {
+      "id": "f3a0e101-086f-44b3-a1b2-d23498f9716b",
+      "name": "Agnes 2.5 Pro Beta"
+    },
+    {
       "id": "f4274721-ef28-4121-aa88-8e97267a5a82",
-      "name": "Nova 2.0 Pro Preview (low)"
+      "name": "Nova 2.0 Pro Preview (Low)"
     },
     {
       "id": "f4e8194a-d0e6-48eb-92be-4307de5aeeec",
@@ -2083,6 +2723,10 @@
     {
       "id": "f6ccbe1d-bd7e-484b-9795-18cc9f91552d",
       "name": "Qwen3 235B A22B 2507 (Reasoning)"
+    },
+    {
+      "id": "f6db039b-0f3b-485c-9d7f-982988e44f26",
+      "name": "Gemini 3.8 Flash (Low)"
     },
     {
       "id": "f73f4711-9c61-40a7-a258-b71c14727f53",
@@ -2098,7 +2742,11 @@
     },
     {
       "id": "f7a4ea75-e548-4069-80d4-9be8bc7c009b",
-      "name": "GLM-5.2 (max)"
+      "name": "GLM-5.2 (Max)"
+    },
+    {
+      "id": "f7d2fc3e-1f7b-405f-818c-07952a4af78f",
+      "name": "Kimi K3 (Max)"
     },
     {
       "id": "f818a7bb-6f23-4b24-8d52-6b9c1a5ca628",
@@ -2107,6 +2755,10 @@
     {
       "id": "f93d0750-b659-4ceb-a123-7e657904ef2b",
       "name": "Qwen3 VL 4B (Reasoning)"
+    },
+    {
+      "id": "f9739750-6d42-450f-ba1e-2f76c869b4fe",
+      "name": "Quasar 438B (Max, Based on GLM-5.2)"
     },
     {
       "id": "fb112343-c82c-4b43-afea-996bd5101d62",
@@ -2122,7 +2774,7 @@
     },
     {
       "id": "fbdf8da1-b341-448c-b3cb-8aff1d8f70b9",
-      "name": "Nova 2.0 Lite (medium)"
+      "name": "Nova 2.0 Lite (Medium)"
     },
     {
       "id": "fc4223e8-4586-4ca1-97ca-bb55ff586947",
@@ -2134,7 +2786,7 @@
     },
     {
       "id": "fd4454ff-e703-46c0-a7f5-fa69af09486d",
-      "name": "GPT-5.1 Codex mini (high)"
+      "name": "GPT-5.1 Codex mini (High)"
     },
     {
       "id": "fddb72bd-60d3-41af-acc5-3df9a290eb8e",
@@ -2146,15 +2798,27 @@
     },
     {
       "id": "fe2c2289-d261-4433-8681-46448372c1f6",
-      "name": "Grok 4.3 (low)"
+      "name": "Grok 4.3 (Low)"
+    },
+    {
+      "id": "fe4c0848-e284-4e52-a79d-cdc28392f1a9",
+      "name": "DeepSeek V4 Flash 0731 (Max)"
     },
     {
       "id": "feb02d3b-ff8d-4ed4-b165-13f8d4a7192c",
       "name": "Gemma 4 12B (Reasoning)"
     },
     {
+      "id": "ff2f3f3d-783f-4e27-8a39-47237501a313",
+      "name": "Muse Wonder (Max)"
+    },
+    {
+      "id": "ff51be8f-e362-4a7e-9043-687ba15de207",
+      "name": "Claude Opus 5 (Medium)"
+    },
+    {
       "id": "ff9bc5e5-a02f-4270-983e-4b3f834f3363",
-      "name": "Grok 3 mini Reasoning (high)"
+      "name": "Grok 3 mini Reasoning (High)"
     },
     {
       "id": "ffd65ef7-fbdb-4145-98ae-b5d01cda770b",

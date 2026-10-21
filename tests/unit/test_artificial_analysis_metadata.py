@@ -27,8 +27,8 @@ def test_load_artificial_analysis_snapshot_exposes_model_metadata():
     assert snapshot.prompt_options == {"parallel_queries": 1, "prompt_length": 1000}
     assert model.id == "2dad8957-4c16-4e74-bf2d-8b21514e0ae9"
     assert model.name == "o3-mini"
-    assert opus_adaptive.name == "Claude Opus 4.7 (Adaptive Reasoning, Max Effort)"
-    assert opus_non_reasoning.name == "Claude Opus 4.7 (Non-reasoning, High Effort)"
+    assert opus_adaptive.name == "Claude Opus 4.7 (Max)"
+    assert opus_non_reasoning.name == "Claude Opus 4.7 (Non-reasoning, High)"
 
 
 def test_artificial_analysis_snapshot_rejects_unknown_model():
