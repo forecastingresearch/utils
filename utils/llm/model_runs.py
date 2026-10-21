@@ -23,6 +23,7 @@ from .artificial_analysis_model_runs import create_artificial_analysis_model_run
 from .lab_registry import Lab
 from .metadata.artificial_analysis import load_artificial_analysis_snapshot
 from .provider_registry import Provider
+from .types import CallContext, LLMResponse
 
 logger = logging.getLogger(__name__)
 AA_MODEL_RUN_KEY_SUFFIX_PATTERN = re.compile(r"^aa-run-variant-[0-9]{2}$")
@@ -123,6 +124,54 @@ class ModelRun:
             model_id=self.provider_model_id,
             prompt=prompt,
             options=merged_options,
+        )
+
+    def get_response_with_metadata(
+        self, prompt: str, *, context: CallContext | None = None, **kwargs: Any
+    ) -> LLMResponse:
+        """Request a response and the provider's metadata for it (id, usage, attempts).
+
+        `context` carries a cancellation event and a hook that receives the provider
+        response id as soon as the call is accepted; see `utils.llm.types.CallContext`.
+        """
+        merged_options = deepcopy(self.options)
+        merged_options.update(deepcopy(kwargs))
+        logger.info(
+            "Requesting LLM response provider=%s provider_model_id=%s options=%s",
+            self.provider.name,
+            self.provider_model_id,
+            merged_options,
+        )
+        return model_registry.get_response_with_metadata(
+            provider=self.provider,
+            model_id=self.provider_model_id,
+            prompt=prompt,
+            options=merged_options,
+            context=context,
+        )
+
+    def fetch_response(self, provider_response_id: str) -> LLMResponse:
+        """Fetch a response this run started earlier, by the id the provider gave it."""
+        return model_registry.fetch_response(
+            provider=self.provider, provider_response_id=provider_response_id
+        )
+
+    def wait_for_response(
+        self,
+        provider_response_id: str,
+        *,
+        budget: float | None = None,
+        context: CallContext | None = None,
+    ) -> LLMResponse:
+        """Wait for a still-running response this run started earlier; never starts a new one.
+
+        `budget` defaults to the run's `timeout` option, as a fresh call's would.
+        """
+        return model_registry.wait_for_response(
+            provider=self.provider,
+            provider_response_id=provider_response_id,
+            budget=budget if budget is not None else self.options.get("timeout"),
+            context=context,
         )
 
 

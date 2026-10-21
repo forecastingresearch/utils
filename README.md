@@ -62,6 +62,37 @@ human-readable slug `claude-sonnet-4-6-1024`. Use immutable `model_run_key` valu
 references. Human-readable slugs are available for display and convenience lookups but while the
 `model_run_key` should be used for stable lookups
 
+## Call metadata, cancellation and fetching by id
+
+`get_response_with_metadata(prompt, context=..., **options)` makes the same call as
+`get_response` but returns a `utils.llm.types.LLMResponse`: the text plus the provider's
+response id, final status, token usage (`input_tokens`, `output_tokens`, `reasoning_tokens`,
+`tool_calls`) and the number of attempts the retry wrapper made. A `CallContext` carries a
+`threading.Event` that cancels the call between retries and, for OpenAI, cancels the
+server-side response (or, with `cancel_server_side=False`, stops waiting and leaves the
+response running so it can be fetched later), and an `on_response_id` hook that receives
+the provider's id as soon as the request is accepted. `model_run.fetch_response(id)`
+returns an earlier OpenAI response by id without a new call, and
+`model_run.wait_for_response(id)` waits for one that is still running.
+
+OpenAI calls run in the Responses API background mode: the request returns immediately and
+the result is polled, so no connection sits idle while the model works and a finished
+response is never lost to a dropped connection. This is how the provider talks to the API,
+not a model option, so it is not part of any run's declared options.
+
+In background mode a run's `timeout` option is not sent to the API as an HTTP timeout. It
+is the budget for the whole response, from the request until the response finishes; when
+it runs out the response is cancelled server-side and the call raises `TimeoutError`. Runs
+without a `timeout` get 30 minutes. A failed poll is polled again for as long as the budget
+lasts and never starts a new generation.
+
+Failed attempts are retried up to five attempts in total for OpenAI (in background mode a
+retry only follows a failure that was not billed) and two for every other provider (a
+failed attempt there is usually billed and lost), except errors that would only be billed
+again: a cancelled call, a call that ran out of its budget, a refused (HTTP 403)
+OpenAI request, and an incomplete response (`LLMResponseIncomplete`, usually the
+output-token cap). Every failed attempt is logged at WARNING, since it may be billed.
+
 ## LLM Structured Output
 
 `get_response` returns the model's text. When you ask a provider for structured output, that

@@ -13,6 +13,11 @@ class MetaProvider(OpenAIProvider):
     """LLM provider that wraps the Meta Model API through its OpenAI-compatible Responses route."""
 
     retry_message = "Meta Model API request failed."
+    # The Meta route is OpenAI-compatible for `responses.create` only; it has no
+    # background mode, so calls stay synchronous.
+    background_responses = False
+    # Synchronous calls: a dropped connection is a billed response lost.
+    max_attempts = 2
 
     def _create_client(self, api_key: str) -> OpenAI:
         """Return an OpenAI SDK client pointed at the Meta Model API."""

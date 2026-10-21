@@ -118,6 +118,12 @@ PY
 - Write `slug` explicitly as the descriptive human-readable identifier. Slugs must be unique, but may be changed before or after publication when naming conventions improve.
 - Use `filename_safe_name` when a model-run key needs to become part of a filename; do not hand-roll lossy replacements for characters such as `/` or `*`.
 - Put every runtime call option in the `ModelRun` declaration; do not add hidden defaults elsewhere.
+  Transport mechanics are the exception: how a provider class talks to its API (the Anthropic
+  provider streams; the OpenAI provider uses background mode and polls) is not a model option,
+  lives in the provider, and is not part of any run's options or fingerprint.
+  For OpenAI runs the `timeout` option is the budget for the whole background response
+  (cancelled server-side when it runs out), not an HTTP request timeout; size it for the
+  slowest expected response, not for a single request.
 - Use exact provider option names and values as they are passed to `get_response`.
 - If an option affects performance and should appear in human-readable slugs, filenames, or forecast labels, make the handwritten `slug` reflect it.
 - Unit tests validate declared top-level provider option names against installed provider SDK

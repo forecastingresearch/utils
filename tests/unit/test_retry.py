@@ -105,3 +105,64 @@ def test_response_to_plain_text_uses_json_dump_when_available():
             return f'{{"indent":{indent}}}'
 
     assert response_to_plain_text(Response()) == '{"indent":2}'
+
+
+def test_cancel_event_set_during_wait_stops_the_retry():
+    """A cancellation that lands during the wait ends the call instead of the next attempt."""
+    import threading
+
+    from utils.llm.types import LLMCallCancelled
+
+    cancel_event = threading.Event()
+    attempts = 0
+
+    def failing_call():
+        nonlocal attempts
+        attempts += 1
+        cancel_event.set()  # arrives while the wrapper is waiting to retry
+        raise RuntimeError("boom")
+
+    with pytest.raises(LLMCallCancelled, match="Cancelled while waiting"):
+        get_response_with_retry(
+            failing_call,
+            wait_time=60,
+            error_msg="test",
+            max_retries=3,
+            cancel_event=cancel_event,
+        )
+
+    assert attempts == 1
+
+
+def test_cancel_event_set_before_the_call_makes_no_attempt():
+    """A call that is already cancelled never reaches the provider."""
+    import threading
+
+    from utils.llm.types import LLMCallCancelled
+
+    cancel_event = threading.Event()
+    cancel_event.set()
+
+    with pytest.raises(LLMCallCancelled, match="before attempt 1"):
+        get_response_with_retry(
+            lambda: pytest.fail("provider must not be called"),
+            wait_time=0,
+            error_msg="test",
+            cancel_event=cancel_event,
+        )
+
+
+def test_failed_attempts_are_logged_as_warnings(caplog):
+    """A possibly billed failed attempt must be visible under a default (WARNING) setup."""
+    caplog.set_level(logging.WARNING, logger="utils.llm.utils")
+
+    with pytest.raises(RuntimeError, match="boom"):
+        get_response_with_retry(
+            lambda: (_ for _ in ()).throw(RuntimeError("boom")),
+            wait_time=0,
+            error_msg="OpenAI API request failed.",
+            max_retries=2,
+        )
+
+    attempt_records = [r for r in caplog.records if "(attempt" in r.getMessage()]
+    assert [r.levelno for r in attempt_records] == [logging.WARNING, logging.WARNING]
