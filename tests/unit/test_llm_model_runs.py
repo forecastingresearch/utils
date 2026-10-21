@@ -32,6 +32,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "claude-3-haiku-20240307-run-variant-01",
     "claude-3-opus-20240229-run-variant-01",
     "claude-fable-5-1-run-variant-01",
+    "claude-fable-5-1-run-variant-02",
     "claude-fable-5-run-variant-01",
     "claude-fable-5-run-variant-02",
     "claude-haiku-4-5-20251001-run-variant-01",
@@ -52,6 +53,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "claude-opus-4-8-run-variant-02",
     "claude-opus-4-8-run-variant-03",
     "claude-opus-4-8-run-variant-04",
+    "claude-opus-4-8-run-variant-05",
     "claude-opus-5-5-run-variant-01",
     "claude-opus-5-run-variant-01",
     "claude-sonnet-4-20250514-run-variant-01",
@@ -1690,3 +1692,44 @@ def test_gpt_6_1_sol_variants_sweep_mode_and_effort_with_web_search_only():
             "reasoning": {"mode": mode, "effort": effort},
             "tools": [{"type": "web_search"}],
         }
+
+
+def test_claude_fable_5_1_variants_sweep_effort_with_fallback_search_and_fetch():
+    """Fable 5.1 runs differ by effort and max_tokens only; fallback and web tools stay fixed."""
+    from utils.llm import model_runs
+
+    expected = {
+        "claude-fable-5-1-run-variant-02": ("claude-fable-5-1-low-web-search-64k", "low", 64000),
+    }
+    for key, (slug, effort, max_tokens) in expected.items():
+        run = model_runs.MODEL_RUNS_BY_KEY[key]
+        assert run.model_key == "claude-fable-5-1"
+        assert run.slug == slug
+        assert run.options == {
+            "max_tokens": max_tokens,
+            "output_config": {"effort": effort},
+            "fallbacks": [{"model": "claude-opus-5"}],
+            "betas": ["server-side-fallback-2026-06-01"],
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        }
+
+
+def test_claude_opus_4_8_variant_05_adds_web_fetch_to_max_effort_web_search():
+    """The Opus 4.8 search run that lacked web fetch gets a successor with both tools."""
+    from utils.llm import model_runs
+
+    run = model_runs.MODEL_RUNS_BY_KEY["claude-opus-4-8-run-variant-05"]
+    assert run.model_key == "claude-opus-4-8"
+    assert run.slug == "claude-opus-4-8-adaptive-thinking-max-web-search-128k"
+    assert run.options == {
+        "max_tokens": 128000,
+        "output_config": {"effort": "max"},
+        "thinking": {"type": "adaptive"},
+        "tools": [
+            {"type": "web_search_20260318", "name": "web_search"},
+            {"type": "web_fetch_20260318", "name": "web_fetch"},
+        ],
+    }

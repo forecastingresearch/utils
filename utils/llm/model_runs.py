@@ -284,6 +284,21 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="claude-fable-5-1-run-variant-02",
+        slug="claude-fable-5-1-low-web-search-64k",
+        model_key="claude-fable-5-1",
+        options={
+            "max_tokens": 64000,
+            "output_config": {"effort": "low"},
+            "fallbacks": [{"model": "claude-opus-5"}],
+            "betas": ["server-side-fallback-2026-06-01"],
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
         model_run_key="claude-fable-5-run-variant-01",
         slug="claude-fable-5-high-web-search-code-execution-128k",
         model_key="claude-fable-5",
@@ -468,6 +483,20 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
                     "type": "web_search_20260209",
                     "name": "web_search",
                 }
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-opus-4-8-run-variant-05",
+        slug="claude-opus-4-8-adaptive-thinking-max-web-search-128k",
+        model_key="claude-opus-4-8",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "max"},
+            "thinking": {"type": "adaptive"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
             ],
         },
     ),
