@@ -493,6 +493,18 @@ def fetch_response(provider: Provider, provider_response_id: str) -> LLMResponse
     return provider_instance.fetch_response(provider_response_id)
 
 
+def wait_for_response(
+    provider: Provider,
+    provider_response_id: str,
+    budget: float | None = None,
+    context: CallContext | None = None,
+) -> LLMResponse:
+    """Wait for an earlier, still-running response by id, without starting a new one."""
+    provider_cls = _get_provider_class(provider)
+    provider_instance = _get_provider_instance(provider_cls)
+    return provider_instance.wait_for_response(provider_response_id, budget=budget, context=context)
+
+
 def _get_provider_class(provider: Provider) -> Type[BaseLLMProvider]:
     """Return the provider class for a supported API provider route."""
     if not isinstance(provider, Provider):

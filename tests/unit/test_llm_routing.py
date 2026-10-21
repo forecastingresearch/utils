@@ -855,3 +855,80 @@ def test_anthropic_provider_reports_message_id_and_usage():
     assert (response.usage.input_tokens, response.usage.output_tokens) == (1200, 340)
     assert response.usage.tool_calls == 1
     assert seen_ids == ["msg_abc"]
+
+
+def test_openai_provider_retries_a_failed_poll_without_recreating_the_response():
+    """A poll that fails is polled again; the generation is never started a second time."""
+    from utils.llm.providers.openai import OpenAIProvider
+
+    with (
+        patch("utils.llm.providers.openai.OpenAI") as mock_openai,
+        patch("utils.llm.providers.openai.time.sleep"),
+    ):
+        mock_client = MagicMock()
+        mock_client.responses.create.return_value = MagicMock(id="resp_1", status="queued")
+        mock_client.responses.retrieve.side_effect = [
+            ConnectionError("vpn dropped it"),
+            ConnectionError("still dropping"),
+            MagicMock(id="resp_1", status="completed", output_text="0.5", usage=None, output=[]),
+        ]
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test")
+        response = provider.get_response_with_metadata(
+            model_id="gpt-6-astra", prompt="forecast", options={}
+        )
+
+    assert response.text == "0.5"
+    assert mock_client.responses.create.call_count == 1
+    assert mock_client.responses.retrieve.call_count == 3
+    assert response.attempts == 1
+
+
+def test_openai_provider_gives_up_polling_after_the_failure_limit():
+    """Only a persistent poll failure escalates, and it is the poll error that surfaces."""
+    from utils.llm.providers import openai as openai_provider
+
+    with (
+        patch("utils.llm.providers.openai.OpenAI") as mock_openai,
+        patch("utils.llm.providers.openai.time.sleep"),
+    ):
+        mock_client = MagicMock()
+        mock_client.responses.create.return_value = MagicMock(id="resp_1", status="queued")
+        mock_client.responses.retrieve.side_effect = ConnectionError("down")
+        mock_openai.return_value = mock_client
+
+        provider = openai_provider.OpenAIProvider(api_key="sk-test")
+        with pytest.raises(ConnectionError, match="down"):
+            provider._call_model(model_id="gpt-6-astra", prompt="forecast", options={})
+
+    assert mock_client.responses.create.call_count == 1
+    assert mock_client.responses.retrieve.call_count == openai_provider._POLL_FAILURE_LIMIT
+
+
+def test_openai_provider_waits_for_an_existing_response_by_id():
+    """wait_for_response polls a response another process started; no create call."""
+    from utils.llm.providers.openai import OpenAIProvider
+
+    with (
+        patch("utils.llm.providers.openai.OpenAI") as mock_openai,
+        patch("utils.llm.providers.openai.time.sleep"),
+    ):
+        mock_client = MagicMock()
+        mock_client.responses.retrieve.side_effect = [
+            MagicMock(id="resp_old", status="in_progress"),
+            MagicMock(id="resp_old", status="in_progress"),
+            MagicMock(id="resp_old", status="completed", output_text="0.8", usage=None, output=[]),
+        ]
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test")
+        response = provider.wait_for_response("resp_old")
+
+    assert (response.text, response.provider_response_id, response.status) == (
+        "0.8",
+        "resp_old",
+        "completed",
+    )
+    mock_client.responses.create.assert_not_called()
+    assert mock_client.responses.retrieve.call_count == 3

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import time
 from typing import Any, Dict, Final
 
@@ -19,6 +20,11 @@ _POLL_INTERVAL_MAX_SECONDS: Final[float] = 10.0
 _DEFAULT_RESPONSE_BUDGET_SECONDS: Final[float] = 1800.0
 
 _PENDING_STATUSES: Final[frozenset[str]] = frozenset({"queued", "in_progress"})
+# Consecutive failed polls tolerated before the error propagates. A poll is a short
+# request; a failed one must never restart the (billed) generation it watches.
+_POLL_FAILURE_LIMIT: Final[int] = 10
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAIProvider(BaseLLMProvider):
@@ -107,15 +113,40 @@ class OpenAIProvider(BaseLLMProvider):
             return LLMResponse(text="", provider_response_id=provider_response_id, status=status)
         return _finished_response(response)
 
+    def wait_for_response(
+        self,
+        provider_response_id: str,
+        *,
+        budget: float | None = None,
+        context: CallContext | None = None,
+    ) -> LLMResponse:
+        """Wait for a background response started earlier, by id, and return it.
+
+        Same polling, cancellation and budget behaviour as a fresh call, but no new
+        generation is ever created: this is how a caller picks up a response whose
+        first process died while it was still running.
+        """
+        response = self._openai_client.responses.retrieve(provider_response_id)
+        response = self._wait_for_response(
+            response,
+            budget=float(budget) if budget else _DEFAULT_RESPONSE_BUDGET_SECONDS,
+            context=context if context is not None else CallContext(),
+        )
+        return _finished_response(response)
+
     def _wait_for_response(self, response: Any, *, budget: float, context: CallContext) -> Any:
         """Poll a background response until it leaves the pending statuses.
 
         Cancellation and the budget both cancel the response server-side first, so
-        no billed work outlives the caller's interest in it.
+        no billed work outlives the caller's interest in it. A failed poll is retried
+        in place (up to `_POLL_FAILURE_LIMIT` times in a row): the generation it
+        watches is already paid for and must not be started again because a short
+        status request failed.
         """
         response_id = getattr(response, "id", None)
         started = time.monotonic()
         interval = _POLL_INTERVAL_START_SECONDS
+        failed_polls = 0
         while getattr(response, "status", None) in _PENDING_STATUSES:
             if context.cancelled():
                 self._cancel_quietly(response_id)
@@ -131,7 +162,22 @@ class OpenAIProvider(BaseLLMProvider):
             else:
                 time.sleep(interval)
             interval = min(interval * 2, _POLL_INTERVAL_MAX_SECONDS)
-            response = self._openai_client.responses.retrieve(response_id)
+            try:
+                response = self._openai_client.responses.retrieve(response_id)
+            except Exception as exc:  # noqa: BLE001 - a poll failure is retried, not escalated
+                failed_polls += 1
+                if failed_polls >= _POLL_FAILURE_LIMIT:
+                    raise
+                logger.warning(
+                    "Polling OpenAI response %s failed (%d/%d in a row): %s: %s; polling again",
+                    response_id,
+                    failed_polls,
+                    _POLL_FAILURE_LIMIT,
+                    type(exc).__name__,
+                    exc,
+                )
+                continue
+            failed_polls = 0
         return response
 
     def _cancel_quietly(self, response_id: str | None) -> None:

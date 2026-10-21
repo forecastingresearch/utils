@@ -79,6 +79,21 @@ class BaseLLMProvider(ABC):
             "retrieve-by-id route for this call type."
         )
 
+    def wait_for_response(
+        self,
+        provider_response_id: str,
+        *,
+        budget: float | None = None,
+        context: CallContext | None = None,
+    ) -> LLMResponse:
+        """Wait for a response started earlier, by its provider id, and return it.
+
+        Only providers whose API keeps responses addressable support this; the
+        default refuses, like `fetch_response`.
+        """
+        del budget, context
+        return self.fetch_response(provider_response_id)
+
     def _call_model_with_metadata(
         self,
         *,

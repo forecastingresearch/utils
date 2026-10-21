@@ -156,6 +156,24 @@ class ModelRun:
             provider=self.provider, provider_response_id=provider_response_id
         )
 
+    def wait_for_response(
+        self,
+        provider_response_id: str,
+        *,
+        budget: float | None = None,
+        context: CallContext | None = None,
+    ) -> LLMResponse:
+        """Wait for a still-running response this run started earlier; never starts a new one.
+
+        `budget` defaults to the run's `timeout` option, as a fresh call's would.
+        """
+        return model_registry.wait_for_response(
+            provider=self.provider,
+            provider_response_id=provider_response_id,
+            budget=budget if budget is not None else self.options.get("timeout"),
+            context=context,
+        )
+
 
 def _model_run_options_fingerprint(model_key: str, options: dict[str, Any]) -> str:
     """Return a stable fingerprint for a model key plus provider options."""

@@ -1641,3 +1641,29 @@ def test_model_run_get_response_with_metadata_routes_context_and_returns_metadat
     # The text-only entry point is unchanged for callers that want just the text.
     with patch("utils.llm.model_registry.get_response", return_value="forecast"):
         assert run.get_response("prompt") == "forecast"
+
+
+def test_model_run_wait_for_response_uses_the_run_timeout_as_budget():
+    """Waiting on an earlier response is bounded like a fresh call of the same run."""
+    from utils.llm import model_registry, model_runs
+    from utils.llm.types import LLMResponse
+
+    run = model_runs.ModelRun(
+        model_run_key="gpt-5.5-2026-04-23-run-variant-02",
+        slug="gpt-5.5-2026-04-23-high",
+        model=model_registry.MODELS_BY_KEY["gpt-5.5-2026-04-23"],
+        options={"reasoning": {"effort": "high"}, "timeout": 900},
+    )
+    expected = LLMResponse(text="forecast", provider_response_id="resp_old", status="completed")
+
+    with patch(
+        "utils.llm.model_registry.wait_for_response", return_value=expected
+    ) as wait_for_response:
+        assert run.wait_for_response("resp_old") == expected
+
+    wait_for_response.assert_called_once_with(
+        provider=PROVIDERS["OpenAI"],
+        provider_response_id="resp_old",
+        budget=900,
+        context=None,
+    )
