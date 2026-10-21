@@ -52,6 +52,10 @@ class OpenAIProvider(BaseLLMProvider):
     # Subclasses for OpenAI-compatible APIs without background mode turn this off and
     # get the synchronous `responses.create` call instead.
     background_responses: bool = True
+    # In background mode a retry only follows a failed `create` or a response that
+    # ended `failed`, neither of which is billed: a failed poll, a budget overrun
+    # and an incomplete response never retry. So five attempts cost nothing extra.
+    max_attempts: int = 5
 
     def __init__(self, *, api_key: str | None = None, default_wait_time: int | None = None) -> None:
         """Instantiate the OpenAI client using the provided API key.

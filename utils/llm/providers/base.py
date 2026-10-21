@@ -19,6 +19,10 @@ class BaseLLMProvider(ABC):
     retry_message: str = "LLM provider request failed."
     # Provider errors that a retry cannot fix, such as a request the provider refused.
     non_retryable_exceptions: tuple[type[BaseException], ...] = ()
+    # Attempts in total, the first one included. A failed attempt is usually billed
+    # and lost (a dropped stream has no id to fetch it by), so it is retried once.
+    # Providers whose failed attempts are not billed may allow more.
+    max_attempts: int = 2
 
     def __init__(self, *, default_wait_time: int | None = None) -> None:
         """Initialize the provider with an optional custom backoff interval."""
@@ -64,6 +68,7 @@ class BaseLLMProvider(ABC):
             api_call,
             self._default_wait_time,
             self.retry_message,
+            max_retries=self.max_attempts,
             non_retryable=(
                 *self.non_retryable_exceptions,
                 LLMCallCancelled,

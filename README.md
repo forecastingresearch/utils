@@ -86,8 +86,10 @@ it runs out the response is cancelled server-side and the call raises `TimeoutEr
 without a `timeout` get 30 minutes. A failed poll is polled again for as long as the budget
 lasts and never starts a new generation.
 
-Failed attempts are retried up to five attempts in total, except errors that would only be
-billed again: a cancelled call, a call that ran out of its budget, a refused (HTTP 403)
+Failed attempts are retried up to five attempts in total for OpenAI (in background mode a
+retry only follows a failure that was not billed) and two for every other provider (a
+failed attempt there is usually billed and lost), except errors that would only be billed
+again: a cancelled call, a call that ran out of its budget, a refused (HTTP 403)
 OpenAI request, and an incomplete response (`LLMResponseIncomplete`, usually the
 output-token cap).
 

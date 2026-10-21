@@ -1029,3 +1029,28 @@ def test_openai_provider_waits_for_an_existing_response_by_id():
     )
     mock_client.responses.create.assert_not_called()
     assert mock_client.responses.retrieve.call_count == 3
+
+
+def test_failed_attempts_are_retried_per_provider_billing():
+    """The unbilled OpenAI failures get five attempts; a billed Anthropic stream gets two."""
+    from utils.llm.providers.anthropic import AnthropicProvider
+    from utils.llm.providers.openai import OpenAIProvider
+
+    with (
+        patch("utils.llm.providers.openai.OpenAI") as mock_openai,
+        patch("utils.llm.utils.time.sleep"),
+    ):
+        mock_openai.return_value.responses.create.side_effect = ConnectionError("create failed")
+        provider = OpenAIProvider(api_key="sk-test", default_wait_time=0)
+        with pytest.raises(ConnectionError):
+            provider.get_response_with_metadata(model_id="gpt-6-astra", prompt="p", options={})
+        assert mock_openai.return_value.responses.create.call_count == 5
+
+    with patch("anthropic.Anthropic") as mock_anthropic, patch("utils.llm.utils.time.sleep"):
+        mock_anthropic.return_value.messages.stream.side_effect = ConnectionError("stream dropped")
+        provider = AnthropicProvider(api_key="sk-ant-test", default_wait_time=0)
+        with pytest.raises(ConnectionError):
+            provider.get_response_with_metadata(
+                model_id="claude-opus-5-5", prompt="p", options={"max_tokens": 16}
+            )
+        assert mock_anthropic.return_value.messages.stream.call_count == 2
