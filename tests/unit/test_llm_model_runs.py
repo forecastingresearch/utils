@@ -165,6 +165,9 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "grok-4.5-run-variant-02",
     "grok-4.6-run-variant-01",
     "grok-4.7-run-variant-01",
+    "grok-4.7-run-variant-02",
+    "grok-4.7-run-variant-03",
+    "grok-4.7-run-variant-04",
     "grok-beta-run-variant-01",
     "kimi-k2-instruct-0905-run-variant-01",
     "kimi-k2-instruct-run-variant-01",
@@ -1752,4 +1755,23 @@ def test_gemini_3_8_flash_variants_sweep_thinking_level_with_search_and_url_cont
         assert run.options == {
             "thinking_config": {"thinking_level": level},
             "tools": [{"googleSearch": {}}, {"urlContext": {}}],
+        }
+
+
+def test_grok_4_7_variants_sweep_effort_with_web_and_x_search():
+    """Grok 4.7 runs differ only by reasoning effort; web and X search on all."""
+    from utils.llm import model_runs
+
+    expected = {
+        "grok-4.7-run-variant-02": ("grok-4.7-low-web-x-search", "low"),
+        "grok-4.7-run-variant-03": ("grok-4.7-medium-web-x-search", "medium"),
+        "grok-4.7-run-variant-04": ("grok-4.7-high-web-x-search", "high"),
+    }
+    for key, (slug, effort) in expected.items():
+        run = model_runs.MODEL_RUNS_BY_KEY[key]
+        assert run.model_key == "grok-4.7"
+        assert run.slug == slug
+        assert run.options == {
+            "reasoning": {"effort": effort},
+            "tools": [{"type": "web_search"}, {"type": "x_search"}],
         }
