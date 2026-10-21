@@ -1255,6 +1255,60 @@ OAI_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="gpt-6.1-sol-run-variant-02",
+        slug="gpt-6.1-sol-standard-low-web-search",
+        model_key="gpt-6.1-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "low"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6.1-sol-run-variant-03",
+        slug="gpt-6.1-sol-standard-medium-web-search",
+        model_key="gpt-6.1-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "medium"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6.1-sol-run-variant-04",
+        slug="gpt-6.1-sol-standard-xhigh-web-search",
+        model_key="gpt-6.1-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "xhigh"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6.1-sol-run-variant-05",
+        slug="gpt-6.1-sol-pro-low-web-search",
+        model_key="gpt-6.1-sol",
+        options={
+            "reasoning": {"mode": "pro", "effort": "low"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6.1-sol-run-variant-06",
+        slug="gpt-6.1-sol-pro-medium-web-search",
+        model_key="gpt-6.1-sol",
+        options={
+            "reasoning": {"mode": "pro", "effort": "medium"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6.1-sol-run-variant-07",
+        slug="gpt-6.1-sol-pro-high-web-search",
+        model_key="gpt-6.1-sol",
+        options={
+            "reasoning": {"mode": "pro", "effort": "high"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
         model_run_key="o3-2025-04-16-run-variant-01",
         slug="o3-2025-04-16",
         model_key="o3-2025-04-16",

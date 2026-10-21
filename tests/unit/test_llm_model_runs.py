@@ -136,6 +136,12 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gpt-6-luna-run-variant-01",
     "gpt-6-sol-run-variant-01",
     "gpt-6.1-sol-run-variant-01",
+    "gpt-6.1-sol-run-variant-02",
+    "gpt-6.1-sol-run-variant-03",
+    "gpt-6.1-sol-run-variant-04",
+    "gpt-6.1-sol-run-variant-05",
+    "gpt-6.1-sol-run-variant-06",
+    "gpt-6.1-sol-run-variant-07",
     "grok-4-0709-run-variant-01",
     "grok-4-1-fast-non-reasoning-run-variant-01",
     "grok-4-1-fast-reasoning-run-variant-01",
@@ -1654,3 +1660,33 @@ def test_get_model_run_by_slug_is_convenience_lookup_for_human_slugs():
     assert model_runs.get_model_run_by_slug("gpt-5.5-2026-04-23-high") is run
     with pytest.raises(KeyError, match="missing-slug"):
         model_runs.get_model_run_by_slug("missing-slug")
+
+
+def test_gpt_6_1_sol_variants_sweep_mode_and_effort_with_web_search_only():
+    """GPT-6.1 Sol runs differ only by reasoning mode and effort; web search is the only tool."""
+    from utils.llm import model_runs
+
+    expected = {
+        "gpt-6.1-sol-run-variant-02": ("gpt-6.1-sol-standard-low-web-search", "standard", "low"),
+        "gpt-6.1-sol-run-variant-03": (
+            "gpt-6.1-sol-standard-medium-web-search",
+            "standard",
+            "medium",
+        ),
+        "gpt-6.1-sol-run-variant-04": (
+            "gpt-6.1-sol-standard-xhigh-web-search",
+            "standard",
+            "xhigh",
+        ),
+        "gpt-6.1-sol-run-variant-05": ("gpt-6.1-sol-pro-low-web-search", "pro", "low"),
+        "gpt-6.1-sol-run-variant-06": ("gpt-6.1-sol-pro-medium-web-search", "pro", "medium"),
+        "gpt-6.1-sol-run-variant-07": ("gpt-6.1-sol-pro-high-web-search", "pro", "high"),
+    }
+    for key, (slug, mode, effort) in expected.items():
+        run = model_runs.MODEL_RUNS_BY_KEY[key]
+        assert run.model_key == "gpt-6.1-sol"
+        assert run.slug == slug
+        assert run.options == {
+            "reasoning": {"mode": mode, "effort": effort},
+            "tools": [{"type": "web_search"}],
+        }
