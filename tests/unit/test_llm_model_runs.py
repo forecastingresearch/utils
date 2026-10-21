@@ -199,6 +199,9 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "mixtral-8x22b-instruct-v0.1-run-variant-01",
     "mixtral-8x7b-instruct-v0.1-run-variant-01",
     "muse-spark-1.3-run-variant-01",
+    "muse-spark-1.3-run-variant-02",
+    "muse-spark-1.3-run-variant-03",
+    "muse-spark-1.3-run-variant-04",
     "muse-wonder-1.0-run-variant-01",
     "muse-wonder-1.0-run-variant-02",
     "muse-wonder-1.0-run-variant-03",
@@ -1774,4 +1777,23 @@ def test_grok_4_7_variants_sweep_effort_with_web_and_x_search():
         assert run.options == {
             "reasoning": {"effort": effort},
             "tools": [{"type": "web_search"}, {"type": "x_search"}],
+        }
+
+
+def test_muse_spark_1_3_variants_sweep_effort_with_web_search():
+    """Muse Spark 1.3 runs 02 to 04 lower the effort and keep web search."""
+    from utils.llm import model_runs
+
+    expected = {
+        "muse-spark-1.3-run-variant-02": ("muse-spark-1.3-low-web-search", "low"),
+        "muse-spark-1.3-run-variant-03": ("muse-spark-1.3-medium-web-search", "medium"),
+        "muse-spark-1.3-run-variant-04": ("muse-spark-1.3-high-web-search", "high"),
+    }
+    for key, (slug, effort) in expected.items():
+        run = model_runs.MODEL_RUNS_BY_KEY[key]
+        assert run.model_key == "muse-spark-1.3"
+        assert run.slug == slug
+        assert run.options == {
+            "reasoning": {"effort": effort},
+            "tools": [{"type": "web_search"}],
         }

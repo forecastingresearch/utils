@@ -929,6 +929,24 @@ META_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="muse-spark-1.3-run-variant-02",
+        slug="muse-spark-1.3-low-web-search",
+        model_key="muse-spark-1.3",
+        options={"reasoning": {"effort": "low"}, "tools": [{"type": "web_search"}]},
+    ),
+    _model_run(
+        model_run_key="muse-spark-1.3-run-variant-03",
+        slug="muse-spark-1.3-medium-web-search",
+        model_key="muse-spark-1.3",
+        options={"reasoning": {"effort": "medium"}, "tools": [{"type": "web_search"}]},
+    ),
+    _model_run(
+        model_run_key="muse-spark-1.3-run-variant-04",
+        slug="muse-spark-1.3-high-web-search",
+        model_key="muse-spark-1.3",
+        options={"reasoning": {"effort": "high"}, "tools": [{"type": "web_search"}]},
+    ),
+    _model_run(
         model_run_key="muse-wonder-1.0-run-variant-01",
         slug="muse-wonder-1.0-low-web-search-128k",
         model_key="muse-wonder-1.0",
