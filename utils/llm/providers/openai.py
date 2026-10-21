@@ -8,7 +8,14 @@ from typing import Any, Dict, Final
 
 from openai import OpenAI, PermissionDeniedError  # type: ignore[import]
 
-from ..types import CallContext, LLMCallCancelled, LLMResponse, LLMUsage, int_or_none
+from ..types import (
+    CallContext,
+    LLMCallCancelled,
+    LLMResponse,
+    LLMResponseIncomplete,
+    LLMUsage,
+    int_or_none,
+)
 from .base import BaseLLMProvider
 
 # A background response is polled, starting often and backing off, so a short
@@ -20,9 +27,8 @@ _POLL_INTERVAL_MAX_SECONDS: Final[float] = 10.0
 _DEFAULT_RESPONSE_BUDGET_SECONDS: Final[float] = 1800.0
 
 _PENDING_STATUSES: Final[frozenset[str]] = frozenset({"queued", "in_progress"})
-# Consecutive failed polls tolerated before the error propagates. A poll is a short
-# request; a failed one must never restart the (billed) generation it watches.
-_POLL_FAILURE_LIMIT: Final[int] = 10
+# While polls keep failing, log the first failure and then every Nth one in a row.
+_POLL_FAILURE_LOG_EVERY: Final[int] = 10
 
 logger = logging.getLogger(__name__)
 
@@ -137,11 +143,12 @@ class OpenAIProvider(BaseLLMProvider):
     def _wait_for_response(self, response: Any, *, budget: float, context: CallContext) -> Any:
         """Poll a background response until it leaves the pending statuses.
 
-        Cancellation and the budget both cancel the response server-side first, so
-        no billed work outlives the caller's interest in it. A failed poll is retried
-        in place (up to `_POLL_FAILURE_LIMIT` times in a row): the generation it
-        watches is already paid for and must not be started again because a short
-        status request failed.
+        The budget cancels the response server-side, so no billed work outlives the
+        caller's interest in it; so does cancellation, unless the context asks to
+        leave the response running. A failed poll is polled again for as long as the
+        budget lasts: the generation it watches is already paid for and is never
+        started again because a short status request failed. A budget that runs out
+        while polls fail raises `TimeoutError`, which is not retried either.
         """
         response_id = getattr(response, "id", None)
         started = time.monotonic()
@@ -149,13 +156,21 @@ class OpenAIProvider(BaseLLMProvider):
         failed_polls = 0
         while getattr(response, "status", None) in _PENDING_STATUSES:
             if context.cancelled():
-                self._cancel_quietly(response_id)
-                raise LLMCallCancelled(f"OpenAI response {response_id} cancelled by the caller.")
+                if context.cancel_server_side:
+                    self._cancel_quietly(response_id)
+                    raise LLMCallCancelled(
+                        f"OpenAI response {response_id} cancelled by the caller."
+                    )
+                raise LLMCallCancelled(
+                    f"Stopped waiting for OpenAI response {response_id}; it keeps running "
+                    "server-side and can be fetched by id."
+                )
             if time.monotonic() - started > budget:
                 self._cancel_quietly(response_id)
                 raise TimeoutError(
                     f"OpenAI response {response_id} did not finish within {budget:.0f}s "
-                    "and was cancelled."
+                    "and was cancelled"
+                    + (f" (the last {failed_polls} polls failed)." if failed_polls else ".")
                 )
             if context.cancel_event is not None:
                 context.cancel_event.wait(interval)
@@ -166,17 +181,23 @@ class OpenAIProvider(BaseLLMProvider):
                 response = self._openai_client.responses.retrieve(response_id)
             except Exception as exc:  # noqa: BLE001 - a poll failure is retried, not escalated
                 failed_polls += 1
-                if failed_polls >= _POLL_FAILURE_LIMIT:
-                    raise
-                logger.warning(
-                    "Polling OpenAI response %s failed (%d/%d in a row): %s: %s; polling again",
+                if failed_polls == 1 or failed_polls % _POLL_FAILURE_LOG_EVERY == 0:
+                    logger.warning(
+                        "Polling OpenAI response %s failed (%d in a row): %s: %s; polling "
+                        "again until the %.0fs budget runs out",
+                        response_id,
+                        failed_polls,
+                        type(exc).__name__,
+                        exc,
+                        budget,
+                    )
+                continue
+            if failed_polls:
+                logger.info(
+                    "Polling OpenAI response %s works again after %d failed polls",
                     response_id,
                     failed_polls,
-                    _POLL_FAILURE_LIMIT,
-                    type(exc).__name__,
-                    exc,
                 )
-                continue
             failed_polls = 0
         return response
 
@@ -199,6 +220,9 @@ def _finished_response(response: Any) -> LLMResponse:
         status_text = f"OpenAI response incomplete (status={status}, id={response_id})"
         if reason:
             status_text += f", reason={reason}"
+        if status == "incomplete":
+            # Usually the output-token cap: the same request would stop there again.
+            raise LLMResponseIncomplete(status_text)
         raise RuntimeError(status_text)
 
     # output_text is the text of the response in reasoning models

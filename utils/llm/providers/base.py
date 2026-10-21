@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import Any, Final
 
-from ..types import CallContext, LLMCallCancelled, LLMResponse
+from ..types import CallContext, LLMCallCancelled, LLMResponse, LLMResponseIncomplete
 from ..utils import get_response_with_retry
 
 _DEFAULT_WAIT_TIME_SECONDS: Final[int] = 30
@@ -64,7 +64,11 @@ class BaseLLMProvider(ABC):
             api_call,
             self._default_wait_time,
             self.retry_message,
-            non_retryable=(*self.non_retryable_exceptions, LLMCallCancelled),
+            non_retryable=(
+                *self.non_retryable_exceptions,
+                LLMCallCancelled,
+                LLMResponseIncomplete,
+            ),
             cancel_event=call_context.cancel_event,
         )
         return replace(response, attempts=attempts, duration_s=time.monotonic() - started)

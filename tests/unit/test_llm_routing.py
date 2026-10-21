@@ -885,25 +885,122 @@ def test_openai_provider_retries_a_failed_poll_without_recreating_the_response()
     assert response.attempts == 1
 
 
-def test_openai_provider_gives_up_polling_after_the_failure_limit():
-    """Only a persistent poll failure escalates, and it is the poll error that surfaces."""
-    from utils.llm.providers import openai as openai_provider
+def test_openai_provider_keeps_polling_through_failures_until_the_budget():
+    """Failing polls never start a second generation; only the budget ends the wait."""
+    import itertools
 
+    from utils.llm.providers.openai import OpenAIProvider
+
+    clock = itertools.count(start=0.0, step=100.0)
     with (
         patch("utils.llm.providers.openai.OpenAI") as mock_openai,
         patch("utils.llm.providers.openai.time.sleep"),
+        patch("utils.llm.providers.openai.time.monotonic", side_effect=lambda: next(clock)),
     ):
         mock_client = MagicMock()
         mock_client.responses.create.return_value = MagicMock(id="resp_1", status="queued")
         mock_client.responses.retrieve.side_effect = ConnectionError("down")
         mock_openai.return_value = mock_client
 
-        provider = openai_provider.OpenAIProvider(api_key="sk-test")
-        with pytest.raises(ConnectionError, match="down"):
-            provider._call_model(model_id="gpt-6-astra", prompt="forecast", options={})
+        provider = OpenAIProvider(api_key="sk-test", default_wait_time=0)
+        with pytest.raises(TimeoutError, match="the last 9 polls failed"):
+            provider.get_response_with_metadata(
+                model_id="gpt-5.6-sol", prompt="forecast", options={"timeout": 900}
+            )
 
     assert mock_client.responses.create.call_count == 1
-    assert mock_client.responses.retrieve.call_count == openai_provider._POLL_FAILURE_LIMIT
+    assert mock_client.responses.retrieve.call_count == 9
+    mock_client.responses.cancel.assert_called_once_with("resp_1")
+
+
+def test_openai_provider_does_not_retry_an_incomplete_response():
+    """An incomplete response (e.g. the output-token cap) is raised, not paid for again."""
+    from utils.llm.providers.openai import OpenAIProvider
+    from utils.llm.types import LLMResponseIncomplete
+
+    with (
+        patch("utils.llm.providers.openai.OpenAI") as mock_openai,
+        patch("utils.llm.providers.openai.time.sleep"),
+    ):
+        mock_client = _openai_background_client(
+            ["queued", "incomplete"], incomplete_details=SimpleNamespace(reason="max_output_tokens")
+        )
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test", default_wait_time=0)
+        with pytest.raises(LLMResponseIncomplete, match="max_output_tokens"):
+            provider.get_response_with_metadata(
+                model_id="gpt-6-astra", prompt="forecast", options={}
+            )
+
+    assert mock_client.responses.create.call_count == 1
+
+
+def test_openai_provider_retries_a_failed_background_response():
+    """A response that failed server-side produced nothing, so the call is retried."""
+    from utils.llm.providers.openai import OpenAIProvider
+
+    with (
+        patch("utils.llm.providers.openai.OpenAI") as mock_openai,
+        patch("utils.llm.providers.openai.time.sleep"),
+    ):
+        mock_client = MagicMock()
+        mock_client.responses.create.side_effect = [
+            MagicMock(id="resp_1", status="queued"),
+            MagicMock(id="resp_2", status="queued"),
+        ]
+        mock_client.responses.retrieve.side_effect = [
+            MagicMock(id="resp_1", status="failed", incomplete_details=None, error="server_error"),
+            MagicMock(id="resp_2", status="completed", output_text="0.5", usage=None, output=[]),
+        ]
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test", default_wait_time=0)
+        response = provider.get_response_with_metadata(
+            model_id="gpt-6-astra", prompt="forecast", options={}
+        )
+
+    assert (response.text, response.provider_response_id, response.attempts) == ("0.5", "resp_2", 2)
+
+
+def test_openai_provider_can_stop_waiting_without_cancelling_the_response():
+    """With cancel_server_side=False a cancelled wait leaves the response to be fetched later."""
+    import threading
+
+    from utils.llm.providers.openai import OpenAIProvider
+    from utils.llm.types import CallContext, LLMCallCancelled
+
+    cancel_event = threading.Event()
+    seen_ids: list[str] = []
+
+    with patch("utils.llm.providers.openai.OpenAI") as mock_openai:
+        mock_client = _openai_background_client(["queued", "completed"], output_text="late")
+        created = mock_client.responses.create.return_value
+
+        def accept_then_cancel(**kwargs):
+            del kwargs
+            cancel_event.set()
+            return created
+
+        mock_client.responses.create.side_effect = accept_then_cancel
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test")
+        with pytest.raises(LLMCallCancelled, match="keeps running"):
+            provider.get_response_with_metadata(
+                model_id="gpt-6-astra",
+                prompt="forecast",
+                options={},
+                context=CallContext(
+                    cancel_event=cancel_event,
+                    on_response_id=seen_ids.append,
+                    cancel_server_side=False,
+                ),
+            )
+
+    assert seen_ids == ["resp_123"]
+    mock_client.responses.create.assert_called_once()
+    mock_client.responses.cancel.assert_not_called()
 
 
 def test_openai_provider_waits_for_an_existing_response_by_id():

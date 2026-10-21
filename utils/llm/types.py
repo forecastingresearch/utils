@@ -11,6 +11,14 @@ class LLMCallCancelled(Exception):
     """Raised when a call is abandoned because its `CallContext` was cancelled."""
 
 
+class LLMResponseIncomplete(RuntimeError):
+    """Raised when the provider ended a response early, e.g. at the output-token cap.
+
+    Never retried: the same request would most likely stop at the same limit, and
+    every attempt is billed.
+    """
+
+
 @dataclass(frozen=True)
 class LLMUsage:
     """Token and tool-call counts reported by the provider for one call."""
@@ -40,13 +48,16 @@ class CallContext:
     """Caller-side hooks for one call: cancellation and the provider response id.
 
     `cancel_event`, when set, makes the provider abandon the call at its next
-    checkpoint (between retries, between polls) and cancel server-side work it can.
+    checkpoint (between retries, between polls). With `cancel_server_side` (the
+    default) it also cancels server-side work it can; without it, a response that
+    is addressable by id keeps running, so the caller can fetch it later.
     `on_response_id` is invoked with the provider's response id as soon as it is
     known, before the response has finished, so the caller can record it.
     """
 
     cancel_event: threading.Event | None = None
     on_response_id: Callable[[str], None] | None = None
+    cancel_server_side: bool = True
 
     def cancelled(self) -> bool:
         """Return whether the caller asked for the call to be abandoned."""

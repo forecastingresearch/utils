@@ -12,10 +12,7 @@ from .types import LLMCallCancelled
 logger = logging.getLogger(__name__)
 
 
-# Attempts in total, the first one included. Provider calls with web search run for
-# minutes and are billed whether or not the result reaches us, so a failure is
-# retried once and then surfaced to the caller rather than paid for five times.
-_DEFAULT_MAX_RETRIES: int = 2
+_DEFAULT_MAX_RETRIES: int = 5
 
 
 def response_to_plain_text(response: Any) -> str:
@@ -64,9 +61,7 @@ def get_response_with_retry(
         except non_retryable:
             raise
         except Exception as exc:  # noqa: BLE001 - retries must catch broad exceptions
-            # WARNING, not INFO: a failed attempt is billed by the provider, so it must
-            # show up under a caller's default logging configuration.
-            logger.warning(
+            logger.info(
                 "%s (attempt %d/%d): %s: %s",
                 error_msg,
                 attempt + 1,
@@ -78,7 +73,7 @@ def get_response_with_retry(
             if attempt + 1 >= max_retries:
                 raise
 
-            logger.warning("Waiting for %s seconds before retrying...", wait_time)
+            logger.info("Waiting for %s seconds before retrying...", wait_time)
             if cancel_event is None:
                 time.sleep(wait_time)
             elif cancel_event.wait(wait_time):

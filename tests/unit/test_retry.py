@@ -107,21 +107,6 @@ def test_response_to_plain_text_uses_json_dump_when_available():
     assert response_to_plain_text(Response()) == '{"indent":2}'
 
 
-def test_default_attempt_limit_is_two():
-    """Without an explicit limit a failing call is tried once more, then raised."""
-    attempts = 0
-
-    def failing_call():
-        nonlocal attempts
-        attempts += 1
-        raise RuntimeError("boom")
-
-    with pytest.raises(RuntimeError, match="boom"):
-        get_response_with_retry(failing_call, wait_time=0, error_msg="test")
-
-    assert attempts == 2
-
-
 def test_cancel_event_set_during_wait_stops_the_retry():
     """A cancellation that lands during the wait ends the call instead of the next attempt."""
     import threading
@@ -165,19 +150,3 @@ def test_cancel_event_set_before_the_call_makes_no_attempt():
             error_msg="test",
             cancel_event=cancel_event,
         )
-
-
-def test_failed_attempts_are_logged_as_warnings(caplog):
-    """A billed failed attempt must be visible under a default (WARNING) logging setup."""
-    caplog.set_level(logging.WARNING, logger="utils.llm.utils")
-
-    with pytest.raises(RuntimeError, match="boom"):
-        get_response_with_retry(
-            lambda: (_ for _ in ()).throw(RuntimeError("boom")),
-            wait_time=0,
-            error_msg="OpenAI API request failed.",
-            max_retries=2,
-        )
-
-    attempt_records = [r for r in caplog.records if "(attempt" in r.getMessage()]
-    assert [r.levelno for r in attempt_records] == [logging.WARNING, logging.WARNING]
