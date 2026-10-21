@@ -2,6 +2,8 @@
 plotly_charts
 *.html
 *.json
+!utils/llm/agentic/package.json
+!utils/llm/agentic/package-lock.json
 *.csv
 -
 __pycache__/
@@ -27,6 +29,7 @@ pip-delete-this-directory.txt
 venv/
 ENV/
 .worktrees/
+node_modules/
 
 # Emacs backup files
 *~
@@ -60,6 +63,7 @@ Thumbs.db
 .coverage
 htmlcov/
 # Build artifacts
+agentic-run/
 build/
 *.egg-info/
 dist/

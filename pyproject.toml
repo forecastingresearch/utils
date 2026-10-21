@@ -44,6 +44,7 @@ exclude = ["tests*", "htmlcov*", "venv*"]
 license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
 
 [tool.setuptools.package-data]
+"utils.llm.agentic" = ["pi_tools.ts", "package.json", "package-lock.json"]
 "utils.llm.metadata" = ["*.json"]
 
 [tool.black]

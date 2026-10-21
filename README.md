@@ -24,6 +24,10 @@ uv add fri-utils
 
 # Quickstart
 
+Agentic forecasting is available through the explicit `utils.llm.agentic.run` API.
+See [Agentic forecasting](docs/agentic.md) for runtime setup, API keys, and a bounded example.
+Existing `ModelRun.get_response()` calls remain one-shot.
+
 ## LLM Text Output
 
 Shared `ModelRun` objects are the primary surface for LLM calls. A model run is an exact base model

@@ -1,0 +1,8 @@
+{
+  "name": "fri-forecaster",
+  "private": true,
+  "description": "pi, pinned: the agent loop harness.py runs (harness.REPO_PI)",
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "0.99.2"
+  }
+}

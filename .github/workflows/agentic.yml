@@ -1,0 +1,83 @@
+name: Agentic forecaster
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "utils/llm/**"
+      - "tests/unit/agentic/**"
+      - "tests/conftest.py"
+      - "pyproject.toml"
+      - "scripts/check_agentic_wheel.py"
+      - ".github/workflows/agentic.yml"
+  push:
+    branches: [main]
+    paths:
+      - "utils/llm/**"
+      - "tests/unit/agentic/**"
+      - "tests/conftest.py"
+      - "pyproject.toml"
+      - "scripts/check_agentic_wheel.py"
+      - ".github/workflows/agentic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.13"]
+    env:
+      FRI_REQUIRE_PI: "1"
+      PI_OFFLINE: "1"
+      PI_TELEMETRY: "0"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22.19.0"
+
+      - name: Build and install the wheel
+        run: |
+          python -m pip install build
+          python -m build --wheel --outdir "$RUNNER_TEMP/wheels"
+          python -m venv "$RUNNER_TEMP/wheel-venv"
+          "$RUNNER_TEMP/wheel-venv/bin/python" -m pip install "$RUNNER_TEMP"/wheels/*.whl
+
+      - name: Install pi from the packaged lockfile
+        working-directory: ${{ runner.temp }}
+        run: |
+          unset PYTHONPATH
+          "$RUNNER_TEMP/wheel-venv/bin/python" - <<'PY'
+          import os
+          from importlib.resources import files
+          from pathlib import Path
+
+          runtime = Path(os.environ["RUNNER_TEMP"]) / "pi-runtime"
+          runtime.mkdir()
+          resources = files("utils.llm.agentic")
+          for name in ("package.json", "package-lock.json"):
+              (runtime / name).write_bytes(resources.joinpath(name).read_bytes())
+          PY
+          npm ci --prefix "$RUNNER_TEMP/pi-runtime" --no-audit --no-fund
+          echo "FORECASTER_PI=$RUNNER_TEMP/pi-runtime/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js" >> "$GITHUB_ENV"
+
+      - name: Check the installed wheel outside the checkout
+        working-directory: ${{ runner.temp }}
+        run: |
+          unset PYTHONPATH
+          "$RUNNER_TEMP/wheel-venv/bin/python" "$GITHUB_WORKSPACE/scripts/check_agentic_wheel.py"
+
+      - name: Run offline agentic tests
+        run: |
+          python -m pip install ".[dev]"
+          python -m pytest tests/unit/agentic
