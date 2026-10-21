@@ -91,7 +91,7 @@ retry only follows a failure that was not billed) and two for every other provid
 failed attempt there is usually billed and lost), except errors that would only be billed
 again: a cancelled call, a call that ran out of its budget, a refused (HTTP 403)
 OpenAI request, and an incomplete response (`LLMResponseIncomplete`, usually the
-output-token cap).
+output-token cap). Every failed attempt is logged at WARNING, since it may be billed.
 
 ## LLM Structured Output
 

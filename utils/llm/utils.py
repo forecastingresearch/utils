@@ -61,7 +61,9 @@ def get_response_with_retry(
         except non_retryable:
             raise
         except Exception as exc:  # noqa: BLE001 - retries must catch broad exceptions
-            logger.info(
+            # WARNING, not INFO: a failed attempt may be billed, so it must show up
+            # under a caller's default logging configuration.
+            logger.warning(
                 "%s (attempt %d/%d): %s: %s",
                 error_msg,
                 attempt + 1,
@@ -73,7 +75,7 @@ def get_response_with_retry(
             if attempt + 1 >= max_retries:
                 raise
 
-            logger.info("Waiting for %s seconds before retrying...", wait_time)
+            logger.warning("Waiting for %s seconds before retrying...", wait_time)
             if cancel_event is None:
                 time.sleep(wait_time)
             elif cancel_event.wait(wait_time):
