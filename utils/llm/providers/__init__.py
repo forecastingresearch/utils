@@ -8,6 +8,7 @@ from .moonshot_ai import MoonshotAIProvider  # noqa: F401
 from .openai import OpenAIProvider  # noqa: F401
 from .together import TogetherProvider  # noqa: F401
 from .xai import XAIProvider  # noqa: F401
+from .zai import ZAIProvider  # noqa: F401
 
 __all__ = [
     "AnthropicProvider",
@@ -17,5 +18,6 @@ __all__ = [
     "OpenAIProvider",
     "TogetherProvider",
     "XAIProvider",
+    "ZAIProvider",
     "get_response_with_retry",
 ]

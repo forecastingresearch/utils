@@ -31,6 +31,8 @@ def test_provider_registry_contains_supported_api_routes():
     assert PROVIDERS["Moonshot AI"].key_name == "moonshot_ai"
     assert PROVIDERS["Meta"].name == "Meta"
     assert PROVIDERS["Meta"].key_name == "meta"
+    assert PROVIDERS["Z.ai"].name == "Z.ai"
+    assert PROVIDERS["Z.ai"].key_name == "zai"
 
 
 def test_get_response_routes_by_provider_and_preserves_options():
@@ -551,50 +553,143 @@ def test_together_provider_route_fields_override_reserved_options():
     )
 
 
-def test_moonshot_ai_provider_streams_openai_chat_completions_route():
-    """Moonshot AI provider should stream Kimi through the OpenAI-compatible chat API."""
+def _openai_chat_stream_chunk(content, finish_reason=None):
+    chunk = MagicMock()
+    chunk.choices = [MagicMock(delta=MagicMock(content=content), finish_reason=finish_reason)]
+    return chunk
+
+
+def _openai_chat_usage_only_chunk():
+    chunk = MagicMock()
+    chunk.choices = []
+    return chunk
+
+
+def _openai_compatible_chat_provider_cases():
     from utils.llm.providers.moonshot_ai import MoonshotAIProvider
+    from utils.llm.providers.zai import ZAIProvider
 
-    def _chunk(content):
-        chunk = MagicMock()
-        chunk.choices = [MagicMock(delta=MagicMock(content=content))]
-        return chunk
+    return [
+        pytest.param(
+            MoonshotAIProvider,
+            "kimi-k2.6",
+            "https://api.moonshot.ai/v1",
+            "Moonshot AI",
+            id="moonshot_ai",
+        ),
+        pytest.param(ZAIProvider, "glm-5.3", "https://api.z.ai/api/paas/v4", "Z.ai", id="zai"),
+    ]
 
-    usage_only_chunk = MagicMock()
-    usage_only_chunk.choices = []
 
-    with patch("utils.llm.providers.moonshot_ai.OpenAI") as mock_openai:
+@pytest.mark.parametrize(
+    "provider_class, model_id, base_url, provider_name", _openai_compatible_chat_provider_cases()
+)
+def test_openai_compatible_chat_provider_streams_chat_completions_route(
+    provider_class, model_id, base_url, provider_name
+):
+    """Chat-completions providers should stream through their OpenAI-compatible base URL."""
+    tools = [{"type": "web_search", "web_search": {"enable": True}}]
+
+    with patch("utils.llm.providers.openai_compatible_chat.OpenAI") as mock_openai:
         mock_client = MagicMock()
         mock_client.chat.completions.create.return_value = [
-            _chunk(None),  # role-only opening chunk carries no text
-            _chunk(" fore"),
-            _chunk("cast "),
-            usage_only_chunk,  # trailing usage chunk has no choices
+            _openai_chat_stream_chunk(None),  # role-only opening chunk carries no text
+            _openai_chat_stream_chunk(" fore"),
+            _openai_chat_stream_chunk("cast "),
+            _openai_chat_usage_only_chunk(),  # trailing usage chunk has no choices
         ]
         mock_openai.return_value = mock_client
 
-        provider = MoonshotAIProvider(api_key="moonshot-test")
+        provider = provider_class(api_key="chat-test")
         text = provider._call_model(
-            model_id="kimi-k2.6",
+            model_id=model_id,
             prompt="forecast",
             options={
                 "model": "wrong-model",
                 "messages": [{"role": "user", "content": "wrong-prompt"}],
-                "max_tokens": 16000,
+                "reasoning_effort": "max",
+                "tools": tools,
             },
         )
 
     assert text == "forecast"
-    mock_openai.assert_called_once_with(
-        api_key="moonshot-test",
-        base_url="https://api.moonshot.ai/v1",
-    )
+    assert provider.retry_message == f"{provider_name} API request failed."
+    mock_openai.assert_called_once_with(api_key="chat-test", base_url=base_url)
     mock_client.chat.completions.create.assert_called_once_with(
-        model="kimi-k2.6",
+        model=model_id,
         messages=[{"role": "user", "content": "forecast"}],
-        max_tokens=16000,
+        reasoning_effort="max",
+        tools=tools,
         stream=True,
     )
+
+
+@pytest.mark.parametrize(
+    "provider_class, model_id, base_url, provider_name", _openai_compatible_chat_provider_cases()
+)
+def test_openai_compatible_chat_provider_rejects_stream_without_text(
+    provider_class, model_id, base_url, provider_name
+):
+    """A stream that carries no text should raise an error naming the provider."""
+    with patch("utils.llm.providers.openai_compatible_chat.OpenAI") as mock_openai:
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = [
+            _openai_chat_stream_chunk(None),
+            _openai_chat_stream_chunk("   "),
+            _openai_chat_usage_only_chunk(),
+        ]
+        mock_openai.return_value = mock_client
+
+        provider = provider_class(api_key="chat-test")
+        with pytest.raises(RuntimeError, match=f"{provider_name} response did not include text"):
+            provider._call_model(model_id=model_id, prompt="forecast", options={})
+
+
+@pytest.mark.parametrize(
+    "provider_class, model_id, base_url, provider_name", _openai_compatible_chat_provider_cases()
+)
+@pytest.mark.parametrize("final_finish_reason", ["stop", None])
+def test_openai_compatible_chat_provider_returns_text_when_stream_finishes_normally(
+    provider_class, model_id, base_url, provider_name, final_finish_reason
+):
+    """A stream that ends with `stop`, or reports no reason at all, returns its text."""
+    with patch("utils.llm.providers.openai_compatible_chat.OpenAI") as mock_openai:
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = [
+            _openai_chat_stream_chunk("0.42"),
+            _openai_chat_stream_chunk(None, finish_reason=final_finish_reason),
+            _openai_chat_usage_only_chunk(),
+        ]
+        mock_openai.return_value = mock_client
+
+        provider = provider_class(api_key="chat-test")
+        text = provider._call_model(model_id=model_id, prompt="forecast", options={})
+
+    assert text == "0.42"
+
+
+@pytest.mark.parametrize(
+    "provider_class, model_id, base_url, provider_name", _openai_compatible_chat_provider_cases()
+)
+@pytest.mark.parametrize(
+    "finish_reason",
+    ["length", "sensitive", "model_context_window_exceeded", "tool_calls", "network_error"],
+)
+def test_openai_compatible_chat_provider_rejects_stream_that_stops_early(
+    provider_class, model_id, base_url, provider_name, finish_reason
+):
+    """A stream whose final reason is not `stop` raises naming the reason, not partial text."""
+    with patch("utils.llm.providers.openai_compatible_chat.OpenAI") as mock_openai:
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = [
+            _openai_chat_stream_chunk("partial reasoning, no answer yet"),
+            _openai_chat_stream_chunk(None, finish_reason=finish_reason),
+        ]
+        mock_openai.return_value = mock_client
+
+        provider = provider_class(api_key="chat-test")
+        with pytest.raises(RuntimeError, match=rf"{provider_name}.*{model_id}.*{finish_reason}"):
+            provider._call_model(model_id=model_id, prompt="forecast", options={})
 
 
 def test_meta_provider_uses_openai_responses_route():

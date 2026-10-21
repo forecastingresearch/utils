@@ -15,6 +15,7 @@ from utils.llm.model_registry import (  # type: ignore[import]
     OpenAIProvider,
     TogetherProvider,
     XAIProvider,
+    ZAIProvider,
     configure_api_keys,
     validate_provider_keys,
 )
@@ -34,6 +35,7 @@ def test_configure_api_keys_with_explicit_keys():
         google="test-google",
         moonshot_ai="test-moonshot",
         xai="test-xai",
+        zai="test-zai",
         together="test-together",
     )
 
@@ -43,6 +45,7 @@ def test_configure_api_keys_with_explicit_keys():
     assert _PROVIDER_API_KEYS[GoogleProvider] == "test-google"
     assert _PROVIDER_API_KEYS[MoonshotAIProvider] == "test-moonshot"
     assert _PROVIDER_API_KEYS[XAIProvider] == "test-xai"
+    assert _PROVIDER_API_KEYS[ZAIProvider] == "test-zai"
     assert _PROVIDER_API_KEYS[TogetherProvider] == "test-together"
 
     # Clear for other tests
@@ -82,6 +85,7 @@ def test_configure_api_keys_from_gcp(mock_get_secret):
         "API_KEY_META": "gcp-meta",
         "API_KEY_MOONSHOT_AI": "gcp-moonshot",
         "API_KEY_XAI": "gcp-xai",
+        "API_KEY_ZAI": "gcp-zai",
         "API_KEY_TOGETHERAI": "gcp-together",
     }.get
 
@@ -93,6 +97,7 @@ def test_configure_api_keys_from_gcp(mock_get_secret):
     assert _PROVIDER_API_KEYS[MetaProvider] == "gcp-meta"
     assert _PROVIDER_API_KEYS[MoonshotAIProvider] == "gcp-moonshot"
     assert _PROVIDER_API_KEYS[XAIProvider] == "gcp-xai"
+    assert _PROVIDER_API_KEYS[ZAIProvider] == "gcp-zai"
     assert _PROVIDER_API_KEYS[TogetherProvider] == "gcp-together"
 
     # Clear for other tests
@@ -161,6 +166,7 @@ def test_validate_provider_keys_success():
         meta="test-meta",
         moonshot_ai="test-moonshot",
         xai="test-xai",
+        zai="test-zai",
         together="test-together",
     )
 

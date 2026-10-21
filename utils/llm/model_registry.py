@@ -64,6 +64,7 @@ from ..helpers.constants import (
     OPENAI_API_KEY_SECRET_NAME,
     TOGETHER_API_KEY_SECRET_NAME,
     XAI_API_KEY_SECRET_NAME,
+    ZAI_API_KEY_SECRET_NAME,
 )
 from ._identifiers import filename_safe_name, validate_registry_key
 from .lab_registry import LABS, Lab
@@ -77,6 +78,7 @@ from .providers.moonshot_ai import MoonshotAIProvider
 from .providers.openai import OpenAIProvider
 from .providers.together import TogetherProvider
 from .providers.xai import XAIProvider
+from .providers.zai import ZAIProvider
 
 # Registry for API keys by provider class
 _PROVIDER_API_KEYS: dict[Type[BaseLLMProvider], str] = {}
@@ -89,6 +91,7 @@ _PROVIDER_TO_CLASS: dict[Provider, Type[BaseLLMProvider]] = {
     PROVIDERS["Meta"]: MetaProvider,
     PROVIDERS["Moonshot AI"]: MoonshotAIProvider,
     PROVIDERS["xAI"]: XAIProvider,
+    PROVIDERS["Z.ai"]: ZAIProvider,
     PROVIDERS["Together"]: TogetherProvider,
 }
 
@@ -100,6 +103,7 @@ _PROVIDER_CLASS_TO_SECRET_NAME: dict[Type[BaseLLMProvider], str] = {
     MetaProvider: META_API_KEY_SECRET_NAME,
     MoonshotAIProvider: MOONSHOT_AI_API_KEY_SECRET_NAME,
     XAIProvider: XAI_API_KEY_SECRET_NAME,
+    ZAIProvider: ZAI_API_KEY_SECRET_NAME,
     TogetherProvider: TOGETHER_API_KEY_SECRET_NAME,
 }
 
@@ -374,6 +378,26 @@ def moonshot_ai_model(
     )
 
 
+def zai_model(
+    *,
+    model_key: str,
+    provider_model_id: str | None = None,
+    models_dev_reference: ModelsDevReference | None = None,
+    manual_release_date: date | None = None,
+    active: bool = True,
+) -> Model:
+    """Create a Z.ai API-routed model declaration."""
+    return provider_model(
+        model_key=model_key,
+        provider_model_id=provider_model_id,
+        lab_key="Z.ai",
+        provider_key="Z.ai",
+        models_dev_reference=models_dev_reference,
+        manual_release_date=manual_release_date,
+        active=active,
+    )
+
+
 @lru_cache(maxsize=None)
 def _get_provider_instance(provider_cls: Type[BaseLLMProvider]) -> BaseLLMProvider:
     """Return a cached provider instance for the given provider class."""
@@ -392,6 +416,7 @@ def configure_api_keys(
     meta: str | None = None,
     moonshot_ai: str | None = None,
     xai: str | None = None,
+    zai: str | None = None,
     together: str | None = None,
 ) -> None:
     """Configure API keys for LLM providers.
@@ -409,6 +434,7 @@ def configure_api_keys(
         meta: Meta Model API key
         moonshot_ai: Moonshot AI API key
         xai: xAI API key
+        zai: Z.ai API key
         together: Together AI API key
 
     Examples:
@@ -439,6 +465,7 @@ def configure_api_keys(
         PROVIDERS["Meta"]: meta,
         PROVIDERS["Moonshot AI"]: moonshot_ai,
         PROVIDERS["xAI"]: xai,
+        PROVIDERS["Z.ai"]: zai,
         PROVIDERS["Together"]: together,
     }
 
@@ -885,6 +912,15 @@ META_MODELS: Final[list[Model]] = [
 ]
 
 
+# Z.ai models: https://docs.z.ai/guides/overview/pricing
+ZAI_MODELS: Final[list[Model]] = [
+    zai_model(
+        model_key="glm-5.3",
+        models_dev_reference=ModelsDevReference(provider_id="zai", model_id="glm-5.3"),
+    ),
+]
+
+
 # Anthropic models: https://platform.claude.com/docs/en/about-claude/models/overview
 ANTHROPIC_MODELS: Final[list[Model]] = [
     anthropic_model(
@@ -1203,6 +1239,7 @@ MODELS: Final[list[Model]] = create_models_list(
         *TOGETHER_MODELS,
         *MOONSHOT_AI_MODELS,
         *META_MODELS,
+        *ZAI_MODELS,
         *ANTHROPIC_MODELS,
         *XAI_MODELS,
         *GOOGLE_MODELS,

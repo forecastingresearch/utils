@@ -974,6 +974,19 @@
           "structured_output": true,
           "temperature": true,
           "tool_call": true
+        },
+        "glm-5.3": {
+          "id": "glm-5.3",
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "name": "GLM-5.3",
+          "reasoning": true,
+          "release_date": "2026-08-14",
+          "structured_output": true,
+          "temperature": true,
+          "tool_call": true
         }
       },
       "name": "Z.AI"

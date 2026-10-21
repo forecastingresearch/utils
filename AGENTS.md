@@ -168,7 +168,7 @@ Integration tests that hit real LLM APIs require provider API keys.
 
 - `tests/conftest.py` loads `.env`, then `configure_api_keys(from_gcp=True)` when pytest is run with `--integration`.
 - `configure_api_keys(from_gcp=True)` reads provider keys from GCP Secret Manager using the secret names in `utils/helpers/constants.py`.
-- The standard LLM secret names are `API_KEY_OPENAI`, `API_KEY_ANTHROPIC`, `API_KEY_GEMINI`, `API_KEY_XAI`, and `API_KEY_TOGETHERAI`.
+- The standard LLM secret names are `API_KEY_OPENAI`, `API_KEY_ANTHROPIC`, `API_KEY_GEMINI`, `API_KEY_META`, `API_KEY_MOONSHOT_AI`, `API_KEY_XAI`, `API_KEY_ZAI`, and `API_KEY_TOGETHERAI`.
 - To test a specific shared model run, set `LLM_MODEL_RUN_KEYS` to one or more comma-separated immutable `model_run_key`s and run `pytest --integration tests/integration/llm/test_model_runs.py`.
 - The model-run integration test calls `model_run.get_response`, so it uses the run's declared provider route, provider model ID, and options.
 - For a newly added model run, prefer running its exact smoke test before assuming the provider accepts the declared options.

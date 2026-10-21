@@ -1831,6 +1831,52 @@ XAI_MODEL_RUNS: list[ModelRun] = [
 ]
 
 
+ZAI_MODEL_RUNS: list[ModelRun] = [
+    _model_run(
+        model_run_key="glm-5.3-run-variant-01",
+        slug="glm-5.3-low-web-search",
+        model_key="glm-5.3",
+        options={
+            "reasoning_effort": "low",
+            "tools": [
+                {
+                    "type": "web_search",
+                    "web_search": {"enable": True, "search_engine": "search-prime"},
+                }
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="glm-5.3-run-variant-02",
+        slug="glm-5.3-high-web-search",
+        model_key="glm-5.3",
+        options={
+            "reasoning_effort": "high",
+            "tools": [
+                {
+                    "type": "web_search",
+                    "web_search": {"enable": True, "search_engine": "search-prime"},
+                }
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="glm-5.3-run-variant-03",
+        slug="glm-5.3-max-web-search",
+        model_key="glm-5.3",
+        options={
+            "reasoning_effort": "max",
+            "tools": [
+                {
+                    "type": "web_search",
+                    "web_search": {"enable": True, "search_engine": "search-prime"},
+                }
+            ],
+        },
+    ),
+]
+
+
 MODEL_RUNS: list[ModelRun] = create_model_runs_list(
     [
         *ANTHROPIC_MODEL_RUNS,
@@ -1840,6 +1886,7 @@ MODEL_RUNS: list[ModelRun] = create_model_runs_list(
         *OAI_MODEL_RUNS,
         *TOGETHER_MODEL_RUNS,
         *XAI_MODEL_RUNS,
+        *ZAI_MODEL_RUNS,
         # AA declarations are benchmark-selectable runs, not metadata-only
         # records, so declaring them in the AA module adds them here.
         *ARTIFICIAL_ANALYSIS_MODEL_RUNS,

@@ -257,6 +257,7 @@ If you're setting up a Google Cloud Project, the API keys must be stored in Secr
 - `API_KEY_META` for the Meta Model API
 - `API_KEY_XAI` for xAI
 - `API_KEY_TOGETHERAI` for Together AI
+- `API_KEY_ZAI` for the Z.ai API
 - `API_KEY_ARTIFICIAL_ANALYSIS` for refreshing the Artificial Analysis metadata snapshot
 
 You can also check `utils/helpers/constants.py` for the complete list of secret names.

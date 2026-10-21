@@ -13,6 +13,7 @@ from utils.llm.providers.moonshot_ai import MoonshotAIProvider  # type: ignore[i
 from utils.llm.providers.openai import OpenAIProvider  # type: ignore[import]
 from utils.llm.providers.together import TogetherProvider  # type: ignore[import]
 from utils.llm.providers.xai import XAIProvider  # type: ignore[import]
+from utils.llm.providers.zai import ZAIProvider  # type: ignore[import]
 
 
 @pytest.mark.parametrize(
@@ -24,6 +25,7 @@ from utils.llm.providers.xai import XAIProvider  # type: ignore[import]
         MetaProvider,
         MoonshotAIProvider,
         XAIProvider,
+        ZAIProvider,
         TogetherProvider,
     ],
 )
@@ -42,6 +44,7 @@ def test_provider_requires_api_key(provider_class):
         (MetaProvider, "test-meta-key"),
         (MoonshotAIProvider, "test-moonshot-key"),
         (XAIProvider, "test-xai-key"),
+        (ZAIProvider, "test-zai-key"),
         (TogetherProvider, "test-together-key"),
     ],
 )
@@ -86,15 +89,16 @@ def test_provider_accepts_api_key(provider_class, api_key):
                 base_url="https://api.meta.ai/v1",
             )
             assert provider is not None
-    elif provider_class == MoonshotAIProvider:
-        with patch("utils.llm.providers.moonshot_ai.OpenAI") as mock_openai:
+    elif provider_class in (MoonshotAIProvider, ZAIProvider):
+        base_url = {
+            MoonshotAIProvider: "https://api.moonshot.ai/v1",
+            ZAIProvider: "https://api.z.ai/api/paas/v4",
+        }[provider_class]
+        with patch("utils.llm.providers.openai_compatible_chat.OpenAI") as mock_openai:
             mock_client = MagicMock()
             mock_openai.return_value = mock_client
             provider = provider_class(api_key=api_key)
-            mock_openai.assert_called_once_with(
-                api_key=api_key,
-                base_url="https://api.moonshot.ai/v1",
-            )
+            mock_openai.assert_called_once_with(api_key=api_key, base_url=base_url)
             assert provider is not None
     elif provider_class == TogetherProvider:
         with patch("utils.llm.providers.together.Together") as mock_together:

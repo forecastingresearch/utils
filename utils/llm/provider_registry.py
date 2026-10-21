@@ -21,5 +21,6 @@ PROVIDERS: Final[dict[str, Provider]] = {
     "Meta": Provider(name="Meta", key_name="meta"),
     "Moonshot AI": Provider(name="Moonshot AI", key_name="moonshot_ai"),
     "xAI": Provider(name="xAI", key_name="xai"),
+    "Z.ai": Provider(name="Z.ai", key_name="zai"),
     "Together": Provider(name="Together", key_name="together"),
 }

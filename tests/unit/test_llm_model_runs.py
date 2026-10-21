@@ -108,6 +108,9 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "glm-5.1-run-variant-01",
     "glm-5.2-run-variant-01",
     "glm-5.2-run-variant-02",
+    "glm-5.3-run-variant-01",
+    "glm-5.3-run-variant-02",
+    "glm-5.3-run-variant-03",
     "gpt-3.5-turbo-0125-run-variant-01",
     "gpt-4-0613-run-variant-01",
     "gpt-4-turbo-2024-04-09-run-variant-01",
@@ -468,6 +471,7 @@ def test_model_registry_models_are_grouped_by_provider():
         *model_registry.TOGETHER_MODELS,
         *model_registry.MOONSHOT_AI_MODELS,
         *model_registry.META_MODELS,
+        *model_registry.ZAI_MODELS,
         *model_registry.ANTHROPIC_MODELS,
         *model_registry.XAI_MODELS,
         *model_registry.GOOGLE_MODELS,
@@ -476,6 +480,7 @@ def test_model_registry_models_are_grouped_by_provider():
     assert {model.provider.name for model in model_registry.TOGETHER_MODELS} == {"Together"}
     assert {model.provider.name for model in model_registry.MOONSHOT_AI_MODELS} == {"Moonshot AI"}
     assert {model.provider.name for model in model_registry.META_MODELS} == {"Meta"}
+    assert {model.provider.name for model in model_registry.ZAI_MODELS} == {"Z.ai"}
     assert {model.provider.name for model in model_registry.ANTHROPIC_MODELS} == {"Anthropic"}
     assert {model.provider.name for model in model_registry.XAI_MODELS} == {"xAI"}
     assert {model.provider.name for model in model_registry.GOOGLE_MODELS} == {"Google"}
@@ -490,6 +495,7 @@ def test_model_registry_provider_groups_are_sorted_by_release_date():
         model_registry.TOGETHER_MODELS,
         model_registry.MOONSHOT_AI_MODELS,
         model_registry.META_MODELS,
+        model_registry.ZAI_MODELS,
         model_registry.ANTHROPIC_MODELS,
         model_registry.XAI_MODELS,
         model_registry.GOOGLE_MODELS,
@@ -903,6 +909,35 @@ def test_gpt_6_astra_variant_uses_standard_high_reasoning_and_web_search():
     }
 
 
+def test_zai_runs_share_web_search_and_differ_only_by_effort():
+    """Catch a Z.ai run that drifts from its siblings in anything but reasoning effort.
+
+    Every Z.ai-routed model is benchmarked as an effort sweep over one fixed
+    web-search tool on the documented ``search-prime`` engine. A run that uses
+    another engine, adds a second tool or option, or repeats an effort level
+    breaks that sweep.
+    """
+    from utils.llm import model_runs
+
+    runs_by_model_key: dict[str, list] = {}
+    for run in model_runs.MODEL_RUNS:
+        if run.provider == PROVIDERS["Z.ai"]:
+            runs_by_model_key.setdefault(run.model_key, []).append(run)
+
+    assert runs_by_model_key
+    for model_key, runs in runs_by_model_key.items():
+        expected_tools = runs[0].options["tools"]
+        assert len(expected_tools) == 1, model_key
+        assert expected_tools[0]["type"] == "web_search", model_key
+        assert expected_tools[0]["web_search"]["search_engine"] == "search-prime", model_key
+        efforts = []
+        for run in runs:
+            assert set(run.options) == {"reasoning_effort", "tools"}, run.model_run_key
+            assert run.options["tools"] == expected_tools, run.model_run_key
+            efforts.append(run.options["reasoning_effort"])
+        assert len(efforts) == len(set(efforts)), model_key
+
+
 def test_muse_spark_1_3_variant_uses_max_effort_and_web_search():
     """Keep the Muse Spark 1.3 run on the Meta route with max effort and web search."""
     from utils.llm import model_runs
@@ -1239,6 +1274,7 @@ def test_explicit_model_run_groups_are_grouped_by_provider_and_sorted_by_key():
         ("OAI_MODEL_RUNS", PROVIDERS["OpenAI"]),
         ("TOGETHER_MODEL_RUNS", PROVIDERS["Together"]),
         ("XAI_MODEL_RUNS", PROVIDERS["xAI"]),
+        ("ZAI_MODEL_RUNS", PROVIDERS["Z.ai"]),
     )
     grouped_runs = []
     for group_name, provider in provider_groups:
@@ -1307,6 +1343,7 @@ def _declared_option_names_by_provider() -> dict[str, frozenset[str]]:
         "OpenAI": openai_names,
         "Together": _keyword_parameter_names(Together(api_key="test").chat.completions.create),
         "xAI": openai_names,
+        "Z.ai": moonshot_ai_names,
     }
 
 
