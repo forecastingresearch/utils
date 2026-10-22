@@ -1914,6 +1914,48 @@ XAI_MODEL_RUNS: list[ModelRun] = [
 
 ZAI_MODEL_RUNS: list[ModelRun] = [
     _model_run(
+        model_run_key="glm-5.3-flash-run-variant-01",
+        slug="glm-5.3-flash-low-web-search",
+        model_key="glm-5.3-flash",
+        options={
+            "reasoning_effort": "low",
+            "tools": [
+                {
+                    "type": "web_search",
+                    "web_search": {"enable": True, "search_engine": "search-prime"},
+                }
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="glm-5.3-flash-run-variant-02",
+        slug="glm-5.3-flash-high-web-search",
+        model_key="glm-5.3-flash",
+        options={
+            "reasoning_effort": "high",
+            "tools": [
+                {
+                    "type": "web_search",
+                    "web_search": {"enable": True, "search_engine": "search-prime"},
+                }
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="glm-5.3-flash-run-variant-03",
+        slug="glm-5.3-flash-max-web-search",
+        model_key="glm-5.3-flash",
+        options={
+            "reasoning_effort": "max",
+            "tools": [
+                {
+                    "type": "web_search",
+                    "web_search": {"enable": True, "search_engine": "search-prime"},
+                }
+            ],
+        },
+    ),
+    _model_run(
         model_run_key="glm-5.3-run-variant-01",
         slug="glm-5.3-low-web-search",
         model_key="glm-5.3",
