@@ -1688,7 +1688,6 @@ def test_integration_model_run_default_selection_uses_latest_active_run_per_prov
         run.provider.name == "Anthropic" and "output_config" in run.options for run in default_runs
     )
     assert any("tools" in run.options for run in default_runs)
-    assert any(run.provider.name == "Together" for run in default_runs)
 
 
 @pytest.mark.parametrize("raw_keys", [",", "   "])

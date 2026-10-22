@@ -874,18 +874,21 @@ TOGETHER_MODELS: Final[list[Model]] = [
         # Models.dev now says August 13, but DeepSeek announced V4 Pro on April 24 and
         # ForecastBench scored it from the May 24 round.
         manual_release_date=date(2026, 4, 24),
+        active=False,
     ),
     together_model(
         model_key="minimax-m3",
         provider_model_id="MiniMaxAI/MiniMax-M3",
         lab_key="MiniMax",
         models_dev_reference=ModelsDevReference(provider_id="minimax", model_id="MiniMax-M3"),
+        active=False,
     ),
     together_model(
         model_key="glm-5.2",
         provider_model_id="zai-org/GLM-5.2",
         lab_key="Z.ai",
         manual_release_date=date(2026, 6, 13),
+        active=False,
     ),
 ]
 

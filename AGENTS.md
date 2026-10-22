@@ -83,7 +83,11 @@ previous model's options.
   Models.dev entry lacks a usable full release date, when the Models.dev entry is incorrect,
   or for deliberate historical/manual entries.
 - Put the model in the provider-specific list in `utils/llm/model_registry.py`:
-  `OPENAI_MODELS`, `TOGETHER_MODELS`, `ANTHROPIC_MODELS`, `XAI_MODELS`, or `GOOGLE_MODELS`.
+  `OPENAI_MODELS`, `ANTHROPIC_MODELS`, `XAI_MODELS`, `GOOGLE_MODELS`, or the list for
+  another direct provider API.
+- Do not add Together models. Every `TOGETHER_MODELS` entry is retired (`active=False`) and
+  stays only as history for frozen runs. Call models through the lab's own API instead, adding
+  a provider when needed.
 - Insert the model where `(release_date, model_key)` stays ascending within its
   provider-specific list.
 - Use `filename_safe_name` when a model key needs to become part of a filename; do not hand-roll lossy replacements for characters such as `/` or `*`.
@@ -171,7 +175,7 @@ Integration tests that hit real LLM APIs require provider API keys.
 
 - `tests/conftest.py` loads `.env`, then `configure_api_keys(from_gcp=True)` when pytest is run with `--integration`.
 - `configure_api_keys(from_gcp=True)` reads provider keys from GCP Secret Manager using the secret names in `utils/helpers/constants.py`.
-- The standard LLM secret names are `API_KEY_OPENAI`, `API_KEY_ANTHROPIC`, `API_KEY_GEMINI`, `API_KEY_META`, `API_KEY_MOONSHOT_AI`, `API_KEY_XAI`, `API_KEY_ZAI`, and `API_KEY_TOGETHERAI`.
+- The standard LLM secret names are `API_KEY_OPENAI`, `API_KEY_ANTHROPIC`, `API_KEY_GEMINI`, `API_KEY_META`, `API_KEY_MOONSHOT_AI`, `API_KEY_XAI`, `API_KEY_ZAI`, and `API_KEY_TOGETHERAI` (the registry still loads the Together key, but the Together provider is retired).
 - To test a specific shared model run, set `LLM_MODEL_RUN_KEYS` to one or more comma-separated immutable `model_run_key`s and run `pytest --integration tests/integration/llm/test_model_runs.py`.
 - The model-run integration test calls `model_run.get_response`, so it uses the run's declared provider route, provider model ID, and options.
 - For a newly added model run, prefer running its exact smoke test before assuming the provider accepts the declared options.
