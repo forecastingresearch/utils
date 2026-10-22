@@ -4,17 +4,48 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from openai import OpenAI, PermissionDeniedError  # type: ignore[import]
+from openai import OpenAI  # type: ignore[import]
 
+from ..utils import TransientProviderError
 from .base import BaseLLMProvider
+
+# Error codes on a `failed` Responses API response that the provider's side caused, so the same
+# request can succeed later. Every other code (for example `invalid_prompt`) is the request's fault.
+_TRANSIENT_RESPONSE_ERROR_CODES = frozenset({"server_error", "rate_limit_exceeded"})
+
+
+def raise_unless_completed(response: Any, *, provider_name: str, model_id: str) -> None:
+    """Raise when a Responses API response did not finish with status `completed`.
+
+    A `failed` response with a server-side error code raises `TransientProviderError` so the
+    retry loop tries again. An `incomplete` response (the model stopped early, for example at
+    `max_output_tokens` or a content filter), a `failed` response with any other error code, and
+    any unknown status raise a plain `RuntimeError`, which is terminal.
+    """
+    status = getattr(response, "status", None)
+    if status == "completed":
+        return
+    error = getattr(response, "error", None)
+    error_code = getattr(error, "code", None)
+    error_message = getattr(error, "message", None)
+    if status == "failed" and error_code in _TRANSIENT_RESPONSE_ERROR_CODES:
+        raise TransientProviderError(
+            f"{provider_name} response for {model_id} failed (status={status}, "
+            f"error={error_code}: {error_message})"
+        )
+    status_text = f"{provider_name} response for {model_id} not completed (status={status})"
+    incomplete_details = getattr(response, "incomplete_details", None)
+    if incomplete_details:
+        status_text += f", incomplete_details={incomplete_details}"
+    if error:
+        status_text += f", error={error}"
+    raise RuntimeError(status_text)
 
 
 class OpenAIProvider(BaseLLMProvider):
     """LLM provider that wraps the OpenAI Responses API."""
 
     retry_message = "OpenAI API request failed."
-    # HTTP 403, including misalignment_policy_violation, which OpenAI says not to retry.
-    non_retryable_exceptions = (PermissionDeniedError,)
 
     def __init__(self, *, api_key: str | None = None, default_wait_time: int | None = None) -> None:
         """Instantiate the OpenAI client using the provided API key.
@@ -47,14 +78,7 @@ class OpenAIProvider(BaseLLMProvider):
 
         response = self._openai_client.responses.create(**request_payload)
 
-        # Get status text (this is useful for catching errors in reasoning models)
-        status = getattr(response, "status", None)
-        if status != "completed":
-            reason = getattr(response, "incomplete_details", None)
-            status_text = f"OpenAI response incomplete (status={status})"
-            if reason:
-                status_text += f", reason={reason}"
-            raise RuntimeError(status_text)
+        raise_unless_completed(response, provider_name="OpenAI", model_id=model_id)
 
         # output_text is the text of the response in reasoning models
         output_text = getattr(response, "output_text", "")

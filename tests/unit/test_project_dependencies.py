@@ -14,6 +14,7 @@ SHARED_RUNTIME_DEPENDENCIES = {
     "google-cloud-secret-manager",
     "google-cloud-storage",
     "google-genai",
+    "httpx",
     "openai",
     "python-dotenv",
     "together",

@@ -238,6 +238,96 @@ def test_openai_provider_does_not_retry_forbidden_responses():
     mock_sleep.assert_not_called()
 
 
+def _openai_response(**fields: Any) -> MagicMock:
+    """Return a Responses API response mock with no auto-created status fields."""
+    return MagicMock(**{"incomplete_details": None, "error": None, "output_text": "", **fields})
+
+
+@pytest.mark.parametrize(
+    ("error_code", "error_message"),
+    [
+        ("server_error", "The server had an error"),
+        ("rate_limit_exceeded", "Rate limit reached for the model"),
+    ],
+)
+def test_openai_provider_treats_server_side_failure_as_transient(error_code, error_message):
+    """A `failed` response caused by the provider's side must be retryable and keep its cause."""
+    from utils.llm.providers.openai import OpenAIProvider
+    from utils.llm.utils import TransientProviderError
+
+    with patch("utils.llm.providers.openai.OpenAI") as mock_openai:
+        mock_client = MagicMock()
+        mock_client.responses.create.return_value = _openai_response(
+            status="failed",
+            error=SimpleNamespace(code=error_code, message=error_message),
+        )
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test")
+        with pytest.raises(TransientProviderError) as excinfo:
+            provider._call_model(model_id="gpt-5.2", prompt="forecast", options={})
+
+    message = str(excinfo.value)
+    assert "gpt-5.2" in message
+    assert "status=failed" in message
+    assert error_code in message
+    assert error_message in message
+
+
+def test_openai_provider_does_not_retry_an_incomplete_response():
+    """A response the model stopped early is terminal and names why it stopped."""
+    from utils.llm.providers.openai import OpenAIProvider
+    from utils.llm.utils import TransientProviderError
+
+    with (
+        patch("utils.llm.providers.openai.OpenAI") as mock_openai,
+        patch("utils.llm.utils.time.sleep") as mock_sleep,
+    ):
+        mock_client = MagicMock()
+        mock_client.responses.create.return_value = _openai_response(
+            status="incomplete",
+            incomplete_details=SimpleNamespace(reason="max_output_tokens"),
+        )
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test")
+        with pytest.raises(RuntimeError) as excinfo:
+            provider.get_response(model_id="gpt-5.2", prompt="forecast", options={})
+
+    assert not isinstance(excinfo.value, TransientProviderError)
+    message = str(excinfo.value)
+    assert "gpt-5.2" in message
+    assert "status=incomplete" in message
+    assert "max_output_tokens" in message
+    assert mock_client.responses.create.call_count == 1
+    mock_sleep.assert_not_called()
+
+
+def test_openai_provider_reports_failed_response_with_terminal_error_code():
+    """A `failed` response the request caused is terminal and names the error code."""
+    from utils.llm.providers.openai import OpenAIProvider
+    from utils.llm.utils import TransientProviderError
+
+    with patch("utils.llm.providers.openai.OpenAI") as mock_openai:
+        mock_client = MagicMock()
+        mock_client.responses.create.return_value = _openai_response(
+            status="failed",
+            error=SimpleNamespace(code="invalid_prompt", message="Prompt was rejected"),
+        )
+        mock_openai.return_value = mock_client
+
+        provider = OpenAIProvider(api_key="sk-test")
+        with pytest.raises(RuntimeError) as excinfo:
+            provider._call_model(model_id="gpt-5.2", prompt="forecast", options={})
+
+    assert not isinstance(excinfo.value, TransientProviderError)
+    message = str(excinfo.value)
+    assert "gpt-5.2" in message
+    assert "status=failed" in message
+    assert "invalid_prompt" in message
+    assert "Prompt was rejected" in message
+
+
 def test_openai_provider_route_fields_override_reserved_options():
     """Provider should keep OpenAI route-owned fields authoritative."""
     from utils.llm.providers.openai import OpenAIProvider
@@ -562,6 +652,26 @@ def test_anthropic_provider_raises_when_turn_ends_for_any_other_reason(stop_reas
     assert mock_client.messages.stream.call_count == 1
 
 
+def test_anthropic_provider_does_not_retry_a_truncated_turn():
+    """A max_tokens stop reaches the caller after one call; the retry loop must not re-run it."""
+    from utils.llm.providers.anthropic import AnthropicProvider
+
+    stream = _fake_anthropic_stream(text="partial", stop_reason="max_tokens")
+
+    with patch("anthropic.Anthropic") as mock_anthropic:
+        mock_client = MagicMock()
+        mock_client.messages.stream.return_value = stream
+        mock_anthropic.return_value = mock_client
+
+        provider = AnthropicProvider(api_key="sk-ant-test", default_wait_time=1)
+        with pytest.raises(RuntimeError, match="max_tokens"):
+            provider.get_response(
+                model_id="claude-fable-5-1", prompt="forecast", options={"max_tokens": 128000}
+            )
+
+    assert mock_client.messages.stream.call_count == 1
+
+
 def test_google_provider_forwards_options_as_generate_content_config():
     """Google provider should treat options as GenerateContentConfig fields."""
     from utils.llm.providers.google import GoogleProvider
@@ -660,6 +770,29 @@ def test_xai_provider_route_fields_override_reserved_options():
         input="forecast",
         temperature=0,
     )
+
+
+def test_xai_provider_treats_server_side_failure_as_transient():
+    """The xAI provider shares the OpenAI Responses status handling, so this is retryable."""
+    from utils.llm.providers.xai import XAIProvider
+    from utils.llm.utils import TransientProviderError
+
+    with patch("utils.llm.providers.xai.openai.OpenAI") as mock_openai:
+        mock_client = MagicMock()
+        mock_client.responses.create.return_value = _openai_response(
+            status="failed",
+            error=SimpleNamespace(code="server_error", message="upstream error"),
+        )
+        mock_openai.return_value = mock_client
+
+        provider = XAIProvider(api_key="xai-test")
+        with pytest.raises(TransientProviderError) as excinfo:
+            provider._call_model(model_id="grok-4-0709", prompt="forecast", options={})
+
+    message = str(excinfo.value)
+    assert "grok-4-0709" in message
+    assert "server_error" in message
+    assert "upstream error" in message
 
 
 def test_together_provider_route_fields_override_reserved_options():
@@ -827,6 +960,40 @@ def test_openai_compatible_chat_provider_rejects_stream_that_stops_early(
         provider = provider_class(api_key="chat-test")
         with pytest.raises(RuntimeError, match=rf"{provider_name}.*{model_id}.*{finish_reason}"):
             provider._call_model(model_id=model_id, prompt="forecast", options={})
+
+
+@pytest.mark.parametrize(
+    "provider_class, model_id, base_url, provider_name", _openai_compatible_chat_provider_cases()
+)
+@pytest.mark.parametrize(
+    "finish_reason, transient",
+    [
+        ("network_error", True),
+        ("length", False),
+        ("sensitive", False),
+        ("model_context_window_exceeded", False),
+        ("tool_calls", False),
+    ],
+)
+def test_openai_compatible_chat_provider_retries_only_a_provider_side_stop(
+    provider_class, model_id, base_url, provider_name, finish_reason, transient
+):
+    """Only Z.ai's `network_error` is worth retrying; a truncated or refused answer is not."""
+    from utils.llm.utils import is_transient
+
+    with patch("utils.llm.providers.openai_compatible_chat.OpenAI") as mock_openai:
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = [
+            _openai_chat_stream_chunk("partial"),
+            _openai_chat_stream_chunk(None, finish_reason=finish_reason),
+        ]
+        mock_openai.return_value = mock_client
+
+        provider = provider_class(api_key="chat-test")
+        with pytest.raises(RuntimeError) as excinfo:
+            provider._call_model(model_id=model_id, prompt="forecast", options={})
+
+    assert is_transient(excinfo.value) is transient
 
 
 def test_meta_provider_uses_openai_responses_route():

@@ -7,45 +7,65 @@ from __future__ import annotations
 
 import logging
 
+import anthropic
+import httpx
+import openai
 import pytest
+from google.genai import errors as genai_errors
 
-from utils.llm.utils import get_response_with_retry, response_to_plain_text
+from utils.llm.utils import (
+    TransientProviderError,
+    get_response_with_retry,
+    response_to_plain_text,
+)
+
+_REQUEST = httpx.Request("POST", "https://provider.test/v1")
+
+
+def _openai_status_error(cls, status: int):
+    return cls("provider error", response=httpx.Response(status, request=_REQUEST), body=None)
+
+
+def _anthropic_status_error(cls, status: int):
+    return cls("provider error", response=httpx.Response(status, request=_REQUEST), body=None)
+
+
+def _anthropic_stream_error(error_type: str):
+    """Build the exception the Anthropic SDK raises for an SSE `error` event on an open stream."""
+    body = {"type": "error", "error": {"type": error_type, "message": "Overloaded"}}
+    return anthropic.Anthropic(api_key="x")._make_status_error(
+        "Overloaded", body=body, response=httpx.Response(200, request=_REQUEST)
+    )
+
+
+def _openai_stream_error(error_type: str):
+    """Build the exception the OpenAI SDK raises for an error payload inside an open stream."""
+    return openai.APIError(
+        "server error", request=_REQUEST, body={"type": error_type, "message": "server error"}
+    )
+
+
+def _call_raising(exceptions: list[BaseException], result: str = "ok"):
+    """Return a callable that raises the given exceptions in order, then returns result."""
+    attempts = {"count": 0}
+
+    def call():
+        attempts["count"] += 1
+        if attempts["count"] <= len(exceptions):
+            raise exceptions[attempts["count"] - 1]
+        return result
+
+    return call, attempts
 
 
 def test_raises_after_max_retries():
     """Retrying must stop after max_retries and raise the last exception."""
-    attempts = 0
+    call, attempts = _call_raising([openai.APIConnectionError(request=_REQUEST)] * 5)
 
-    def failing_call():
-        nonlocal attempts
-        attempts += 1
-        raise RuntimeError("boom")
+    with pytest.raises(openai.APIConnectionError):
+        get_response_with_retry(call, wait_time=0, error_msg="test", max_retries=3)
 
-    with pytest.raises(RuntimeError, match="boom"):
-        get_response_with_retry(failing_call, wait_time=0, error_msg="test", max_retries=3)
-
-    assert attempts == 3
-
-
-def test_non_retryable_exceptions_raise_immediately():
-    """Exceptions listed as non-retryable must propagate after the first attempt."""
-    attempts = 0
-
-    def forbidden_call():
-        nonlocal attempts
-        attempts += 1
-        raise PermissionError("forbidden")
-
-    with pytest.raises(PermissionError, match="forbidden"):
-        get_response_with_retry(
-            forbidden_call,
-            wait_time=0,
-            error_msg="test",
-            max_retries=3,
-            non_retryable=(PermissionError,),
-        )
-
-    assert attempts == 1
+    assert attempts["count"] == 3
 
 
 def test_returns_on_success():
@@ -54,46 +74,95 @@ def test_returns_on_success():
     assert result == "ok"
 
 
-def test_succeeds_after_transient_failures():
-    """Should return the result once the call succeeds within the retry limit."""
-    attempts = 0
+@pytest.mark.parametrize(
+    "exception",
+    [
+        openai.APIConnectionError(request=_REQUEST),
+        openai.APITimeoutError(request=_REQUEST),
+        _openai_status_error(openai.RateLimitError, 429),
+        _openai_status_error(openai.InternalServerError, 503),
+        _openai_status_error(openai.ConflictError, 409),
+        pytest.param(_openai_stream_error("server_error"), id="openai.APIError-server_error"),
+        anthropic.APIConnectionError(request=_REQUEST),
+        _anthropic_status_error(anthropic.RateLimitError, 429),
+        _anthropic_status_error(anthropic.InternalServerError, 500),
+        _anthropic_status_error(anthropic.OverloadedError, 529),
+        _anthropic_status_error(anthropic.ConflictError, 409),
+        pytest.param(
+            _anthropic_stream_error("overloaded_error"),
+            id="anthropic.APIStatusError-overloaded_error",
+        ),
+        pytest.param(_anthropic_stream_error("api_error"), id="anthropic.APIStatusError-api_error"),
+        pytest.param(
+            _anthropic_stream_error("rate_limit_error"),
+            id="anthropic.APIStatusError-rate_limit_error",
+        ),
+        genai_errors.ServerError(503, {"error": {"message": "unavailable"}}),
+        genai_errors.ClientError(429, {"error": {"message": "quota"}}),
+        httpx.ReadTimeout("read timed out", request=_REQUEST),
+        httpx.RemoteProtocolError("peer closed connection", request=_REQUEST),
+        httpx.ReadError("connection reset", request=_REQUEST),
+        TransientProviderError("provider reported status=failed, error=server_error"),
+    ],
+    ids=lambda exc: f"{type(exc).__module__.split('.')[0]}.{type(exc).__name__}",
+)
+def test_transient_provider_failures_are_retried(exception):
+    """Dropped connections, timeouts, rate limits and provider-side errors get another attempt."""
+    call, attempts = _call_raising([exception, exception], result="recovered")
 
-    def flaky_call():
-        nonlocal attempts
-        attempts += 1
-        if attempts < 3:
-            raise RuntimeError("transient")
-        return "recovered"
+    result = get_response_with_retry(call, wait_time=0, error_msg="test", max_retries=5)
 
-    result = get_response_with_retry(flaky_call, wait_time=0, error_msg="test", max_retries=5)
     assert result == "recovered"
-    assert attempts == 3
+    assert attempts["count"] == 3
 
 
-def test_repetitive_patterns_raises_final_exception():
-    """The 'repetitive patterns' error should be treated like any provider error."""
-    with pytest.raises(RuntimeError, match="repetitive patterns in input"):
-        get_response_with_retry(
-            lambda: (_ for _ in ()).throw(RuntimeError("repetitive patterns in input")),
-            wait_time=0,
-            error_msg="test",
-            max_retries=1,
-        )
+@pytest.mark.parametrize(
+    "exception",
+    [
+        _openai_status_error(openai.BadRequestError, 400),
+        _openai_status_error(openai.AuthenticationError, 401),
+        _openai_status_error(openai.PermissionDeniedError, 403),
+        _openai_status_error(openai.NotFoundError, 404),
+        pytest.param(
+            _openai_stream_error("invalid_request_error"),
+            id="openai.APIError-invalid_request_error",
+        ),
+        _anthropic_status_error(anthropic.BadRequestError, 400),
+        pytest.param(
+            _anthropic_stream_error("invalid_request_error"),
+            id="anthropic.APIStatusError-invalid_request_error",
+        ),
+        genai_errors.ClientError(400, {"error": {"message": "invalid argument"}}),
+        httpx.UnsupportedProtocol("unsupported scheme", request=_REQUEST),
+        RuntimeError("OpenAI response incomplete (status=incomplete)"),
+        ValueError("no text"),
+    ],
+    ids=lambda exc: f"{type(exc).__module__.split('.')[0]}.{type(exc).__name__}",
+)
+def test_failures_a_retry_cannot_fix_raise_on_the_first_attempt(exception):
+    """Bad requests, auth failures, refused requests and our own errors are not retried."""
+    call, attempts = _call_raising([exception])
+
+    with pytest.raises(type(exception)):
+        get_response_with_retry(call, wait_time=0, error_msg="test", max_retries=5)
+
+    assert attempts["count"] == 1
 
 
-def test_retry_log_reports_generic_provider_failure_with_exception_type(caplog):
-    """Retry logging should not label arbitrary provider errors as rate limits."""
+def test_retry_log_reports_transient_failure_with_exception_type(caplog):
+    """Retry logging should name the exception type and not label every error a rate limit."""
     caplog.set_level(logging.INFO, logger="utils.llm.utils")
+    call, _ = _call_raising([anthropic.APIConnectionError(request=_REQUEST)])
 
-    with pytest.raises(ValueError, match="no text"):
+    with pytest.raises(anthropic.APIConnectionError):
         get_response_with_retry(
-            lambda: (_ for _ in ()).throw(ValueError("no text")),
+            call,
             wait_time=0,
             error_msg="Anthropic API request failed.",
             max_retries=1,
         )
 
-    assert "Anthropic API request failed. (attempt 1/1): ValueError: no text" in caplog.text
+    assert "Anthropic API request failed. (attempt 1/1): APIConnectionError:" in caplog.text
     assert "rate limit" not in caplog.text.lower()
 
 

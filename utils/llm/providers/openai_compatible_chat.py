@@ -6,6 +6,7 @@ from typing import Any, ClassVar, Dict
 
 from openai import OpenAI  # type: ignore[import]
 
+from ..utils import TransientProviderError
 from .base import BaseLLMProvider
 
 
@@ -67,6 +68,12 @@ class OpenAICompatibleChatProvider(BaseLLMProvider):
         # answer, and Z.ai also reports `sensitive`, `model_context_window_exceeded` and
         # `network_error`. A stream with no reason at all still returns its text, as before;
         # whether Moonshot always sends one has not been checked against the live API.
+        if finish_reason == "network_error":
+            # Z.ai's own failure, not the request's, so the retry loop may try again.
+            raise TransientProviderError(
+                f"{self.provider_name} stopped {model_id} with finish_reason={finish_reason!r}; "
+                "the answer is not complete."
+            )
         if finish_reason not in (None, "stop"):
             raise RuntimeError(
                 f"{self.provider_name} stopped {model_id} with finish_reason={finish_reason!r}; "

@@ -7,6 +7,7 @@ from typing import Any, Dict
 import openai
 
 from .base import BaseLLMProvider
+from .openai import raise_unless_completed
 
 
 class XAIProvider(BaseLLMProvider):
@@ -44,14 +45,7 @@ class XAIProvider(BaseLLMProvider):
 
         response = self._xai_client.responses.create(**request_payload)
 
-        # Get status text (this is useful for catching errors in reasoning models)
-        status = getattr(response, "status", None)
-        if status != "completed":
-            reason = getattr(response, "incomplete_details", None)
-            status_text = f"xAI response incomplete (status={status})"
-            if reason:
-                status_text += f", reason={reason}"
-            raise RuntimeError(status_text)
+        raise_unless_completed(response, provider_name="xAI", model_id=model_id)
 
         # output_text is the text of the response in reasoning models
         output_text = getattr(response, "output_text", "")
