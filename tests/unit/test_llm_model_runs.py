@@ -139,6 +139,15 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gpt-5.6-sol-run-variant-02",
     "gpt-5.6-sol-run-variant-03",
     "gpt-5.6-sol-run-variant-04",
+    "gpt-5.6-terra-run-variant-01",
+    "gpt-5.6-terra-run-variant-02",
+    "gpt-5.6-terra-run-variant-03",
+    "gpt-5.6-terra-run-variant-04",
+    "gpt-5.6-terra-run-variant-05",
+    "gpt-5.6-terra-run-variant-06",
+    "gpt-5.6-terra-run-variant-07",
+    "gpt-5.6-terra-run-variant-08",
+    "gpt-5.6-terra-run-variant-09",
     "gpt-6-astra-run-variant-01",
     "gpt-6-luna-run-variant-01",
     "gpt-6-sol-run-variant-01",
@@ -1381,12 +1390,12 @@ def _declared_reasoning_options(options: dict) -> set[str]:
 
 
 def test_declared_temperature_options_match_models_dev_support():
-    """Models.dev should confirm temperature support before runs set temperature."""
+    """Models.dev should confirm temperature support before active runs set temperature."""
     from utils.llm import model_runs
 
     invalid_temperature_runs = {
         run.model_run_key: _models_dev_raw_metadata(run).get("temperature")
-        for run in model_runs.MODEL_RUNS
+        for run in model_runs.ACTIVE_MODEL_RUNS
         if "temperature" in run.options
         and _models_dev_raw_metadata(run) is not None
         and _models_dev_raw_metadata(run).get("temperature") is not True

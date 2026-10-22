@@ -136,7 +136,7 @@
         "claude-sonnet-4-5-20250929": {
           "id": "claude-sonnet-4-5-20250929",
           "limit": {
-            "context": 1000000,
+            "context": 200000,
             "output": 64000
           },
           "name": "Claude Sonnet 4.5",
@@ -194,12 +194,12 @@
         "deepseek-v4-pro": {
           "id": "deepseek-v4-pro",
           "limit": {
-            "context": 1000000,
-            "output": 384000
+            "context": 1048576,
+            "output": 393216
           },
           "name": "DeepSeek V4 Pro",
           "reasoning": true,
-          "release_date": "2026-04-24",
+          "release_date": "2026-08-13",
           "structured_output": true,
           "temperature": true,
           "tool_call": true
@@ -432,11 +432,12 @@
           "id": "MiniMax-M3",
           "limit": {
             "context": 1000000,
-            "output": 128000
+            "output": 524288
           },
           "name": "MiniMax-M3",
           "reasoning": true,
           "release_date": "2026-06-01",
+          "structured_output": false,
           "temperature": true,
           "tool_call": true
         }
@@ -472,16 +473,16 @@
           },
           "name": "Kimi K2.6",
           "reasoning": true,
-          "release_date": "2026-04-21",
+          "release_date": "2026-04-20",
           "structured_output": true,
-          "temperature": true,
+          "temperature": false,
           "tool_call": true
         },
         "kimi-k3": {
           "id": "kimi-k3",
           "limit": {
             "context": 1048576,
-            "output": 131072
+            "output": 1048576
           },
           "name": "Kimi K3",
           "reasoning": true,
@@ -601,7 +602,7 @@
           "reasoning": true,
           "release_date": "2025-11-13",
           "structured_output": true,
-          "temperature": false,
+          "temperature": true,
           "tool_call": true
         },
         "gpt-5.2": {
@@ -615,7 +616,7 @@
           "reasoning": true,
           "release_date": "2025-12-11",
           "structured_output": true,
-          "temperature": false,
+          "temperature": true,
           "tool_call": true
         },
         "gpt-5.4": {
@@ -629,7 +630,7 @@
           "reasoning": true,
           "release_date": "2026-03-05",
           "structured_output": true,
-          "temperature": false,
+          "temperature": true,
           "tool_call": true
         },
         "gpt-5.4-mini": {
@@ -643,7 +644,7 @@
           "reasoning": true,
           "release_date": "2026-03-17",
           "structured_output": true,
-          "temperature": false,
+          "temperature": true,
           "tool_call": true
         },
         "gpt-5.4-nano": {
@@ -657,7 +658,7 @@
           "reasoning": true,
           "release_date": "2026-03-17",
           "structured_output": true,
-          "temperature": false,
+          "temperature": true,
           "tool_call": true
         },
         "gpt-5.5": {
@@ -682,6 +683,20 @@
             "output": 128000
           },
           "name": "GPT-5.6 Sol",
+          "reasoning": true,
+          "release_date": "2026-07-09",
+          "structured_output": true,
+          "temperature": false,
+          "tool_call": true
+        },
+        "gpt-5.6-terra": {
+          "id": "gpt-5.6-terra",
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "name": "GPT-5.6 Terra",
           "reasoning": true,
           "release_date": "2026-07-09",
           "structured_output": true,

@@ -1256,6 +1256,87 @@ OAI_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="gpt-5.6-terra-run-variant-01",
+        slug="gpt-5.6-terra-non-reasoning-web-search",
+        model_key="gpt-5.6-terra",
+        options={
+            "reasoning": {"mode": "standard", "effort": "none"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-terra-run-variant-02",
+        slug="gpt-5.6-terra-standard-low-web-search",
+        model_key="gpt-5.6-terra",
+        options={
+            "reasoning": {"mode": "standard", "effort": "low"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-terra-run-variant-03",
+        slug="gpt-5.6-terra-standard-medium-web-search",
+        model_key="gpt-5.6-terra",
+        options={
+            "reasoning": {"mode": "standard", "effort": "medium"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-terra-run-variant-04",
+        slug="gpt-5.6-terra-standard-high-web-search",
+        model_key="gpt-5.6-terra",
+        options={
+            "reasoning": {"mode": "standard", "effort": "high"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-terra-run-variant-05",
+        slug="gpt-5.6-terra-standard-xhigh-web-search",
+        model_key="gpt-5.6-terra",
+        options={
+            "reasoning": {"mode": "standard", "effort": "xhigh"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-terra-run-variant-06",
+        slug="gpt-5.6-terra-standard-max-web-search",
+        model_key="gpt-5.6-terra",
+        options={
+            "reasoning": {"mode": "standard", "effort": "max"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-terra-run-variant-07",
+        slug="gpt-5.6-terra-pro-low-web-search",
+        model_key="gpt-5.6-terra",
+        options={
+            "reasoning": {"mode": "pro", "effort": "low"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-terra-run-variant-08",
+        slug="gpt-5.6-terra-pro-medium-web-search",
+        model_key="gpt-5.6-terra",
+        options={
+            "reasoning": {"mode": "pro", "effort": "medium"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-terra-run-variant-09",
+        slug="gpt-5.6-terra-pro-high-web-search",
+        model_key="gpt-5.6-terra",
+        options={
+            "reasoning": {"mode": "pro", "effort": "high"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
         model_run_key="gpt-6-astra-run-variant-01",
         slug="gpt-6-astra-standard-high-web-search",
         model_key="gpt-6-astra",

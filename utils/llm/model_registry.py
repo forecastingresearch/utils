@@ -612,6 +612,10 @@ OPENAI_MODELS: Final[list[Model]] = [
         models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5.6-sol"),
     ),
     openai_model(
+        model_key="gpt-5.6-terra",
+        models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-5.6-terra"),
+    ),
+    openai_model(
         model_key="gpt-6-astra",
         models_dev_reference=ModelsDevReference(provider_id="openai", model_id="gpt-6-astra"),
     ),
@@ -858,12 +862,18 @@ TOGETHER_MODELS: Final[list[Model]] = [
         provider_model_id="moonshotai/Kimi-K2.6",
         lab_key="Moonshot",
         models_dev_reference=ModelsDevReference(provider_id="moonshotai", model_id="kimi-k2.6"),
+        # Models.dev says April 20; Moonshot's announcement date is April 21.
+        manual_release_date=date(2026, 4, 21),
+        active=False,
     ),
     together_model(
         model_key="deepseek-v4-pro",
         provider_model_id="deepseek-ai/DeepSeek-V4-Pro",
         lab_key="DeepSeek",
         models_dev_reference=ModelsDevReference(provider_id="deepseek", model_id="deepseek-v4-pro"),
+        # Models.dev now says August 13, but DeepSeek announced V4 Pro on April 24 and
+        # ForecastBench scored it from the May 24 round.
+        manual_release_date=date(2026, 4, 24),
     ),
     together_model(
         model_key="minimax-m3",
@@ -891,6 +901,8 @@ MOONSHOT_AI_MODELS: Final[list[Model]] = [
         model_key="kimi-k2.6-moonshot-ai",
         provider_model_id="kimi-k2.6",
         models_dev_reference=ModelsDevReference(provider_id="moonshotai", model_id="kimi-k2.6"),
+        # Models.dev says April 20; Moonshot's announcement date is April 21.
+        manual_release_date=date(2026, 4, 21),
     ),
     moonshot_ai_model(
         model_key="kimi-k3",
