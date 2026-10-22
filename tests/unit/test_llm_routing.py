@@ -262,13 +262,30 @@ def test_openai_provider_route_fields_override_reserved_options():
     )
 
 
+def _fake_anthropic_stream(*, text: str | None, stop_reason: str, content: list | None = None):
+    final_message = MagicMock()
+    final_message.stop_reason = stop_reason
+    final_message.content = (
+        content if content is not None else [SimpleNamespace(type="text", text=text or "")]
+    )
+    final_message.model_dump_json.return_value = "{}"
+    stream = MagicMock()
+    stream.__enter__.return_value = stream
+    stream.get_final_message.return_value = final_message
+    if text is None:
+        stream.get_final_text.side_effect = RuntimeError(
+            ".get_final_text() can only be called when the API returns a `text` content block."
+        )
+    else:
+        stream.get_final_text.return_value = text
+    return stream
+
+
 def test_anthropic_provider_forwards_options_without_asserting_max_tokens():
     """Anthropic provider should forward caller options without default max tokens."""
     from utils.llm.providers.anthropic import AnthropicProvider
 
-    stream = MagicMock()
-    stream.__enter__.return_value = stream
-    stream.get_final_text.return_value = "forecast"
+    stream = _fake_anthropic_stream(text="forecast", stop_reason="end_turn")
 
     with patch("anthropic.Anthropic") as mock_anthropic:
         mock_client = MagicMock()
@@ -302,9 +319,7 @@ def test_anthropic_provider_route_fields_override_reserved_options():
     """Anthropic provider should keep route-owned fields authoritative."""
     from utils.llm.providers.anthropic import AnthropicProvider
 
-    stream = MagicMock()
-    stream.__enter__.return_value = stream
-    stream.get_final_text.return_value = "forecast"
+    stream = _fake_anthropic_stream(text="forecast", stop_reason="end_turn")
 
     with patch("anthropic.Anthropic") as mock_anthropic:
         mock_client = MagicMock()
@@ -333,9 +348,7 @@ def test_anthropic_provider_uses_beta_messages_for_fallback_options():
     """Anthropic fallback options should route through the beta Messages API."""
     from utils.llm.providers.anthropic import AnthropicProvider
 
-    stream = MagicMock()
-    stream.__enter__.return_value = stream
-    stream.get_final_text.return_value = "forecast"
+    stream = _fake_anthropic_stream(text="forecast", stop_reason="end_turn")
 
     with patch("anthropic.Anthropic") as mock_anthropic:
         mock_client = MagicMock()
@@ -368,9 +381,7 @@ def test_anthropic_provider_uses_sdk_final_text_helper():
     """Provider should use Anthropic SDK final-text extraction."""
     from utils.llm.providers.anthropic import AnthropicProvider
 
-    stream = MagicMock()
-    stream.__enter__.return_value = stream
-    stream.get_final_text.return_value = "  *0.25\n*0.50  "
+    stream = _fake_anthropic_stream(text="  *0.25\n*0.50  ", stop_reason="end_turn")
 
     with patch("anthropic.Anthropic") as mock_anthropic:
         mock_client = MagicMock()
@@ -386,7 +397,6 @@ def test_anthropic_provider_uses_sdk_final_text_helper():
 
     assert text == "*0.25\n*0.50"
     stream.get_final_text.assert_called_once_with()
-    stream.get_final_message.assert_not_called()
 
 
 def test_anthropic_provider_logs_raw_response_when_response_has_no_text(caplog):
@@ -394,6 +404,7 @@ def test_anthropic_provider_logs_raw_response_when_response_has_no_text(caplog):
     from utils.llm.providers.anthropic import AnthropicProvider
 
     final_message = MagicMock()
+    final_message.stop_reason = "end_turn"
     final_message.content = [
         SimpleNamespace(type="thinking", thinking="private reasoning"),
         SimpleNamespace(type="server_tool_use", name="web_search"),
@@ -423,6 +434,132 @@ def test_anthropic_provider_logs_raw_response_when_response_has_no_text(caplog):
     assert "LLM provider response did not include text content" in caplog.text
     assert "response=" in caplog.text
     assert '{"raw":"provider response"}' in caplog.text
+
+
+def test_anthropic_provider_continues_turn_after_pause_turn():
+    """A paused server-tool turn is continued until it ends; all text is returned."""
+    from utils.llm.providers.anthropic import AnthropicProvider
+
+    paused_content = [
+        SimpleNamespace(type="text", text="I'll research this first."),
+        SimpleNamespace(type="server_tool_use", name="web_search"),
+    ]
+    paused = _fake_anthropic_stream(
+        text="I'll research this first.", stop_reason="pause_turn", content=paused_content
+    )
+    finished = _fake_anthropic_stream(text="Answer: *0.04*", stop_reason="end_turn")
+
+    with patch("anthropic.Anthropic") as mock_anthropic:
+        mock_client = MagicMock()
+        mock_client.messages.stream.side_effect = [paused, finished]
+        mock_anthropic.return_value = mock_client
+
+        provider = AnthropicProvider(api_key="sk-ant-test")
+        text = provider._call_model(
+            model_id="claude-fable-5-1",
+            prompt="forecast",
+            options={"max_tokens": 128000},
+        )
+
+    assert text == "I'll research this first.\nAnswer: *0.04*"
+    assert mock_client.messages.stream.call_count == 2
+    second_call = mock_client.messages.stream.call_args_list[1]
+    assert second_call.kwargs["messages"] == [
+        {"role": "user", "content": "forecast"},
+        {"role": "assistant", "content": paused_content},
+    ]
+    assert second_call.kwargs["max_tokens"] == 128000
+
+
+def test_anthropic_provider_returns_text_when_turn_ends_at_stop_sequence():
+    """A turn that stops at a caller-supplied stop sequence is finished; its text is returned."""
+    from utils.llm.providers.anthropic import AnthropicProvider
+
+    stream = _fake_anthropic_stream(text="Answer: *0.04*", stop_reason="stop_sequence")
+
+    with patch("anthropic.Anthropic") as mock_anthropic:
+        mock_client = MagicMock()
+        mock_client.messages.stream.return_value = stream
+        mock_anthropic.return_value = mock_client
+
+        provider = AnthropicProvider(api_key="sk-ant-test")
+        text = provider._call_model(
+            model_id="claude-fable-5-1",
+            prompt="forecast",
+            options={"max_tokens": 128000, "stop_sequences": ["\n\n"]},
+        )
+
+    assert text == "Answer: *0.04*"
+    assert mock_client.messages.stream.call_count == 1
+
+
+def test_anthropic_provider_continues_turn_when_paused_segment_has_no_text():
+    """A pause before any text block is not a missing-text error; the turn is continued."""
+    from utils.llm.providers.anthropic import AnthropicProvider
+
+    paused = _fake_anthropic_stream(
+        text=None,
+        stop_reason="pause_turn",
+        content=[SimpleNamespace(type="server_tool_use", name="web_search")],
+    )
+    finished = _fake_anthropic_stream(text="*0.04*", stop_reason="end_turn")
+
+    with patch("anthropic.Anthropic") as mock_anthropic:
+        mock_client = MagicMock()
+        mock_client.messages.stream.side_effect = [paused, finished]
+        mock_anthropic.return_value = mock_client
+
+        provider = AnthropicProvider(api_key="sk-ant-test")
+        text = provider._call_model(
+            model_id="claude-fable-5-1", prompt="forecast", options={"max_tokens": 128000}
+        )
+
+    assert text == "*0.04*"
+
+
+def test_anthropic_provider_stops_continuing_after_too_many_pauses():
+    """A turn that never stops pausing raises instead of looping forever."""
+    from utils.llm.providers import anthropic as anthropic_provider
+
+    streams = [
+        _fake_anthropic_stream(text="still working", stop_reason="pause_turn")
+        for _ in range(anthropic_provider.MAX_PAUSE_TURN_CONTINUATIONS + 1)
+    ]
+
+    with patch("anthropic.Anthropic") as mock_anthropic:
+        mock_client = MagicMock()
+        mock_client.messages.stream.side_effect = streams
+        mock_anthropic.return_value = mock_client
+
+        provider = anthropic_provider.AnthropicProvider(api_key="sk-ant-test")
+        with pytest.raises(RuntimeError, match="pause_turn"):
+            provider._call_model(
+                model_id="claude-fable-5-1", prompt="forecast", options={"max_tokens": 128000}
+            )
+
+
+@pytest.mark.parametrize(
+    "stop_reason",
+    ["max_tokens", "refusal", "model_context_window_exceeded", "tool_use"],
+)
+def test_anthropic_provider_raises_when_turn_ends_for_any_other_reason(stop_reason):
+    """A stop that is neither finished nor paused raises, names the reason, and is not resumed."""
+    from utils.llm.providers.anthropic import AnthropicProvider
+
+    stream = _fake_anthropic_stream(text="partial answer so far", stop_reason=stop_reason)
+
+    with patch("anthropic.Anthropic") as mock_anthropic:
+        mock_client = MagicMock()
+        mock_client.messages.stream.return_value = stream
+        mock_anthropic.return_value = mock_client
+
+        provider = AnthropicProvider(api_key="sk-ant-test")
+        with pytest.raises(RuntimeError, match=stop_reason):
+            provider._call_model(
+                model_id="claude-fable-5-1", prompt="forecast", options={"max_tokens": 128000}
+            )
+
+    assert mock_client.messages.stream.call_count == 1
 
 
 def test_google_provider_forwards_options_as_generate_content_config():

@@ -13,6 +13,10 @@ from .base import BaseLLMProvider
 logger = logging.getLogger(__name__)
 
 _BETA_MESSAGES_OPTION_KEYS = frozenset({"betas", "fallbacks", "fallback_credit_token"})
+# Server-side tools (web search, web fetch) can pause a long turn with `stop_reason`
+# "pause_turn". The turn is resumed by sending the assistant content back as-is. This bounds
+# how many times one call is resumed before giving up.
+MAX_PAUSE_TURN_CONTINUATIONS = 10
 
 
 def _uses_beta_messages_api(options: dict[str, Any]) -> bool:
@@ -60,14 +64,49 @@ class AnthropicProvider(BaseLLMProvider):
             else self._anthropic_console.messages
         )
 
-        with messages.stream(**call_args) as stream:
-            stream.until_done()
+        # One logical turn may span several API calls when server-side tools pause it; the
+        # text of every segment is part of the model's answer.
+        # If a later segment fails with a transient error, the retry layer re-runs `_call_model`
+        # from the first segment, so completed segments are discarded and paid for again.
+        # Accepted for simplicity.
+        text_segments: list[str] = []
+        for _ in range(MAX_PAUSE_TURN_CONTINUATIONS + 1):
+            with messages.stream(**call_args) as stream:
+                stream.until_done()
+                final_message = stream.get_final_message()
+                stop_reason = final_message.stop_reason
+                # `end_turn` and `stop_sequence`: the model finished its answer. `pause_turn`:
+                # the API paused a server-tool loop and the turn is resumed below. Anything else
+                # ends the call: max_tokens and model_context_window_exceeded mean a truncated
+                # answer, refusal means no answer, and an unknown reason must not pass as a
+                # finished answer.
+                paused = stop_reason == "pause_turn"
+                if stop_reason not in ("end_turn", "stop_sequence") and not paused:
+                    raise RuntimeError(
+                        f"Anthropic stopped {model_id} with stop_reason={stop_reason!r}; "
+                        "the turn did not finish, so there is no complete answer to return."
+                    )
 
-            try:
-                return stream.get_final_text().strip()
-            except RuntimeError:
-                logger.error(
-                    "LLM provider response did not include text content. response=%s",
-                    response_to_plain_text(stream.get_final_message()),
-                )
-                raise
+                try:
+                    text_segments.append(stream.get_final_text())
+                except RuntimeError:
+                    if not paused:
+                        logger.error(
+                            "LLM provider response did not include text content. "
+                            f"response={response_to_plain_text(final_message)}"
+                        )
+                        raise
+
+            if not paused:
+                return "\n".join(segment for segment in text_segments if segment).strip()
+
+            logger.info(f"Anthropic paused the turn for {model_id}; continuing it.")
+            call_args["messages"] = [
+                *call_args["messages"],
+                {"role": "assistant", "content": final_message.content},
+            ]
+
+        raise RuntimeError(
+            f"Anthropic kept returning stop_reason=pause_turn for {model_id} after "
+            f"{MAX_PAUSE_TURN_CONTINUATIONS} continuations."
+        )
