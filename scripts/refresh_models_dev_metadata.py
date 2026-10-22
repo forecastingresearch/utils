@@ -3,6 +3,7 @@
 import ast
 import difflib
 import json
+import sys
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -175,12 +176,31 @@ def _raise_missing_models_dev_reference(
     )
 
 
+def _previous_snapshot_model(
+    previous_snapshot: dict[str, Any] | None,
+    reference: ModelsDevReference,
+) -> dict[str, Any] | None:
+    """Return the checked-in snapshot entry for a reference, if the snapshot has it."""
+    if previous_snapshot is None:
+        return None
+    provider_data = previous_snapshot.get("providers", {}).get(reference.provider_id)
+    if provider_data is None:
+        return None
+    return provider_data.get("models", {}).get(reference.model_id)
+
+
 def normalize_models_dev_api_response(
     api_response: dict[str, Any],
     *,
     models_dev_references: frozenset[ModelsDevReference],
+    previous_snapshot: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Normalize a Models.dev API response into the checked-in snapshot shape."""
+    """Normalize a Models.dev API response into the checked-in snapshot shape.
+
+    Models.dev drops models that providers retire. A referenced model that is missing
+    upstream keeps its entry from `previous_snapshot`, so the registry retains the last
+    known metadata for retired models. A reference missing from both is an error.
+    """
     providers = {}
     references_by_provider: dict[str, list[ModelsDevReference]] = {}
     for reference in sorted(models_dev_references):
@@ -189,20 +209,36 @@ def normalize_models_dev_api_response(
     for provider_id, references in sorted(references_by_provider.items()):
         provider_data = api_response.get(provider_id)
         if provider_data is None:
-            _raise_missing_models_dev_reference(
-                api_response=api_response,
-                reference=references[0],
-            )
+            previous_provider = (previous_snapshot or {}).get("providers", {}).get(provider_id)
+            if previous_provider is None:
+                _raise_missing_models_dev_reference(
+                    api_response=api_response,
+                    reference=references[0],
+                )
+            provider_data = {
+                "id": previous_provider["id"],
+                "name": previous_provider["name"],
+                "models": {},
+            }
 
         models = {}
         provider_models = provider_data.get("models", {})
         for reference in sorted(references):
             model_data = provider_models.get(reference.model_id)
             if model_data is None:
-                _raise_missing_models_dev_reference(
-                    api_response=api_response,
-                    reference=reference,
+                previous_model = _previous_snapshot_model(previous_snapshot, reference)
+                if previous_model is None:
+                    _raise_missing_models_dev_reference(
+                        api_response=api_response,
+                        reference=reference,
+                    )
+                print(
+                    f"Models.dev no longer lists {reference.provider_id}/{reference.model_id}; "
+                    "keeping its previous snapshot entry.",
+                    file=sys.stderr,
                 )
+                models[reference.model_id] = previous_model
+                continue
 
             normalized_model = {}
             for field in MODEL_FIELDS:
@@ -270,11 +306,19 @@ def write_json_snapshot(snapshot: dict[str, Any], output_path: Path) -> None:
     output_path.write_text(json.dumps(snapshot, indent=2, sort_keys=True) + "\n")
 
 
+def read_json_snapshot(path: Path) -> dict[str, Any] | None:
+    """Return a checked-in snapshot, or None when it does not exist yet."""
+    if not path.exists():
+        return None
+    return json.loads(path.read_text())
+
+
 def write_models_dev_snapshot(output_path: Path = DEFAULT_MODELS_DEV_OUTPUT_PATH) -> None:
     """Fetch, normalize, and write the Models.dev snapshot."""
     snapshot = normalize_models_dev_api_response(
         fetch_models_dev_api_response(),
         models_dev_references=read_models_dev_references_from_model_registry(),
+        previous_snapshot=read_json_snapshot(output_path),
     )
     write_json_snapshot(snapshot, output_path)
 
@@ -292,6 +336,7 @@ def write_snapshots() -> None:
     models_dev_snapshot = normalize_models_dev_api_response(
         fetch_models_dev_api_response(),
         models_dev_references=read_models_dev_references_from_model_registry(),
+        previous_snapshot=read_json_snapshot(DEFAULT_MODELS_DEV_OUTPUT_PATH),
     )
     artificial_analysis_snapshot = normalize_artificial_analysis_api_response(
         fetch_artificial_analysis_api_response()

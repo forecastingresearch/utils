@@ -74,9 +74,12 @@ previous model's options.
   `claude-opus-4-8`.
 - The checked-in Models.dev snapshot is not a catalog; it contains only
   registry-referenced models and only `id`, `name`, and `release_date`.
-- Use exact Models.dev `provider_id`/`model_id` values. If a reference is wrong,
+- Use exact Models.dev `provider_id`/`model_id` values. If a new reference is wrong,
   refreshing the snapshot should fail and suggest nearby Models.dev entries.
-- Use `manual_release_date` when the model is missing from Models.dev, when the
+- When Models.dev drops a model that the snapshot already holds, the refresh keeps the
+  last snapshot entry and prints a note. Keep the `ModelsDevReference`; do not replace
+  it with `manual_release_date`.
+- Use `manual_release_date` when Models.dev never had the model, when the
   Models.dev entry lacks a usable full release date, when the Models.dev entry is incorrect,
   or for deliberate historical/manual entries.
 - Put the model in the provider-specific list in `utils/llm/model_registry.py`:

@@ -271,6 +271,93 @@ def test_normalize_models_dev_api_response_errors_with_reference_suggestions():
     assert 'openai/gpt-5.6-chat name="GPT-5.6 Chat"' in message
 
 
+def test_normalize_models_dev_api_response_keeps_previous_snapshot_entry_dropped_upstream(capsys):
+    """Keep the last snapshot version of a referenced model that Models.dev no longer lists."""
+    api_response = {
+        "openai": {
+            "id": "openai",
+            "name": "OpenAI",
+            "models": {
+                "kept-model": {
+                    "id": "kept-model",
+                    "name": "Kept Model",
+                    "release_date": "2026-01-02",
+                },
+            },
+        }
+    }
+    previous_snapshot = {
+        "source": refresh_models_dev_metadata.MODELS_DEV_URL,
+        "providers": {
+            "openai": {
+                "id": "openai",
+                "name": "OpenAI",
+                "models": {
+                    "dropped-model": {
+                        "id": "dropped-model",
+                        "name": "Dropped Model",
+                        "release_date": "2025-12-01",
+                        "temperature": True,
+                    },
+                },
+            },
+            "gone-provider": {
+                "id": "gone-provider",
+                "name": "Gone Provider",
+                "models": {
+                    "orphan": {
+                        "id": "orphan",
+                        "name": "Orphan",
+                        "release_date": "2025-11-01",
+                    },
+                },
+            },
+        },
+    }
+
+    normalized = refresh_models_dev_metadata.normalize_models_dev_api_response(
+        api_response,
+        models_dev_references=frozenset(
+            {
+                refresh_models_dev_metadata.ModelsDevReference("openai", "kept-model"),
+                refresh_models_dev_metadata.ModelsDevReference("openai", "dropped-model"),
+                refresh_models_dev_metadata.ModelsDevReference("gone-provider", "orphan"),
+            }
+        ),
+        previous_snapshot=previous_snapshot,
+    )
+
+    assert normalized["providers"]["openai"]["models"]["kept-model"]["name"] == "Kept Model"
+    assert (
+        normalized["providers"]["openai"]["models"]["dropped-model"]
+        == previous_snapshot["providers"]["openai"]["models"]["dropped-model"]
+    )
+    assert (
+        normalized["providers"]["gone-provider"] == previous_snapshot["providers"]["gone-provider"]
+    )
+    captured = capsys.readouterr()
+    assert "openai/dropped-model" in captured.err
+    assert "gone-provider/orphan" in captured.err
+
+
+def test_normalize_models_dev_api_response_still_rejects_reference_missing_everywhere():
+    """A reference absent from Models.dev and from the previous snapshot is an error."""
+    api_response = {"openai": {"id": "openai", "name": "OpenAI", "models": {}}}
+    previous_snapshot = {
+        "source": refresh_models_dev_metadata.MODELS_DEV_URL,
+        "providers": {"openai": {"id": "openai", "name": "OpenAI", "models": {}}},
+    }
+
+    with pytest.raises(ValueError, match="Missing Models.dev reference: openai/typo-model"):
+        refresh_models_dev_metadata.normalize_models_dev_api_response(
+            api_response,
+            models_dev_references=frozenset(
+                {refresh_models_dev_metadata.ModelsDevReference("openai", "typo-model")}
+            ),
+            previous_snapshot=previous_snapshot,
+        )
+
+
 def test_checked_in_models_dev_snapshot_contains_only_registry_references():
     """Keep the Models.dev snapshot scoped to the registry references that use it."""
     references = refresh_models_dev_metadata.read_models_dev_references_from_model_registry()
