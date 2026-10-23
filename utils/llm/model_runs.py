@@ -380,6 +380,58 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="claude-haiku-5-5-run-variant-02",
+        slug="claude-haiku-5-5-low-web-search-128k",
+        model_key="claude-haiku-5-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "low"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-haiku-5-5-run-variant-03",
+        slug="claude-haiku-5-5-medium-web-search-128k",
+        model_key="claude-haiku-5-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "medium"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-haiku-5-5-run-variant-04",
+        slug="claude-haiku-5-5-xhigh-web-search-128k",
+        model_key="claude-haiku-5-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "xhigh"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-haiku-5-5-run-variant-05",
+        slug="claude-haiku-5-5-max-web-search-128k",
+        model_key="claude-haiku-5-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "max"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
         model_run_key="claude-opus-4-1-20250805-run-variant-01",
         slug="claude-opus-4-1-20250805",
         model_key="claude-opus-4-1-20250805",
@@ -520,6 +572,58 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="claude-opus-5-5-run-variant-02",
+        slug="claude-opus-5-5-low-web-search-128k",
+        model_key="claude-opus-5-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "low"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-opus-5-5-run-variant-03",
+        slug="claude-opus-5-5-medium-web-search-128k",
+        model_key="claude-opus-5-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "medium"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-opus-5-5-run-variant-04",
+        slug="claude-opus-5-5-xhigh-web-search-128k",
+        model_key="claude-opus-5-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "xhigh"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-opus-5-5-run-variant-05",
+        slug="claude-opus-5-5-max-web-search-128k",
+        model_key="claude-opus-5-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "max"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
         model_run_key="claude-opus-5-run-variant-01",
         slug="claude-opus-5-adaptive-thinking-max-web-search-code-execution-128k",
         model_key="claude-opus-5",
@@ -598,6 +702,45 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
                     "type": "web_fetch_20260318",
                     "name": "web_fetch",
                 },
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-sonnet-5-5-run-variant-02",
+        slug="claude-sonnet-5-5-low-web-search-128k",
+        model_key="claude-sonnet-5-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "low"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-sonnet-5-5-run-variant-03",
+        slug="claude-sonnet-5-5-medium-web-search-128k",
+        model_key="claude-sonnet-5-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "medium"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-sonnet-5-5-run-variant-04",
+        slug="claude-sonnet-5-5-xhigh-web-search-128k",
+        model_key="claude-sonnet-5-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "xhigh"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
             ],
         },
     ),
