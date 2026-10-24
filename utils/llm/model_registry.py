@@ -911,6 +911,10 @@ MOONSHOT_AI_MODELS: Final[list[Model]] = [
         model_key="kimi-k3",
         models_dev_reference=ModelsDevReference(provider_id="moonshotai", model_id="kimi-k3"),
     ),
+    moonshot_ai_model(
+        model_key="kimi-k3.1-pro",
+        models_dev_reference=ModelsDevReference(provider_id="moonshotai", model_id="kimi-k3.1-pro"),
+    ),
 ]
 
 

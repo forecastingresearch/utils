@@ -1163,6 +1163,24 @@ MOONSHOT_AI_MODEL_RUNS: list[ModelRun] = [
         model_key="kimi-k3",
         options={"reasoning_effort": "max", "max_completion_tokens": 131072},
     ),
+    _model_run(
+        model_run_key="kimi-k3.1-pro-run-variant-01",
+        slug="kimi-k3.1-pro-low-128k",
+        model_key="kimi-k3.1-pro",
+        options={"reasoning_effort": "low", "max_completion_tokens": 131072},
+    ),
+    _model_run(
+        model_run_key="kimi-k3.1-pro-run-variant-02",
+        slug="kimi-k3.1-pro-high-128k",
+        model_key="kimi-k3.1-pro",
+        options={"reasoning_effort": "high", "max_completion_tokens": 131072},
+    ),
+    _model_run(
+        model_run_key="kimi-k3.1-pro-run-variant-03",
+        slug="kimi-k3.1-pro-max-128k",
+        model_key="kimi-k3.1-pro",
+        options={"reasoning_effort": "max", "max_completion_tokens": 131072},
+    ),
 ]
 
 

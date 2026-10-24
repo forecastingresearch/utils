@@ -490,6 +490,19 @@
           "structured_output": true,
           "temperature": false,
           "tool_call": true
+        },
+        "kimi-k3.1-pro": {
+          "id": "kimi-k3.1-pro",
+          "limit": {
+            "context": 1048576,
+            "output": 1048576
+          },
+          "name": "Kimi K3.1 Pro",
+          "reasoning": true,
+          "release_date": "2026-10-23",
+          "structured_output": true,
+          "temperature": false,
+          "tool_call": true
         }
       },
       "name": "Moonshot AI"
