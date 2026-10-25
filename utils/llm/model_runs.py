@@ -1471,6 +1471,51 @@ OAI_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="gpt-5.6-sol-run-variant-05",
+        slug="gpt-5.6-sol-non-reasoning-web-search",
+        model_key="gpt-5.6-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "none"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-sol-run-variant-06",
+        slug="gpt-5.6-sol-standard-low-web-search",
+        model_key="gpt-5.6-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "low"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-sol-run-variant-07",
+        slug="gpt-5.6-sol-standard-high-web-search",
+        model_key="gpt-5.6-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "high"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-sol-run-variant-08",
+        slug="gpt-5.6-sol-standard-xhigh-web-search",
+        model_key="gpt-5.6-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "xhigh"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-5.6-sol-run-variant-09",
+        slug="gpt-5.6-sol-standard-max-web-search",
+        model_key="gpt-5.6-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "max"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
         model_run_key="gpt-5.6-terra-run-variant-01",
         slug="gpt-5.6-terra-non-reasoning-web-search",
         model_key="gpt-5.6-terra",
@@ -1631,6 +1676,24 @@ OAI_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="gpt-6-astra-run-variant-09",
+        slug="gpt-6-astra-pro-xhigh-web-search",
+        model_key="gpt-6-astra",
+        options={
+            "reasoning": {"mode": "pro", "effort": "xhigh"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6-astra-run-variant-10",
+        slug="gpt-6-astra-pro-max-web-search",
+        model_key="gpt-6-astra",
+        options={
+            "reasoning": {"mode": "pro", "effort": "max"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
         model_run_key="gpt-6-luna-run-variant-01",
         slug="gpt-6-luna-standard-high-web-search",
         model_key="gpt-6-luna",
@@ -1728,6 +1791,15 @@ OAI_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="gpt-6-luna-run-variant-11",
+        slug="gpt-6-luna-pro-max-web-search",
+        model_key="gpt-6-luna",
+        options={
+            "reasoning": {"mode": "pro", "effort": "max"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
         model_run_key="gpt-6-sol-run-variant-01",
         slug="gpt-6-sol-standard-high-web-search",
         model_key="gpt-6-sol",
@@ -1741,6 +1813,51 @@ OAI_MODEL_RUNS: list[ModelRun] = [
                     "type": "web_search",
                 },
             ],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6-sol-run-variant-02",
+        slug="gpt-6-sol-non-reasoning-web-search",
+        model_key="gpt-6-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "none"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6-sol-run-variant-03",
+        slug="gpt-6-sol-standard-low-web-search",
+        model_key="gpt-6-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "low"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6-sol-run-variant-04",
+        slug="gpt-6-sol-standard-medium-web-search",
+        model_key="gpt-6-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "medium"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6-sol-run-variant-05",
+        slug="gpt-6-sol-standard-xhigh-web-search",
+        model_key="gpt-6-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "xhigh"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6-sol-run-variant-06",
+        slug="gpt-6-sol-standard-max-web-search",
+        model_key="gpt-6-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "max"},
+            "tools": [{"type": "web_search"}],
         },
     ),
     _model_run(
@@ -1810,6 +1927,33 @@ OAI_MODEL_RUNS: list[ModelRun] = [
         model_key="gpt-6.1-sol",
         options={
             "reasoning": {"mode": "pro", "effort": "high"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6.1-sol-run-variant-08",
+        slug="gpt-6.1-sol-standard-max-web-search",
+        model_key="gpt-6.1-sol",
+        options={
+            "reasoning": {"mode": "standard", "effort": "max"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6.1-sol-run-variant-09",
+        slug="gpt-6.1-sol-pro-xhigh-web-search",
+        model_key="gpt-6.1-sol",
+        options={
+            "reasoning": {"mode": "pro", "effort": "xhigh"},
+            "tools": [{"type": "web_search"}],
+        },
+    ),
+    _model_run(
+        model_run_key="gpt-6.1-sol-run-variant-10",
+        slug="gpt-6.1-sol-pro-max-web-search",
+        model_key="gpt-6.1-sol",
+        options={
+            "reasoning": {"mode": "pro", "effort": "max"},
             "tools": [{"type": "web_search"}],
         },
     ),
