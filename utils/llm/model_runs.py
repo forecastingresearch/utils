@@ -753,6 +753,71 @@ ANTHROPIC_MODEL_RUNS: list[ModelRun] = [
             "thinking": {"type": "adaptive"},
         },
     ),
+    _model_run(
+        model_run_key="claude-sonnet-5-run-variant-02",
+        slug="claude-sonnet-5-low-web-search-128k",
+        model_key="claude-sonnet-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "low"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-sonnet-5-run-variant-03",
+        slug="claude-sonnet-5-medium-web-search-128k",
+        model_key="claude-sonnet-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "medium"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-sonnet-5-run-variant-04",
+        slug="claude-sonnet-5-high-web-search-128k",
+        model_key="claude-sonnet-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "high"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-sonnet-5-run-variant-05",
+        slug="claude-sonnet-5-xhigh-web-search-128k",
+        model_key="claude-sonnet-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "xhigh"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
+    _model_run(
+        model_run_key="claude-sonnet-5-run-variant-06",
+        slug="claude-sonnet-5-max-web-search-128k",
+        model_key="claude-sonnet-5",
+        options={
+            "max_tokens": 128000,
+            "output_config": {"effort": "max"},
+            "tools": [
+                {"type": "web_search_20260318", "name": "web_search"},
+                {"type": "web_fetch_20260318", "name": "web_fetch"},
+            ],
+        },
+    ),
 ]
 
 
