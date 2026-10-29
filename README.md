@@ -278,6 +278,37 @@ from utils.gcp.storage import list_files, upload_file, download_file
 from utils.archiving.tar_gz import compress_directory, extract_archive
 ```
 
+### Running against a local copy of a bucket
+
+For offline runs and tests, set `GCP_STORAGE_LOCAL_ROOT` to serve buckets from a directory
+tree instead of GCS. The tree is laid out as `<root>/<bucket>/<object path>`:
+
+```
+/path/to/local-gcs/
+└── my-bucket/
+    ├── questions/2024-01-01.json
+    └── leaderboard.csv
+```
+
+With the variable set, every function in `utils.gcp.storage` reads and writes `<root>/<bucket>`
+and never contacts GCS. Local semantics follow GCS:
+
+- `list` and `list_with_prefix` return sorted object names; the prefix is a plain string prefix
+  on the name, not a directory.
+- `file_exists` is an exact object-name check.
+- `upload` replaces the object atomically, and its modification time is the upload time.
+- `download` of a missing object raises `google.api_core.exceptions.NotFound`, and
+  `get_last_modified_time` of a missing object returns `None`.
+
+The opt-in fails closed: a bucket with no `<root>/<bucket>` directory raises
+`FileNotFoundError` rather than falling back to GCS, so create a directory for every bucket the
+run touches. An object name that resolves outside the bucket directory, because it is absolute
+or contains `..`, raises `ValueError`. The variable is read on every call; `~` is expanded and a
+relative path is resolved against the current working directory.
+
+Leave the variable unset in deployment. The explicit `mnt` argument to `list` and
+`get_last_modified_time` is unchanged and takes precedence over the environment root.
+
 # Development
 
 ## Install
