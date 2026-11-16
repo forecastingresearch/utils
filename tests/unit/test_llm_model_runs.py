@@ -282,6 +282,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "mistral-large-latest-run-variant-01",
     "mixtral-8x22b-instruct-v0.1-run-variant-01",
     "mixtral-8x7b-instruct-v0.1-run-variant-01",
+    "muse-ember-1.0-run-variant-01",
     "muse-spark-1.3-run-variant-01",
     "muse-spark-1.3-run-variant-02",
     "muse-spark-1.3-run-variant-03",

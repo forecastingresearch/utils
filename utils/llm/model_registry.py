@@ -936,6 +936,10 @@ META_MODELS: Final[list[Model]] = [
         model_key="muse-wonder-1.0",
         models_dev_reference=ModelsDevReference(provider_id="meta", model_id="muse-wonder-1.0"),
     ),
+    meta_model(
+        model_key="muse-ember-1.0",
+        models_dev_reference=ModelsDevReference(provider_id="meta", model_id="muse-ember-1.0"),
+    ),
 ]
 
 

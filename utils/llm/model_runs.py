@@ -1183,6 +1183,16 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
 
 META_MODEL_RUNS: list[ModelRun] = [
     _model_run(
+        model_run_key="muse-ember-1.0-run-variant-01",
+        slug="muse-ember-1.0-max-web-search-512k",
+        model_key="muse-ember-1.0",
+        options={
+            "reasoning": {"effort": "max"},
+            "tools": [{"type": "web_search"}],
+            "max_output_tokens": 524288,
+        },
+    ),
+    _model_run(
         model_run_key="muse-spark-1.3-run-variant-01",
         slug="muse-spark-1.3-max-web-search",
         model_key="muse-spark-1.3",
