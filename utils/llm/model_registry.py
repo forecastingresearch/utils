@@ -1257,6 +1257,10 @@ GOOGLE_MODELS: Final[list[Model]] = [
         model_key="gemini-4-carbon",
         models_dev_reference=ModelsDevReference(provider_id="google", model_id="gemini-4-carbon"),
     ),
+    google_model(
+        model_key="gemini-4-hydrogen",
+        models_dev_reference=ModelsDevReference(provider_id="google", model_id="gemini-4-hydrogen"),
+    ),
 ]
 
 

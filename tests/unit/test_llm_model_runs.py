@@ -118,6 +118,8 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gemini-4-argon-run-variant-03",
     "gemini-4-carbon-run-variant-01",
     "gemini-4-carbon-run-variant-02",
+    "gemini-4-hydrogen-run-variant-01",
+    "gemini-4-hydrogen-run-variant-02",
     "gemma-4-31b-it-run-variant-01",
     "gemma-4-31b-it-run-variant-02",
     "glm-4.5-air-fp8-run-variant-01",

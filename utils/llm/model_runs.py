@@ -1158,6 +1158,26 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
             "max_output_tokens": 32768,
         },
     ),
+    _model_run(
+        model_run_key="gemini-4-hydrogen-run-variant-01",
+        slug="gemini-4-hydrogen-high-web-search-64k",
+        model_key="gemini-4-hydrogen",
+        options={
+            "thinking_config": {"thinking_level": "high"},
+            "tools": [{"googleSearch": {}}, {"urlContext": {}}],
+            "max_output_tokens": 65536,
+        },
+    ),
+    _model_run(
+        model_run_key="gemini-4-hydrogen-run-variant-02",
+        slug="gemini-4-hydrogen-xhigh-web-search-64k",
+        model_key="gemini-4-hydrogen",
+        options={
+            "thinking_config": {"thinking_level": "xhigh"},
+            "tools": [{"googleSearch": {}}, {"urlContext": {}}],
+            "max_output_tokens": 65536,
+        },
+    ),
 ]
 
 
