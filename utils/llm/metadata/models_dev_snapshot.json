@@ -366,6 +366,19 @@
           "temperature": true,
           "tool_call": true
         },
+        "gemini-4-carbon": {
+          "id": "gemini-4-carbon",
+          "limit": {
+            "context": 1048576,
+            "output": 32768
+          },
+          "name": "Gemini 4 Carbon",
+          "reasoning": true,
+          "release_date": "2026-11-10",
+          "structured_output": true,
+          "temperature": true,
+          "tool_call": true
+        },
         "gemma-4-31b-it": {
           "id": "gemma-4-31b-it",
           "limit": {

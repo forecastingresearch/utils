@@ -1138,6 +1138,26 @@ GOOGLE_MODEL_RUNS: list[ModelRun] = [
             "max_output_tokens": 32768,
         },
     ),
+    _model_run(
+        model_run_key="gemini-4-carbon-run-variant-01",
+        slug="gemini-4-carbon-medium-web-search-32k",
+        model_key="gemini-4-carbon",
+        options={
+            "thinking_config": {"thinking_level": "medium"},
+            "tools": [{"googleSearch": {}}, {"urlContext": {}}],
+            "max_output_tokens": 32768,
+        },
+    ),
+    _model_run(
+        model_run_key="gemini-4-carbon-run-variant-02",
+        slug="gemini-4-carbon-high-web-search-32k",
+        model_key="gemini-4-carbon",
+        options={
+            "thinking_config": {"thinking_level": "high"},
+            "tools": [{"googleSearch": {}}, {"urlContext": {}}],
+            "max_output_tokens": 32768,
+        },
+    ),
 ]
 
 
