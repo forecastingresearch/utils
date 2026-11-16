@@ -1108,6 +1108,19 @@
           "structured_output": true,
           "temperature": true,
           "tool_call": true
+        },
+        "glm-5.3-flashx": {
+          "id": "glm-5.3-flashx",
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "name": "GLM-5.3-FlashX",
+          "reasoning": true,
+          "release_date": "2026-09-18",
+          "structured_output": true,
+          "temperature": true,
+          "tool_call": true
         }
       },
       "name": "Z.AI"

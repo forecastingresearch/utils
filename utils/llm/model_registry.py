@@ -953,6 +953,10 @@ ZAI_MODELS: Final[list[Model]] = [
         model_key="glm-5.3-flash",
         models_dev_reference=ModelsDevReference(provider_id="zai", model_id="glm-5.3-flash"),
     ),
+    zai_model(
+        model_key="glm-5.3-flashx",
+        models_dev_reference=ModelsDevReference(provider_id="zai", model_id="glm-5.3-flashx"),
+    ),
 ]
 
 

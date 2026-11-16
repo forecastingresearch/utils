@@ -132,6 +132,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "glm-5.3-flash-run-variant-01",
     "glm-5.3-flash-run-variant-02",
     "glm-5.3-flash-run-variant-03",
+    "glm-5.3-flashx-run-variant-01",
     "glm-5.3-run-variant-01",
     "glm-5.3-run-variant-02",
     "glm-5.3-run-variant-03",

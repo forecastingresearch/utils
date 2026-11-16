@@ -2649,6 +2649,20 @@ ZAI_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="glm-5.3-flashx-run-variant-01",
+        slug="glm-5.3-flashx-max-web-search",
+        model_key="glm-5.3-flashx",
+        options={
+            "reasoning_effort": "max",
+            "tools": [
+                {
+                    "type": "web_search",
+                    "web_search": {"enable": True, "search_engine": "search-prime"},
+                }
+            ],
+        },
+    ),
+    _model_run(
         model_run_key="glm-5.3-run-variant-01",
         slug="glm-5.3-low-web-search",
         model_key="glm-5.3",
