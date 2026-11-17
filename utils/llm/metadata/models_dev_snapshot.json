@@ -866,6 +866,20 @@
           "temperature": false,
           "tool_call": true
         },
+        "gpt-6.2-sol": {
+          "id": "gpt-6.2-sol",
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "name": "GPT-6.2 Sol",
+          "reasoning": true,
+          "release_date": "2026-11-17",
+          "structured_output": true,
+          "temperature": false,
+          "tool_call": true
+        },
         "o3": {
           "id": "o3",
           "limit": {

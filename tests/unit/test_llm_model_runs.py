@@ -229,6 +229,7 @@ HISTORICAL_MODEL_RUN_KEYS = (
     "gpt-6.1-terra-run-variant-06",
     "gpt-6.1-terra-run-variant-07",
     "gpt-6.2-astra-run-variant-01",
+    "gpt-6.2-sol-run-variant-01",
     "grok-4-0709-run-variant-01",
     "grok-4-1-fast-non-reasoning-run-variant-01",
     "grok-4-1-fast-reasoning-run-variant-01",
