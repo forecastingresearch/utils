@@ -2077,6 +2077,12 @@ OAI_MODEL_RUNS: list[ModelRun] = [
         },
     ),
     _model_run(
+        model_run_key="gpt-6.1-terra-run-variant-07",
+        slug="gpt-6.1-terra-standard-low",
+        model_key="gpt-6.1-terra",
+        options={"reasoning": {"mode": "standard", "effort": "low"}},
+    ),
+    _model_run(
         model_run_key="o3-2025-04-16-run-variant-01",
         slug="o3-2025-04-16",
         model_key="o3-2025-04-16",
